@@ -22,7 +22,7 @@ strucutral_matrix = np.array([
                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
                     ])
-
+# Produce R(M_(t))
 class _JREModule(nn.Module):
     def __init__(self, in_channels, is_visual, inter_channels=None, dimension=3, sub_sample=True, \
                     bn_layer=True, in_split=True, is_joint=True, use_weight=False):
@@ -116,20 +116,20 @@ class _JREModule(nn.Module):
 
         if self.is_joint:
             theta_x = x.view(batch_size, self.inter_channels, -1)   # [b, c, h*w]
-            phi_x = x.view(batch_size, self.inter_channels, -1)
-            phi_x = phi_x.permute(0, 2, 1).contiguous()
+            phi_x = x.view(batch_size, self.inter_channels, -1) 
+            phi_x = phi_x.permute(0, 2, 1).contiguous() # theta_x Transpose
         else:
             theta_x = self.theta(x).view(batch_size, self.inter_channels, -1)
             phi_x = self.phi(x).view(batch_size, self.inter_channels, -1)
             g_x = g_x.permute(0, 2, 1)  # [b, h*w, c]
             theta_x = theta_x.permute(0, 2, 1)  # [b, h*w, c]
 
-        f = torch.matmul(theta_x, phi_x)
+        f = torch.matmul(theta_x, phi_x) # K X K matrix
         if self.use_weight:
             f = torch.matmul(self.att, f)
 
         f_div_C = F.softmax(f, dim=1)
-
+        
         y = torch.matmul(f_div_C, g_x)
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])

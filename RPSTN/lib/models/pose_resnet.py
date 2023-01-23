@@ -24,7 +24,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 class BasicBlock(nn.Module):
     expansion = 1
-
+    # 3X3 convolution 2번 진행
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(BasicBlock, self).__init__()
         self.conv1 = conv3x3(inplanes, planes, stride)
@@ -56,7 +56,7 @@ class BasicBlock(nn.Module):
 
 class Bottleneck(nn.Module):
     expansion = 4
-
+    # channel 의 증가 폭 증가 배수 
     def __init__(self, inplanes, planes, stride=1, downsample=None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
@@ -95,7 +95,7 @@ class Bottleneck(nn.Module):
         return out
 
 
-class PoseResNet(nn.Module):    
+class PoseResNet(nn.Module):     
 
     def __init__(self, extra, block, layers, cfg, **kwargs):   ## block: Bottleneck, layers: [3, 4, 6, 3])
         self.inplanes = 64
@@ -104,7 +104,7 @@ class PoseResNet(nn.Module):
 
         super(PoseResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
-                               bias=False)  # 输入channel：3, 输出：64
+                               bias=False)  # first convolution
         self.bn1 = nn.BatchNorm2d(64, momentum=BN_MOMENTUM)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -120,18 +120,19 @@ class PoseResNet(nn.Module):
             extra.NUM_DECONV_KERNELS,   # 每一层卷积核的大小，默认为4
         )
 
-        # 最后一层1*1的卷积层，作用是将维度降为joints的数量
+        # final_layer to decrease channel to number of joint
         self.final_layer = nn.Conv2d(
             in_channels=extra.NUM_DECONV_FILTERS[-1],   
-            out_channels=cfg.DATASET.NUM_JOINTS,  # 输出的heatmaps数量，为关节点数量
-            kernel_size=extra.FINAL_CONV_KERNEL, # 最后一层卷积核大小，为1*1
+            out_channels=cfg.DATASET.NUM_JOINTS,  # number of joint  , 13 
+            kernel_size=extra.FINAL_CONV_KERNEL,  # 1X1
             stride=1,
             padding=1 if extra.FINAL_CONV_KERNEL == 3 else 0
         )
 
     def _make_layer(self, block, planes, blocks, stride=1): # block: Bottleneck, planes: the number of output, blocks: the number of layers
         downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
+        if stride != 1 or self.inplanes != planes * block.expansion: # if feature map is smaller than original 
+            # 사이즈를 줄이고 채널수를 늘릴 때 사용
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
                           kernel_size=1, stride=stride, bias=False),
@@ -141,6 +142,7 @@ class PoseResNet(nn.Module):
         layers = []
         layers.append(block(self.inplanes, planes, stride, downsample))
         self.inplanes = planes * block.expansion    # block.expansion=4
+        # 4의 배수로 증가
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes))
 
@@ -160,7 +162,8 @@ class PoseResNet(nn.Module):
         return deconv_kernel, padding, output_padding
 
     def _make_deconv_layer(self, num_layers, num_filters, num_kernels):
-        # 判断deconv层数跟filters的层数是否相等
+        #  256 X 256 으로 만듬
+        # Deconvolution 이 아닌, Transposed convolution 을 사용하여 Kernel 학습
         assert num_layers == len(num_filters), \
             'ERROR: num_deconv_layers is different len(num_deconv_filters)'
         assert num_layers == len(num_kernels), \
@@ -199,7 +202,7 @@ class PoseResNet(nn.Module):
         x = self.layer4(x)
         x = self.deconv_layers(x)
         x = self.final_layer(x)
-
+        # deconv 를 통해 256 X 256XK 의 텐서 형성 
         return x
 
     def init_weights(self, pretrained=''):

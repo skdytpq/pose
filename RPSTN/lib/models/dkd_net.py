@@ -7,7 +7,7 @@ from models.module.ad_conv import *
 from models.pose_resnet import *
 from models.module.jre_module import *
 
-
+# The JRPSP input includes JRE output, adjacent features 
 class DKD_Network(nn.Module):
     def __init__(self, cfg, is_visual, inplanes=64, is_train=True, T=5):
         '''
@@ -19,9 +19,9 @@ class DKD_Network(nn.Module):
         '''
         super(DKD_Network, self).__init__()
         self.is_train = is_train
-        self.pose_net = get_pose_net(cfg, 'pose_init', is_train=True)
-        self.fea_ext = get_pose_net(cfg, 'fea_ext', is_train=True)
-
+        self.pose_net = get_pose_net(cfg, 'pose_init', is_train=True) #
+        self.fea_ext = get_pose_net(cfg, 'fea_ext', is_train=True) # 13 
+        # 동일한 네트워크 구조를 통과하나 parameter 가 다름, Resnet
         self.T = T
         self.inplanes = inplanes
         self.heatmap_w, self.heatmap_h = cfg.DATASET.HEATMAP_SIZE
@@ -65,50 +65,56 @@ class DKD_Network(nn.Module):
 
     def forward(self, x):
         x = torch.split(x, 1, dim=1)
-        x_0 = torch.squeeze(x[0], 1)
+        x_0 = torch.squeeze(x[0], 1) # 1st frame
 
-        heatmap_0 = self.pose_net(x_0)
-        featmap_0 = self.fea_ext(x_0)
+        heatmap_0 = self.pose_net(x_0) # pose estimator via pos_resnet, JRE Module 
+        featmap_0 = self.fea_ext(x_0) # final feature dim = number of joint
 
-        heatmap_0 = self.non_local_conv2d(heatmap_0)
+        heatmap_0 = self.non_local_conv2d(heatmap_0) # R(P(I))
         heatmap_0 = self.bn_u(heatmap_0)
-
+        # make m'
         beliefs = [heatmap_0]
         gt_relation, pred_relation = [], []
 
         h_prev, f_prev = heatmap_0, featmap_0
+        # h_prev : joint information 
+        # t = 5
         for t in range(1, self.T):
             self.iter += 1
             x_t = torch.squeeze(x[t], 1)
 
-            f = self.fea_ext(x_t)
-            f = self.pose_conv1x1_V(f)
-            f = self.bn(f)
+            f = self.fea_ext(x_t) # posenet -> Resnet 기반 모델을 지나감
+            f = self.pose_conv1x1_V(f) # 1X1XC convolution 을 통해 pose information 추출
+            # 1X1XC convonlution 은 논문에서 나오지 않음
+            # 현재의 시점에서의 feature 생성
+            f = self.bn(f) # pose information
 
-            con_fea_maps = torch.cat([h_prev, f_prev], dim=1)
-
-            con_fea_maps = self.conv1x1_reduce_dim(con_fea_maps)
-            con_fea_maps = self.bn(con_fea_maps)
-            
-            dkd_features = self.dkd_param_adapter(con_fea_maps)
-
-            f_b, f_c, f_h, f_w = f.shape
+            con_fea_maps = torch.cat([h_prev, f_prev], dim=1)  # 이전 frame 에서 가져온 정보
+            con_fea_maps = self.conv1x1_reduce_dim(con_fea_maps) # feature dimension 인 C 로 convolution 진행
+            con_fea_maps = self.bn(con_fea_maps) 
+            ## JPRSP : concat을 한 feature들의 조합된 형태가 학습을 진행하기 위해 Propagation을 위한 층 생성
+            dkd_features = self.dkd_param_adapter(con_fea_maps) #  정보 압축 SPSP 모듈 256X7X7
+            # 이전 시점의 Feautre map 과 Heatmap 을 concat 하여(t 시점) X 생성 <- semantic feature
+            # feature f 의 시점은 이 전 frame 의 시점이다.
+            # F(i_t+1) heatmap joint 
+            f_b, f_c, f_h, f_w = f.shape # batch * channel
             pose_adaptive_conv = AdaptiveConv2d(f_b * f_c,
                                             f_b * f_c,
                                             7, padding=3,
                                             groups=f_b * f_c,
                                             bias=False)
-            con_map = pose_adaptive_conv(f, dkd_features)
-            confidences = self.pose_conv1x1_U(con_map)
-            h = self.bn_u(confidences)
+            con_map = pose_adaptive_conv(f, dkd_features) # 논문에서의 Global matching 
+            confidences = self.pose_conv1x1_U(con_map) # M t+1 generate
+            h = self.bn_u(confidences)  # 최종 출력 
             
-            final_h = self.non_local_conv2d(h)
+            final_h = self.non_local_conv2d(h) # JRE 를 거쳐 최종적인 M_t+1 시점의 Heat map 생성
+            # confidence 를 JRE에 t+1 시점으로 간주하여 넣음 
             final_h = self.bn_u(final_h)
             
             beliefs.append(final_h)
             h_prev, f_prev = final_h, f
         confidence_maps = torch.stack(beliefs, 1)
-        return confidence_maps
+        return confidence_maps # B, Frame , Joint num
 
     def init_weights(self):
         for name, m in self.dkd_param_adapter.named_modules():
