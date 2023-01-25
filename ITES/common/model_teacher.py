@@ -18,13 +18,13 @@ class Teacher_net(nn.Module):
         self.fe_net = nn.Sequential(
             *self.make_trunk(dim_in=self.num_joints_in * 2,
                              n_fully_connected=self.n_fully_connected,
-                             n_layers=self.n_layers))
+                             n_layers=self.n_layers)) # Convolution Batchnormailization fully connected layer
         
         self.alpha_layer = conv1x1(self.n_fully_connected,
                             self.dict_basis_size,
                             std=weight_init_std)
         self.shape_layer = conv1x1(self.dict_basis_size, 3 * num_joints_in,
-                                   std=weight_init_std)
+                                   std=weight_init_std) # 12 to 3 * num_joints
         self.rot_layer = conv1x1(self.n_fully_connected, 3,
                                  std=weight_init_std)
         self.trans_layer = conv1x1(self.n_fully_connected, 1,
@@ -39,7 +39,7 @@ class Teacher_net(nn.Module):
                    n_layers=None,
                    use_bn=True):
 
-        layer1 = ConvBNLayer(dim_in,
+        layer1 = ConvBNLayer(dim_in, # joint 의 개수를 1024의 channel 축으로 늘림
                              n_fully_connected,
                              use_bn=use_bn)
         layers = [layer1]
@@ -55,25 +55,29 @@ class Teacher_net(nn.Module):
         assert input_2d.shape[2] == self.in_features
 
         preds = {}
-        ba = input_2d.shape[0]
+        ba = input_2d.shape[0] # batch
         dtype = input_2d.type()
         input_2d_norm, root = self.normalize_keypoints(input_2d)
         if self.z_augment:
             R_rand = rand_rot(ba,
                               dtype=dtype,
                               max_rot_angle=float(self.z_augment_angle),
-                              axes=(0, 0, 1))
+                              axes=(0, 0, 1)) # z 축의 카메라 
             input_2d_norm = torch.matmul(input_2d_norm,R_rand[:,0:2,0:2])
-        preds['keypoints_2d'] = input_2d_norm
-        preds['kp_mean'] = root
-        input_flatten = input_2d_norm.view(-1,self.num_joints_in*2)
-        feats = self.fe_net(input_flatten[:,:, None, None])
-        
-        shape_coeff = self.alpha_layer(feats)[:, :, 0, 0]
-        shape_invariant = self.shape_layer(shape_coeff[:, :, None, None])[:, :, 0, 0]
+        preds['keypoints_2d'] = input_2d_norm # 전체 키포인트 값
+        preds['kp_mean'] = root # joint 의 중앙 지점
+        input_flatten = input_2d_norm.view(-1,self.num_joints_in*2) #2차원 텐서
+        feats = self.fe_net(input_flatten[:,:, None, None]) # fully connected layer 통과시켜 feature 뽑음
+        # 단일 값을 convolution 진행하기 위해 2차원 tensor로 취급하기 위해 None: None 사용
+        # output  = 1
+        shape_coeff = self.alpha_layer(feats)[:, :, 0, 0] # 1x1 convolution 진행후 나온 scalar 값
+        # 스칼라 값을 하나 뽑음
+        shape_invariant = self.shape_layer(shape_coeff[:, :, None, None])[:, :, 0, 0] # 또다시 2차원 텐서 취급하여 집어넣음
+        # shape_layer 의 inde
+        # 3 * num_joint 의 output 지님 
         shape_invariant = shape_invariant.view(ba, self.num_joints_out, 3)
 
-        R_log = self.rot_layer(feats)[:,:,0,0]
+        R_log = self.rot_layer(feats)[:,:,0,0] # fully connected layer
         R = so3_exponential_map(R_log)
         T = R_log.new_zeros(ba, 3)       # no global depth offset
 
@@ -151,10 +155,10 @@ class Teacher_net(nn.Module):
                             rescale=1.):
         # center around the root joint
         kp_mean = kp_loc[:, 0, :]
-        kp_loc_norm = kp_loc - kp_mean[:, None, :]
+        kp_loc_norm = kp_loc - kp_mean[:, None, :] # [batch , mean , [x,y]]
         kp_loc_norm = kp_loc_norm * rescale
 
-        return kp_loc_norm, kp_mean
+        return kp_loc_norm, kp_mean # 각 joint 의 normalize 값과 joint 의 평균값
 
     def normalize_3d(self,kp):
         ls = torch.norm(kp[:,1:,:],dim=2)

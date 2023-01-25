@@ -114,7 +114,7 @@ class DKD_Network(nn.Module):
             beliefs.append(final_h)
             h_prev, f_prev = final_h, f
         confidence_maps = torch.stack(beliefs, 1)
-        return confidence_maps # B, Frame , Joint num
+        return confidence_maps # B, Frame , Joint num * Joint num
 
     def init_weights(self):
         for name, m in self.dkd_param_adapter.named_modules():
