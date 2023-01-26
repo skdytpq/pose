@@ -58,12 +58,13 @@ class Teacher_net(nn.Module):
         ba = input_2d.shape[0] # batch
         dtype = input_2d.type()
         input_2d_norm, root = self.normalize_keypoints(input_2d)
-        if self.z_augment:
+        if self.z_augment: # random rotate 가 필요할 때 : consistency loss 계산
             R_rand = rand_rot(ba,
                               dtype=dtype,
                               max_rot_angle=float(self.z_augment_angle),
                               axes=(0, 0, 1)) # z 축의 카메라 
             input_2d_norm = torch.matmul(input_2d_norm,R_rand[:,0:2,0:2])
+            # 2차원 카메라 view 를 통해 rotation진행
         preds['keypoints_2d'] = input_2d_norm # 전체 키포인트 값
         preds['kp_mean'] = root # joint 의 중앙 지점
         input_flatten = input_2d_norm.view(-1,self.num_joints_in*2) #2차원 텐서
@@ -71,26 +72,27 @@ class Teacher_net(nn.Module):
         # 단일 값을 convolution 진행하기 위해 2차원 tensor로 취급하기 위해 None: None 사용
         # output  = 1
         shape_coeff = self.alpha_layer(feats)[:, :, 0, 0] # 1x1 convolution 진행후 나온 scalar 값
-        # 스칼라 값을 하나 뽑음
+        # pose에 대한 coeff 를 뽑는다 : pose dictionary 의 원소 숫자와 동일하게
         shape_invariant = self.shape_layer(shape_coeff[:, :, None, None])[:, :, 0, 0] # 또다시 2차원 텐서 취급하여 집어넣음
         # shape_layer 의 inde
-        # 3 * num_joint 의 output 지님 
+        # coeff 와 3d pose 를 맞춰주기 위해  3 * num_joint 의 output 
         shape_invariant = shape_invariant.view(ba, self.num_joints_out, 3)
 
         R_log = self.rot_layer(feats)[:,:,0,0] # fully connected layer
-        R = so3_exponential_map(R_log)
+        R = so3_exponential_map(R_log) # 3차원 Matrix : camera matrix
         T = R_log.new_zeros(ba, 3)       # no global depth offset
 
-        scale = R_log.new_ones(ba)
-        shape_camera_coord = self.rotate_and_translate(shape_invariant, R, T, scale)
+        scale = R_log.new_ones(ba) # batch 만큼의 텐서 생성
+        shape_camera_coord = self.rotate_and_translate(shape_invariant, R, T, scale) # joint matrix 화 R 을 곱함
         shape_image_coord = shape_camera_coord[:,:,0:2]/torch.clamp(5 + shape_camera_coord[:,:,2:3],min=1) # Perspective projection
 
         preds['camera'] = R
         preds['shape_camera_coord'] = shape_camera_coord
         preds['shape_coeff'] = shape_coeff
         preds['shape_invariant'] = shape_invariant
-        preds['l_reprojection'] = mpjpe(shape_image_coord,input_2d_norm)
-        preds['align'] = align_to_root
+        preds['l_reprojection'] = mpjpe(shape_image_coord,input_2d_norm) # joint 에러  
+        # pred 로 나온 것과 기존 2d norm 간의 l2 norm
+        preds['align'] = align_to_root # ㅆㄱ           
 
         if self.cycle_consistent:
             preds['l_cycle_consistent'] = self.cycle_consistent_loss(preds)
@@ -147,7 +149,7 @@ class Teacher_net(nn.Module):
         return preds
 
     def rotate_and_translate(self, S, R, T, s):
-        out = torch.bmm(S, R) + T[:,None,:]
+        out = torch.bmm(S, R) + T[:,None,:] # shape X cam matrix + T
         return out
 
     def normalize_keypoints(self,
