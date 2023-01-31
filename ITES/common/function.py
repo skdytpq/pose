@@ -6,8 +6,8 @@ import cv2
 import scipy.sparse as sp
 
 
-def so3_exponential_map(log_rot, eps: float = 0.0001):
-    """
+def so3_exponential_map(log_rot, eps: float = 0.0001): # 물체의 회전을 표현할 때 사용
+    """ 
     Convert a batch of logarithmic representations of rotation matrices
     `log_rot` to a batch of 3x3 rotation matrices using Rodrigues formula.
     The conversion has a singularity around 0 which is handled by clamping
@@ -25,8 +25,8 @@ def so3_exponential_map(log_rot, eps: float = 0.0001):
     if dim != 3:
         raise ValueError('Input tensor shape has to be Nx3.')
 
-    nrms = (log_rot * log_rot).sum(1)
-    phis = torch.clamp(nrms, 0.).sqrt()
+    nrms = (log_rot * log_rot).sum(1) # 1차원 tensor
+    phis = torch.clamp(nrms, 0.).sqrt() # 최소 값을 교체, 0
     phisi = 1. / (phis + eps)
     fac1 = phisi * phis.sin()
     fac2 = phisi * phisi * (1. - phis.cos())
@@ -35,7 +35,7 @@ def so3_exponential_map(log_rot, eps: float = 0.0001):
     R = fac1[:, None, None] * ss + \
         fac2[:, None, None] * torch.bmm(ss, ss) + \
         torch.eye(3, dtype=log_rot.dtype, device=log_rot.device)[None]
-
+    # [1,3,3] Matrix
     return R
 
 def hat(v: torch.Tensor):
@@ -70,15 +70,15 @@ def hat(v: torch.Tensor):
 def rand_rot(N, dtype=None, max_rot_angle=float(math.pi), axes=(1, 1, 1), get_ss=False):
 
     rand_axis = torch.zeros((N, 3)).type(dtype).normal_()
-
+    # Batch size * 3
     # apply the axes mask
     axes = torch.Tensor(axes).type(dtype)
-    rand_axis = axes[None, :] * rand_axis
+    rand_axis = axes[None, :] * rand_axis # 각 성분의 값이 달라짐 
 
-    rand_axis = F.normalize(rand_axis, dim=1, p=2)
-    rand_angle = torch.ones(N).type(dtype).uniform_(0, max_rot_angle)
-    R_ss_rand = rand_axis * rand_angle[:, None]
-    R_rand = so3_exponential_map(R_ss_rand)
+    rand_axis = F.normalize(rand_axis, dim=1, p=2) # 각 열에 맞는 정규화 
+    rand_angle = torch.ones(N).type(dtype).uniform_(0, max_rot_angle) # rotation angle 에 맞게 변환
+    R_ss_rand = rand_axis * rand_angle[:, None] # 행렬곱 연산 수행 , random한 axis를 준 이후 축에 대해 선형변환 시행
+    R_rand = so3_exponential_map(R_ss_rand) # 물체의 회전을 표현
 
     if get_ss:
         return R_rand, R_ss_rand

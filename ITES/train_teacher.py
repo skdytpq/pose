@@ -166,7 +166,7 @@ model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num
 model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
-
+# ㅑㅜ
 model_params = 0
 for parameter in model_pos.parameters():
     model_params += parameter.numel()

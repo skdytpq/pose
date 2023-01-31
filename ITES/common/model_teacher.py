@@ -76,51 +76,55 @@ class Teacher_net(nn.Module):
         shape_invariant = self.shape_layer(shape_coeff[:, :, None, None])[:, :, 0, 0] # 또다시 2차원 텐서 취급하여 집어넣음
         # shape_layer 의 inde
         # coeff 와 3d pose 를 맞춰주기 위해  3 * num_joint 의 output 
-        shape_invariant = shape_invariant.view(ba, self.num_joints_out, 3)
-
+        shape_invariant = shape_invariant.view(ba, self.num_joints_out, 3) # expected Y hat
+        # shape 에 대한 정보
         R_log = self.rot_layer(feats)[:,:,0,0] # fully connected layer
+        # cam 에 대한 matrix 도 학습을 진행한다.
         R = so3_exponential_map(R_log) # 3차원 Matrix : camera matrix
         T = R_log.new_zeros(ba, 3)       # no global depth offset
 
         scale = R_log.new_ones(ba) # batch 만큼의 텐서 생성
         shape_camera_coord = self.rotate_and_translate(shape_invariant, R, T, scale) # joint matrix 화 R 을 곱함
+        # world 의 점을 2차원 카메라 공간에 투영    
+        # cam 에 대한 정보
         shape_image_coord = shape_camera_coord[:,:,0:2]/torch.clamp(5 + shape_camera_coord[:,:,2:3],min=1) # Perspective projection
 
         preds['camera'] = R
         preds['shape_camera_coord'] = shape_camera_coord
-        preds['shape_coeff'] = shape_coeff
+        preds['shape_coeff'] = shape_coeff # C 
         preds['shape_invariant'] = shape_invariant
         preds['l_reprojection'] = mpjpe(shape_image_coord,input_2d_norm) # joint 에러  
         # pred 로 나온 것과 기존 2d norm 간의 l2 norm
-        preds['align'] = align_to_root # ㅆㄱ           
-
-        if self.cycle_consistent:
+        preds['align'] = align_to_root # boolean       
+        
+        if self.cycle_consistent: # 복원 loss 의 경우 대체 로스 사용
             preds['l_cycle_consistent'] = self.cycle_consistent_loss(preds)
         return preds
 
     def cycle_consistent_loss(self, preds, class_mask=None):
-
-        shape_invariant = preds['shape_invariant']
+        # 재사영 후 
+        shape_invariant = preds['shape_invariant'] # hat y
         if preds['align']:
             shape_invariant_root = shape_invariant - shape_invariant[:,0:1,:]
-        else:
+        else: 
             shape_invariant_root = shape_invariant
         dtype = shape_invariant.type()
         ba = shape_invariant.shape[0]
 
-        n_sample = 4
+        n_sample = 4 # 하이퍼파라미터
         # rotate the canonical point
         # generate random rotation around all axes
         R_rand = rand_rot(ba * n_sample,
                 dtype=dtype,
-                max_rot_angle=3.1415926,
+                max_rot_angle=3.1415926, # pi 만큼 랜덤하게 돌린다.
                 axes=(1, 1, 1))
 
         unrotated = shape_invariant_root.view(-1,self.num_joints_out,3).repeat(n_sample, 1, 1)
-        rotated = torch.bmm(unrotated,R_rand)
-        rotated_2d = rotated[:,:,0:2] / torch.clamp(5 + rotated[:,:,2:3],min=1)
+        # 4 배로 늘림
+        rotated = torch.bmm(unrotated,R_rand) # 4*B , joint , 3
+        rotated_2d = rotated[:,:,0:2] / torch.clamp(5 + rotated[:,:,2:3],min=1) # projection : X'
 
-        repred_result = self.reconstruct(rotated_2d)  
+        repred_result = self.reconstruct(rotated_2d) # Y'
 
         a, b = repred_result['shape_invariant'], unrotated
 
