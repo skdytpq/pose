@@ -36,7 +36,13 @@ def stratify():
         y_.append(y)
     x_train, x_test, y_train, y_test = train_test_split(x_, y_, test_size=0.3, random_state=777, stratify=y_) 
     return x_train,x_test
-    
+
+def add_joint(file):
+    for x_,y_ in zip(file[0]['x'],file[0]['y']):
+        rev = float((x_[9]+x_[10])/2,(y_[9]+y_[10])/2)
+        spine = float((x_[9]+x_[10] + x_[2] + x_[3])/4,(y_[9]+y_[10]+y_[2] + y_[3])/4)
+        neck =  float((x_[1]+x_[2] + x_[3])/3,(y_[1]+y_[2]+y_[3] )/3)
+        
 def moving(train,test):
      for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
