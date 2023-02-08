@@ -13,7 +13,7 @@ import os
 os.environ[‘KMP_DUPLICATE_LIB_OK’]=True
 from ITES import train_student
 from RPSTN.pose_estimation import train_penn
-
+from joint_heatmap import generate_2d_integral_preds_tensor
 def set_seed(seed):
 
     random.seed(seed)
@@ -52,6 +52,7 @@ class Trainer(object):
         self.n_layers = 6
         self.basis = 12
         self.init_std = 0.01
+
 
         if self.dataset ==  "Penn_Action":
             self.numClasses = 13
@@ -119,7 +120,7 @@ class Trainer(object):
 
         model_pos_train = train_student.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
-                            dict_basis_size=self.basis, weight_init_std = )
+                            dict_basis_size=self.basis, weight_init_std = self.init_std)
         self.model_jre = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
         self.criterion_jre = MSESequenceLoss().cuda()
         self.optimizer_jre = torch.optim.Adam(self.model.parameters(), lr=self.lr)
@@ -175,10 +176,17 @@ class Trainer(object):
             start_model = time.time()
             heat = self.model(input_var)
             losses = self.criterion(heat, heatmap_var)
+            jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
+            preds = model_pos_train(jfh,align_to_root=True)
+            
+            loss_total =  loss_reprojection + loss_consistancy
+            loss_reprojection = preds['l_reprojection'] 
+            loss_consistancy = preds['l_cycle_consistent']
+            loss_total.backward()
 
-#model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
-#                            n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
-#                            dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
+            optimizer_ite.step()
+            # output => [ba , num_joints , 2]
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
