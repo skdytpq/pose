@@ -118,7 +118,7 @@ class Trainer(object):
         self.model.train()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
-        for i, (input, heatmap, label, img_path, bbox, start_index) in enumerate(tbar):
+        for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
             learning_rate = adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
 
@@ -127,7 +127,7 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
-
+            kpts = kpts[:13] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 
             losses = {}
@@ -135,6 +135,7 @@ class Trainer(object):
             start_model = time.time()
             heat = self.model(input_var)
             losses = self.criterion(heat, heatmap_var)
+
 
             loss += losses #+ 0.5 * relation_loss)
             train_loss += loss.item()

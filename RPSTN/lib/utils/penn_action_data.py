@@ -61,7 +61,7 @@ class Penn_Action(data.Dataset):
         self.transform = transform
         self.is_train = is_train
         self.sigma = sigma
-        self.parts_num = 13 # 운동 종목의 개수 
+        self.parts_num = 13 # joint 개수 
         self.seqTrain = frame_memory  # 5 로 지정
         self.min_scale = 0.8
         self.max_scale = 1.4
@@ -183,7 +183,7 @@ class Penn_Action(data.Dataset):
                 if ul[0] >= self.heatmap_size or ul[1] >= self.heatmap_size \
                     or br[0] < 0 or br[1] < 0:
                     label[i, k, -1] = 0
-                    continue
+                    continue # label size -> heatmap size
                 heat_map = guassian_kernel(size_h=label_size, size_w=label_size, center_x=xk, center_y=yk, sigma=self.sigma)
                 heat_map[heat_map > 1] = 1
                 heat_map[heat_map < 0.0099] = 0
@@ -192,7 +192,7 @@ class Penn_Action(data.Dataset):
             l[i] = heatmap
             label_map[i] = transforms.ToTensor()(heatmap)
             # 가우시안 커널을 통해 label_map 즉, label의 관절 히트맵을 구한 것
-        return images, label_map, label, img_paths, person_box, start_index
+        return images, label_map, label, img_paths, person_box, start_index,kpts # keypoints 좌표 
 # 이미지, 히트맵, 라벨(실제 참 값인 관절 좌표값) , 이미지 경로, 사람 바운딩 박스, 시작 지점
 
     def isNotOnPlane(self, x, y, width, height):

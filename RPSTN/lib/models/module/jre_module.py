@@ -118,6 +118,7 @@ class _JREModule(nn.Module):
             theta_x = x.view(batch_size, self.inter_channels, -1)   # [b, c, h*w]
             phi_x = x.view(batch_size, self.inter_channels, -1) 
             phi_x = phi_x.permute(0, 2, 1).contiguous() # theta_x Transpose
+            # [b,h*w]
         else:
             theta_x = self.theta(x).view(batch_size, self.inter_channels, -1)
             phi_x = self.phi(x).view(batch_size, self.inter_channels, -1)
