@@ -19,7 +19,7 @@ from time import time
 from common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
-
+from torchsummary import summary
 args = parse_args()
 print(args)
 
@@ -345,3 +345,5 @@ while epoch < args.epochs:
             'optimizer': optimizer.state_dict(),
             'model_pos': model_pos_train.state_dict(),
         }, chk_path)
+if name == '__main__':
+    summary(Teacher_net, (1, 28, 28))

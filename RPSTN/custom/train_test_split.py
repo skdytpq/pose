@@ -42,9 +42,9 @@ def add_joint(file):
         rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
         spine = [float((x_[9]+x_[10] + x_[2] + x_[3])/4),float((y_[9]+y_[10]+y_[2] + y_[3])/4)]
         neck =  [float((x_[1]+x_[2] + x_[3])/3),float((y_[1]+y_[2]+y_[3] )/3)]
-        site = [float((x_[1])),float((y_[1]))]
-        file[0]['x'].extend([rev[0],spine[0],neck[0],site[0]])
-        file[0]['y'].extend([rev[1],spine[1],neck[1],site[1]])
+        file[0]['x'].extend([rev[0],spine[0],neck[0]])
+        file[0]['y'].extend([rev[1],spine[1],neck[1]])
+        # num_joint = 16
 def moving(train,test):
      for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)

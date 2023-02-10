@@ -188,7 +188,7 @@ class Penn_Action(data.Dataset):
                 heat_map[heat_map > 1] = 1
                 heat_map[heat_map < 0.0099] = 0
                 heatmap[:, :, k] = heat_map
-                
+                 
             l[i] = heatmap
             label_map[i] = transforms.ToTensor()(heatmap)
             # 가우시안 커널을 통해 label_map 즉, label의 관절 히트맵을 구한 것
