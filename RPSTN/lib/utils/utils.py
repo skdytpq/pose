@@ -170,7 +170,7 @@ def get_max_preds(batch_heatmaps):
 
 def getDataloader(dataset, train_dir, val_dir, test_dir, sigma, stride, workers, frame_memory, batch_size):
     # train_loader, val_loader, test_loader = None, None, None
-    if dataset == 'Penn_Action':
+    if dataset == 'pose_data':
         train_loader = torch.utils.data.DataLoader(
                                             penn_action.Penn_Action(train_dir, sigma, frame_memory, True,
                                             Mytransforms.Compose([
