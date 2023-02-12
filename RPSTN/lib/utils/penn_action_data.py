@@ -69,7 +69,7 @@ class Penn_Action(data.Dataset):
         self.heatmap_size = 64
         self.stride = 4
 
-        self.root_dir = 'pose_data'#root_dir
+        self.root_dir = 'pose_data/'#root_dir
         self.label_dir = root_dir + 'labels'
         self.frame_dir = root_dir + 'frames' 
         self.train_dir = root_dir + 'train' 
