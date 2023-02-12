@@ -55,13 +55,13 @@ def guassian_kernel(size_w, size_h, center_x, center_y, sigma):
 
 class Penn_Action(data.Dataset):
     def __init__(self, root_dir, sigma, frame_memory, is_train, transform=None):
-        self.base = '../../data/frames'
+        self.base = '../data/pose_data'
         self.width = 256
         self.height = 256
         self.transform = transform
         self.is_train = is_train
         self.sigma = sigma
-        self.parts_num = 13 # joint 개수 
+        self.parts_num = 16 # joint 개수 
         self.seqTrain = frame_memory  # 5 로 지정
         self.min_scale = 0.8
         self.max_scale = 1.4
@@ -76,12 +76,12 @@ class Penn_Action(data.Dataset):
         self.val_dir = root_dir + 'test/' 
 
         if self.is_train is True:
-            self.data_dir = '../../data/train' # root_dir + 'train/'
+            self.data_dir = '../data/pose_data/train' # root_dir + 'train/'
             self.p_scale = 1
             self.p_rotate = 1
             self.p_flip = 1
         else:
-            self.data_dir ='../../data/test' #root_dir + 'test/'
+            self.data_dir ='../data/pose_data/test' #root_dir + 'test/'
             self.p_scale = 0
             self.p_rotate = 0
             self.p_flip = 0
@@ -90,10 +90,10 @@ class Penn_Action(data.Dataset):
 
     def __getitem__(self, index):
         frames = self.frames_data[index]
-        data = np.load(os.path.join(self.data_dir, frames), allow_pickle=True)[0].item()
+        data = np.load(os.path.join(self.data_dir, frames), allow_pickle=True)[0]
         nframes = data['nframes'][0]    # 151 , T : 고정적이지 않음
         framespath = data['framepath']
-        dim = data['dimensions'] # [360,480] , [H,W,T]
+        dim = data['dimensions'][0] # [360,480] , [H,W,T]
         x = data['x']          # 151 * 13
         y = data['y']          # 151 * 13
         visibility = data['visibility'] # 151 * 13
@@ -135,11 +135,11 @@ class Penn_Action(data.Dataset):
         for i in range(self.seqTrain):
             # 수정작업
             #img_path = os.path.join(framespath.replace('_', ''), '%06d' % (start_index + i + 1) + '.jpg')
-            img_path = os.path.join(f'{self.base}/{framespath.split(".")[0]}', '%06d' % (start_index + i + 1) + '.jpg')
-            img_paths.append(img_path)
+            img_path = os.path.join(f'{self.train_dir}/{framespath.split(".")[0]}', '%06d' % (start_index + i + 1) + '.jpg')
+            img_paths.append(img_path) 
             img = cv2.imread(img_path).astype(dtype=np.float32)  # Image
 
-            # read label [5,13,3]
+            # read label [5,16,3]
             label[i, :, 0] = x[start_index + i] # ground truth 지정을 위해 각각 x, y visibilityf를 매핑
             label[i, :, 1] = y[start_index + i]
             label[i, :, 2] = visibility[start_index + i]  # 1 * 13
@@ -150,17 +150,17 @@ class Penn_Action(data.Dataset):
                 if self.isNotOnPlane(label[i, part, 0], label[i, part, 1], dim[1], dim[0]):
                     label[i, part, 2] = -1
             
-            kps[i, :13, :] = label[i] # kps 에서 :13 까지는 각 Joint 의 x,y visibility 를 다룬다
+            kps[i, :16, :] = label[i] # kps 에서 :16 까지는 각 Joint 의 x,y visibility 를 다룬다
             # label[i]는 각 시점에서 x , y visibility 를 갖고있다.
             center_x = int(self.width/2)
             center_y = int(self.height/2)
             center   = [center_x, center_y]
 
-            kps[i, 13] = [int((bbox[i,0]+bbox[i,2])/2),int((bbox[i,1]+bbox[i,3])/2),1]
-            kps[i, 14] = [bbox[i,0],bbox[i,1],1] 
-            kps[i, 15] = [bbox[i,0],bbox[i,3],1] 
-            kps[i, 16] = [bbox[i,2],bbox[i,1],1] 
-            kps[i, 17] = [bbox[i,2],bbox[i,3],1] 
+            kps[i, 16] = [int((bbox[i,0]+bbox[i,2])/2),int((bbox[i,1]+bbox[i,3])/2),1]
+            kps[i, 17] = [bbox[i,0],bbox[i,1],1] 
+            kps[i, 18] = [bbox[i,0],bbox[i,3],1] 
+            kps[i, 19] = [bbox[i,2],bbox[i,1],1] 
+            kps[i, 20] = [bbox[i,2],bbox[i,3],1] 
             # kps 는 일괄적으로 이미지를 crop 하기 위해 각 x,y, visibility, bbox 좌표를 모은 것 
             img, kps[i], center = self.transform(img, kps[i], center, randoms)
             box  = kps[i, -5:]
