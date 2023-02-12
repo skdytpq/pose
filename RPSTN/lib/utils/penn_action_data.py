@@ -71,9 +71,9 @@ class Penn_Action(data.Dataset):
 
         self.root_dir = 'pose_data/'#root_dir
         self.label_dir = root_dir + 'labels'
-        self.frame_dir = root_dir + 'frames' 
-        self.train_dir = root_dir + 'train' 
-        self.val_dir = root_dir + 'test' 
+        self.frame_dir = os.path.join(self.base,'frame')#root_dir + 'frames' 
+        self.train_dir = os.path.join(self.base,'train')
+        self.val_dir = os.path.join(self.base,'test') 
 
         if self.is_train is True:
             self.data_dir = '../data/pose_data/train' # root_dir + 'train/'
