@@ -74,7 +74,7 @@ class Trainer(object):
         cudnn.benchmark = True 
 
         if self.dataset ==  "Penn_Action":
-            self.numClasses = 13
+            self.numClasses = 16
             self.test_dir = None
 
         self.train_loader, self.val_loader, self.test_loader = getDataloader(self.dataset, self.train_dir, \
@@ -127,7 +127,7 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
-            kpts = kpts[:13] # joint
+            kpts = kpts[:16] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 
             losses = {}
@@ -272,7 +272,7 @@ if __name__ == '__main__':
     args.dataset    = 'Penn_Action'
     args.frame_memory = 5
     if args.dataset == 'Penn_Action':
-        args.train_dir  = 'data/PennAction/'
+        args.train_dir  = '../data/P'
         args.val_dir    = 'data/PennAction/'
         tb_log_dir = 'run/penn/'
 
