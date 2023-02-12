@@ -12,7 +12,7 @@ class PoseGenerator(Dataset):
         self._poses_2d = np.concatenate(poses_2d)
         self._cam = np.concatenate(cam)
         self.focal_length = self._cam[:,:2]
-
+        # 초점거리
         self._poses_2d = self._poses_2d / np.tile(self.focal_length[:,None,:],(1,self._poses_2d.shape[1],1))
         self._poses_2d = self.normalize_2d(self._poses_2d)
 
@@ -28,7 +28,7 @@ class PoseGenerator(Dataset):
         c = 5
         scale = (1/c) / mean_bone
         pose = pose * scale
-        return pose
+        return pose 
 
     def __getitem__(self, index):
         out_pose_3d = self._poses_3d[index]

@@ -47,7 +47,7 @@ class Trainer(object):
         self.stride = 4
         self.heatmap_size = 64
         ## ITES
-        self.num_joints = 17
+        self.num_joints = 16
         self.n_fully_connected = 1024
         self.n_layers = 6
         self.basis = 12
@@ -168,7 +168,7 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
-            kpts = kpts[:13] # joint
+            kpts = kpts[:16] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 
             losses = {}

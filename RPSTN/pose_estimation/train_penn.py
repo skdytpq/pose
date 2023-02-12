@@ -55,7 +55,7 @@ class Trainer(object):
         self.model_arch = args.model_arch
         self.dataset = args.dataset
         self.frame_memory = args.frame_memory   # 每个视频帧数 T
-        self.writer = args.writer
+        self.writer = SummaryWriter(args.dir)
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
@@ -262,6 +262,7 @@ if __name__ == '__main__':
     parser.add_argument('--writer', default=None)
     parser.add_argument('--is_train', default=False, type=bool)
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
+    parser.add_argument('--dir' , default = 'run',type=str)
     args = parser.parse_args()
     
     RANDSEED = 2021

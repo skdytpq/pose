@@ -14,7 +14,7 @@ config.OUTPUT_DIR = ''
 config.LOG_DIR = ''
 config.DATA_DIR = ''
 config.GPUS = '0'
-config.WORKERS = 8
+config.WORKERS = 2
 config.PRINT_FREQ = 2
 
 # Cudnn related params
