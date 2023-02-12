@@ -73,7 +73,7 @@ class Trainer(object):
 
         cudnn.benchmark = True 
 
-        if self.dataset ==  "Penn_Action":
+        if self.dataset ==  "pose_data":
             self.numClasses = 16
             self.test_dir = None
 
@@ -92,7 +92,7 @@ class Trainer(object):
         if self.args.pretrained is not None:
             checkpoint = torch.load(self.args.pretrained)
             p = checkpoint['state_dict']
-            if self.dataset == "Penn_Action":
+            if self.dataset == "pose_data":
                 prefix = 'invalid'
             state_dict = self.model.state_dict()
             model_dict = {}
