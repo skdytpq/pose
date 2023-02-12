@@ -54,7 +54,7 @@ class Trainer(object):
         self.val_dir = args.val_dir
         self.model_arch = args.model_arch
         self.dataset = args.dataset
-        self.frame_memory = args.frame_memory   # 每个视频帧数 T
+        self.frame_memory = args.frame_memory   
         self.writer = SummaryWriter(args.dir)
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
@@ -270,11 +270,11 @@ if __name__ == '__main__':
     epochs =  100
     is_train = args.is_train
     is_visual = args.visual
-    args.dataset    = 'Penn_Action'
+    args.dataset    = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'Penn_Action':
-        args.train_dir  = '../data/P'
-        args.val_dir    = 'data/PennAction/'
+        args.train_dir  = '../data/pose_data'
+        args.val_dir    = '../data/pose_data'
         tb_log_dir = 'run/penn/'
 
     writer = SummaryWriter(log_dir=tb_log_dir, comment='weight_decay')
