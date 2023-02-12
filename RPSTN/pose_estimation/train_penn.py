@@ -277,8 +277,8 @@ if __name__ == '__main__':
         args.val_dir    = '../data/pose_data'
         tb_log_dir = 'run/penn/'
 
-    writer = SummaryWriter(log_dir=tb_log_dir, comment='weight_decay')
-    args.writer = writer
+#    writer = SummaryWriter(log_dir= '', comment='weight_decay')
+#    args.writer = writer
     set_seed(RANDSEED)
     if is_train == True:
         trainer = Trainer(args, is_train=True, is_visual=False)
