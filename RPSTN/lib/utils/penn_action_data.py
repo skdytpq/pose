@@ -69,10 +69,10 @@ class Penn_Action(data.Dataset):
         self.heatmap_size = 64
         self.stride = 4
 
-        self.root_dir = root_dir
-        self.label_dir = root_dir + 'labels/'
-        self.frame_dir = root_dir + 'frames/' 
-        self.train_dir = root_dir + 'train/' 
+        self.root_dir = 'pse_data'#root_dir
+        self.label_dir = root_dir + 'labels'
+        self.frame_dir = root_dir + 'frames' 
+        self.train_dir = root_dir + 'train' 
         self.val_dir = root_dir + 'test/' 
 
         if self.is_train is True:
@@ -136,7 +136,6 @@ class Penn_Action(data.Dataset):
             # 수정작업
             #img_path = os.path.join(framespath.replace('_', ''), '%06d' % (start_index + i + 1) + '.jpg')
             img_path = os.path.join(f'{self.train_dir}/{framespath.split(".")[0]}', '%06d' % (start_index + i + 1) + '.jpg')
-            print(img_path)
             img_paths.append(img_path) 
             img = cv2.imread(img_path).astype(dtype=np.float32)  # Image
 
