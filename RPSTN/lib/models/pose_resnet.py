@@ -280,7 +280,7 @@ def get_pose_net(cfg, name, is_train, **kwargs):
 
     if is_train:
         print('============ Loading pre-trained Pose Net... ==============')
-        model.load_state_dict({k.replace('module.', ''):v for k, v in torch.load(model_checkpoint).items()})
+       # model.load_state_dict({k.replace('module.', ''):v for k, v in torch.load(model_checkpoint).items()})
         print('============      Loading Successfully!      ==============')
     if name == 'fea_ext':
         print('============ Loading pre-trained Feature Extractor: ResNet-{}... =============='.format(num_layers))

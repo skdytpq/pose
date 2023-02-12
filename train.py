@@ -8,7 +8,7 @@ sys.path.append('RPSTN/custom')
 sys.path.append('RPSTN/files')
 sys.path.append('RPSTN/lib')
 sys.path.append('RPSTN/pose_estimation')
-# ITES, RPSTN 상대경로 지정
+# ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
 import os
 os.environ[‘KMP_DUPLICATE_LIB_OK’]=True
 from ITES import train_student
