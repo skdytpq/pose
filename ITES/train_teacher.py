@@ -48,6 +48,7 @@ else:
     raise KeyError('Invalid dataset')
 
 print('Preparing data...')
+#data keys
 for subject in dataset.subjects():
     for action in dataset[subject].keys():
         anim = dataset[subject][action]
@@ -162,7 +163,7 @@ cameras_valid, poses_valid, poses_valid_2d = fetch(subjects_test, action_filter)
 model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
-
+# 
 model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
@@ -277,7 +278,7 @@ while epoch < args.epochs:
                 shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
                 shape_camera_coord = calibrate_by_scale(shape_camera_coord,inputs_3d)
                 shape_camera_coord_flip = calibrate_by_scale(shape_camera_coord_flip,inputs_3d)
-
+        
                 shape_camera_coord = shape_camera_coord - shape_camera_coord[:,0:1,:]
                 shape_camera_coord_flip = shape_camera_coord_flip - shape_camera_coord_flip[:,0:1,:]
                 inputs_3d = inputs_3d - inputs_3d[:,0:1,:]
@@ -345,5 +346,3 @@ while epoch < args.epochs:
             'optimizer': optimizer.state_dict(),
             'model_pos': model_pos_train.state_dict(),
         }, chk_path)
-if name == '__main__':
-    summary(Teacher_net, (1, 28, 28))
