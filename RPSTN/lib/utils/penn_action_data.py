@@ -69,7 +69,7 @@ class Penn_Action(data.Dataset):
         self.heatmap_size = 64
         self.stride = 4
 
-        self.root_dir = 'pse_data'#root_dir
+        self.root_dir = 'pose_data'#root_dir
         self.label_dir = root_dir + 'labels'
         self.frame_dir = root_dir + 'frames' 
         self.train_dir = root_dir + 'train' 
@@ -146,7 +146,7 @@ class Penn_Action(data.Dataset):
             label[i, :, 2] = visibility[start_index + i]  # 1 * 13
             bbox[i, :]     = data['bbox'][start_index + i]  #
 
-            # make the joints not in the figure vis=-1(Do not produce label)
+            # make the joints not in the figure vis=-1(Do not produce label) 
             for part in range(0, self.parts_num):  # for each part
                 if self.isNotOnPlane(label[i, part, 0], label[i, part, 1], dim[1], dim[0]):
                     label[i, part, 2] = -1
