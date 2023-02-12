@@ -71,7 +71,7 @@ class Penn_Action(data.Dataset):
 
         self.root_dir = 'pose_data/'#root_dir
         self.label_dir = root_dir + 'labels'
-        self.frame_dir = os.path.join(self.base,'frame')#root_dir + 'frames' 
+        self.frame_dir = os.path.join(self.base,'frames')#root_dir + 'frames' 
         self.train_dir = os.path.join(self.base,'train')
         self.val_dir = os.path.join(self.base,'test') 
 
@@ -137,7 +137,6 @@ class Penn_Action(data.Dataset):
             #img_path = os.path.join(framespath.replace('_', ''), '%06d' % (start_index + i + 1) + '.jpg')
             img_path = os.path.join(f'{self.frame_dir}/{framespath.split(".")[0]}', '%06d' % (start_index + i + 1) + '.jpg')
             img_paths.append(img_path) 
-            print(img_path)
             img = cv2.imread(img_path).astype(dtype=np.float32)  # Image
 
             # read label [5,16,3]
