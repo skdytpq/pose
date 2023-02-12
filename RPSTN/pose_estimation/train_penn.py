@@ -270,13 +270,15 @@ if __name__ == '__main__':
     epochs =  100
     is_train = args.is_train
     is_visual = args.visual
-    args.dataset    = 'pose_data'
+    args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
         args.train_dir  = '../data/pose_data'
         args.val_dir    = '../data/pose_data'
         tb_log_dir = 'run/penn/'
-
+    args.train_dir  = '../data/pose_data'
+    args.val_dir    = '../data/pose_data'
+    tb_log_dir = 'run/penn/'
 #    writer = SummaryWriter(log_dir= '', comment='weight_decay')
 #    args.writer = writer
     set_seed(RANDSEED)
