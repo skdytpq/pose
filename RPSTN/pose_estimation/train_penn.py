@@ -195,9 +195,9 @@ class Trainer(object):
                 file_name = 'result/heats/{}_batch.jpg'.format(i)
 
                 input = input.view(-1, c, h, w)
-                heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                 
-            input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 13, heat.shape[-2], heat.shape[-1]).contiguous()
+            input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\
