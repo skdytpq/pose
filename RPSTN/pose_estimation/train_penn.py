@@ -188,7 +188,7 @@ class Trainer(object):
             heat = self.model(input_var)
             losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
-            
+            #[8,5,3,256,256]?
             b, t, c, h, w = input.shape
            
             if self.is_visual:
