@@ -45,7 +45,7 @@ class MSESequenceLoss(nn.Module):
         if targets.shape[1] != T:
             f_0 = torch.unsqueeze(targets[:, 0, :, :, :], 1)
             targets = torch.cat([f_0, targets], dim=1)
-        pdb.set_trace()
+        #pdb.set_trace()
         return torch.mean(inputs.sub(targets) ** 2)
 
 class CoordinateLoss(nn.Module):
