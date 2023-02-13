@@ -81,7 +81,7 @@ class Trainer(object):
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
                                                                 self.workers, self.frame_memory, \
                                                                 self.batch_size)
-
+        
         model = models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
         self.criterion = MSESequenceLoss().cuda()
