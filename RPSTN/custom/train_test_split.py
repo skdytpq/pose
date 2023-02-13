@@ -64,7 +64,7 @@ def add_vis(files):
     if 'npy' in files:
         file = np.load(files,allow_pickle = True).copy()
         for v in range(file[0]['visibility'].shape[0]):
-            np.concatenate((file[0]['visibility'][v],np.array([1,1,1])), axis=1)
+            np.concatenate((file[0]['visibility'][v],np.array([1,1,1])))
         # num_joint = 16
         np.save(files,file)
     else:
