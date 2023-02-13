@@ -138,10 +138,7 @@ class Penn_Action(data.Dataset):
             img_path = os.path.join(f'{self.frame_dir}/{framespath.split(".")[0]}', '%06d' % (start_index + i + 1) + '.jpg')
             img_paths.append(img_path) 
             img = cv2.imread(img_path).astype(dtype=np.float32)  # Image
-
             # read label [5,16,3]
-            print(label.shape)
-            print(x.shape)
             label[i, :, 0] = x[start_index + i] # ground truth 지정을 위해 각각 x, y visibilityf를 매핑
             label[i, :, 1] = y[start_index + i]
             label[i, :, 2] = visibility[start_index + i]  # 1 * 13

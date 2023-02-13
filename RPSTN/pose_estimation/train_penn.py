@@ -169,7 +169,7 @@ class Trainer(object):
         idx = []
         cnt = 0
         preds = []
-        for i, (input, heatmap, label, img_path, bbox, start_index) in enumerate(tbar):
+        for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
             cnt += 1
             idx.append(start_index)
             input_var = input.cuda()
