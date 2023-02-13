@@ -59,9 +59,9 @@ config.FEA_EXT.HMDB_CHECKPOINT = 'models/pytorch/mpii/JHMDB/pose_resnet_{}/256x2
 
 # Dataset Infor
 config.DATASET = edict()
-config.DATASET.DATASET = 'penn'
-config.DATASET.ROOT = '/data/Penn_Action/'
-config.DATASET.NUM_JOINTS = 13
+config.DATASET.DATASET = 'pose'
+config.DATASET.ROOT = '../data/pose_data'
+config.DATASET.NUM_JOINTS = 16
 config.DATASET.IMAGE_SIZE = [256, 256]
 config.DATASET.HEATMAP_SIZE = [64, 64]
 config.DATASET.FLIP = True
