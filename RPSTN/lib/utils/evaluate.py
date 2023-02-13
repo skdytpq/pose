@@ -111,10 +111,9 @@ def accuracy(outputs, targets, thr_PCK, thr_PCKh, dataset, bbox, hm_type='gaussi
     avg_PCKh = 0
 
     #if dataset == "pose":
-    neck = [(target[0, 1, 0]+target[0, 2, 0])/2,
+    neck = [(target[0, 1, 0]+target[0, 2, 0])/2, # 5,16,2
             (target[0, 1, 1]+target[0, 2, 1])/2]
-    headLength = np.linalg.norm(target[0, 0, :] - neck)
-    pdb.set_trace()
+    headLength = np.linalg.norm(target[0, 0, :] - neck) # 처음 시점의 neck, - 이후 시점의 neck continue
     #elif dataset == "Sub-JHMDB":
     #    headLength = 2*(np.linalg.norm(target[0, 0, :] - target[0, 2, :]))
 
