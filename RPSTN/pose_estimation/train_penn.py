@@ -279,12 +279,12 @@ if __name__ == '__main__':
         tb_log_dir = 'run/penn/'
     args.train_dir  = '../data/pose_data'
     args.val_dir    = '../data/pose_data'
-    tb_log_dir = 'run/penn/'
+  #  tb_log_dir = 'run/penn/'
 #    writer = SummaryWriter(log_dir= '', comment='weight_decay')
 #    args.writer = writer
     set_seed(RANDSEED)
     if is_train == True:
-        trainer = Trainer(args, is_train=True, is_visual=False)
+        trainer = Trainer(args, is_train=True, is_visual=True) # 원래 False
         for epoch in range(starter_epoch, epochs):
             trainer.training(epoch)
             trainer.validation(epoch)
