@@ -71,6 +71,6 @@ if '__main__':
         moving(train,test)
         split(test)
     else:
-        joint_in('../../data/pose_data/train')
-        joint_in('../../data/pose_data/test')
+        joint_in('../data/pose_data/train')
+        joint_in('../data/pose_data/test')
     print('=====================Ratio of data & Ratio of train======================')
