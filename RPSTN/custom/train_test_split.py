@@ -43,9 +43,9 @@ def add_joint(files):
         if file[0]['x'].shape[1] <16:
             r,s,n = [],[],[]
             for x_,y_ in zip(file[0]['x'],file[0]['y']):
-                rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
-                spine = [float((x_[9]+x_[10] + x_[2] + x_[3])/4),float((y_[9]+y_[10]+y_[2] + y_[3])/4)]
-                neck =  [float((x_[1]+x_[2] + x_[3])/3),float((y_[1]+y_[2]+y_[3] )/3)]
+                rev = [float(round((x_[9]+x_[10])/2),3),float(round((y_[9]+y_[10])/2),3)]
+                spine = [float(round((x_[9]+x_[10] + x_[2] + x_[3])/4),3),float(round((y_[9]+y_[10]+y_[2] + y_[3]/4),3))]
+                neck =  [float(round((x_[1]+x_[2] + x_[3])/3),3),float(round((y_[1]+y_[2]+y_[3] )/3),3)]
                 r.append(rev)
                 s.append(spine)
                 n.append(neck)
@@ -60,12 +60,20 @@ def add_joint(files):
             pass
     else:
         pass
+def add_vis(files):
+    if 'npy' in files:
+        file = np.load(files,allow_pickle = True).copy()
+        for v in range(file[0]['visibility'].shape[0]):
+            np.concatenate((file[0]['visibility'][v],np.array([1,1,1])), axis=1)
         # num_joint = 16
+        np.save(files,file)
+    else:
+        pass
 def joint_in(base):
     for f in os.listdir(base):
         ph = os.path.join(base,f)
-        add_joint(ph)
-
+        #add_joint(ph)
+        add_vis(ph)
 
 def moving(train,test):
      for i in os.listdir(base):
