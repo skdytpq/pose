@@ -169,6 +169,7 @@ class Trainer(object):
         idx = []
         cnt = 0
         preds = []
+
         for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
             cnt += 1
             idx.append(start_index)
@@ -193,9 +194,9 @@ class Trainer(object):
            
             if self.is_visual:
                 file_name = 'result/heats/{}_batch.jpg'.format(i)
-
                 input = input.view(-1, c, h, w)
                 heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                save_batch_heatmaps(input,heat,file_name)
                 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
