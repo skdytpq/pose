@@ -110,7 +110,7 @@ def accuracy(outputs, targets, thr_PCK, thr_PCKh, dataset, bbox, hm_type='gaussi
     PCKh = np.zeros((len(idx)))
     avg_PCKh = 0
 
-    if dataset == "Penn_Action":
+    if dataset == "pose":
         neck = [(target[0, 1, 0]+target[0, 2, 0])/2,
                 (target[0, 1, 1]+target[0, 2, 1])/2]
         headLength = np.linalg.norm(target[0, 0, :] - neck)
