@@ -191,7 +191,7 @@ class Penn_Action(data.Dataset):
             l[i] = heatmap
             label_map[i] = transforms.ToTensor()(heatmap)
             # 가우시안 커널을 통해 label_map 즉, label의 관절 히트맵을 구한 것
-            kp[i,:,:] = kps[i,:self.parts_num]
+            kp[i,:,:] = kps[i,:self.parts_num,:3]
         return images, label_map, label, img_paths, person_box, start_index,kp # keypoints 좌표 
 # 이미지, 히트맵, 라벨(실제 참 값인 관절 좌표값) , 이미지 경로, 사람 바운딩 박스, 시작 지점
 
