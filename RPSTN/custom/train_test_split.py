@@ -37,10 +37,10 @@ def stratify():
     x_train, x_test, y_train, y_test = train_test_split(x_, y_, test_size=0.3, random_state=777, stratify=y_) 
     return x_train,x_test
 
-def add_joint(file):
-    if 'npy' in file:
-        file = np.load(file,allow_pickle = True)
-        if file[0]['x'].shape[1] <14:
+def add_joint(files):
+    if 'npy' in files:
+        file = np.load(files,allow_pickle = True).copy()
+        if file[0]['x'].shape[1] <16:
             r,s,n = [],[],[]
             for x_,y_ in zip(file[0]['x'],file[0]['y']):
                 rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
@@ -55,6 +55,7 @@ def add_joint(file):
             file[0]['y'] = np.concatenate((file[0]['y'],np.array(r)[:,1].reshape(-1,1)), axis=1)
             file[0]['y'] = np.concatenate((file[0]['y'],np.array(s)[:,1].reshape(-1,1)), axis=1)
             file[0]['y'] = np.concatenate((file[0]['y'],np.array(n)[:,1].reshape(-1,1)), axis=1)
+            np.save(files,file)
         else:
             pass
     else:
