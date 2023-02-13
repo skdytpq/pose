@@ -41,16 +41,20 @@ def add_joint(file):
     if 'npy' in file:
         file = np.load(file,allow_pickle = True)
         if file[0]['x'].shape[1] <14:
+            r,s,n = [],[],[]
             for x_,y_ in zip(file[0]['x'],file[0]['y']):
                 rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
                 spine = [float((x_[9]+x_[10] + x_[2] + x_[3])/4),float((y_[9]+y_[10]+y_[2] + y_[3])/4)]
                 neck =  [float((x_[1]+x_[2] + x_[3])/3),float((y_[1]+y_[2]+y_[3] )/3)]
-                np.append(file[0]['x'],rev[0])
-                np.append(file[0]['x'],spine[0])
-                np.append(file[0]['x'],neck[0])
-                np.append(file[0]['y'],rev[1])
-                np.append(file[0]['y'],spine[1])
-                np.append(file[0]['y'],neck[1])
+                r.append(rev)
+                s.append(spine)
+                n.append(neck)
+            file[0]['x'] = np.concatenate((file[0]['x'],np.array(r)[:,0].reshape(-1,1)), axis=1)
+            file[0]['x'] = np.concatenate((file[0]['x'],np.array(s)[:,0].reshape(-1,1)), axis=1)
+            file[0]['x'] = np.concatenate((file[0]['x'],np.array(n)[:,0].reshape(-1,1)), axis=1)
+            file[0]['y'] = np.concatenate((file[0]['y'],np.array(r)[:,1].reshape(-1,1)), axis=1)
+            file[0]['y'] = np.concatenate((file[0]['y'],np.array(s)[:,1].reshape(-1,1)), axis=1)
+            file[0]['y'] = np.concatenate((file[0]['y'],np.array(n)[:,1].reshape(-1,1)), axis=1)
         else:
             pass
     else:
