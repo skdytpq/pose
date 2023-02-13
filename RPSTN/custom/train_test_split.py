@@ -38,6 +38,7 @@ def stratify():
     return x_train,x_test
 
 def add_joint(file):
+    file = np.load(file,allow_pickle = True)
     for x_,y_ in zip(file[0]['x'],file[0]['y']):
         rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
         spine = [float((x_[9]+x_[10] + x_[2] + x_[3])/4),float((y_[9]+y_[10]+y_[2] + y_[3])/4)]
@@ -45,6 +46,12 @@ def add_joint(file):
         file[0]['x'].extend([rev[0],spine[0],neck[0]])
         file[0]['y'].extend([rev[1],spine[1],neck[1]])
         # num_joint = 16
+def joint_in(base):
+    for f in os.listdir(base):
+        ph = os.path.join(base,f)
+        add_joint(ph)
+
+
 def moving(train,test):
      for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
@@ -57,8 +64,13 @@ def moving(train,test):
             print('ERROR : exception occured! please check y_data category')
             break
 if '__main__':
-    split(base)
-    train,test = stratify()
-    moving(train,test)
-    split(test)
+    prepare = 0
+    if prepare :
+        split(base)
+        train,test = stratify()
+        moving(train,test)
+        split(test)
+    else:
+        joint_in('../../data/pose_data/train')
+        joint_in('../../data/pose_data/test')
     print('=====================Ratio of data & Ratio of train======================')
