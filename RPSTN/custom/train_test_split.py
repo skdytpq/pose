@@ -43,12 +43,12 @@ def add_joint(file):
         rev = [float((x_[9]+x_[10])/2),float((y_[9]+y_[10])/2)]
         spine = [float((x_[9]+x_[10] + x_[2] + x_[3])/4),float((y_[9]+y_[10]+y_[2] + y_[3])/4)]
         neck =  [float((x_[1]+x_[2] + x_[3])/3),float((y_[1]+y_[2]+y_[3] )/3)]
-        file[0]['x'].append(rev[0])
-        file[0]['x'].append(spine[0])
-        file[0]['x'].append(neck[0])
-        file[0]['y'].append(rev[1])
-        file[0]['y'].append(spine[1])
-        file[0]['y'].append(neck[1])
+        np.append(file[0]['x'],rev[0])
+        np.append(file[0]['x'],spine[0])
+        np.append(file[0]['x'],neck[0])
+        np.append(file[0]['y'],rev[1])
+        np.append(file[0]['y'],spine[1])
+        np.append(file[0]['y'],neck[1])
         # num_joint = 16
 def joint_in(base):
     for f in os.listdir(base):
