@@ -38,7 +38,7 @@ def stratify():
     return x_train,x_test
 
 def add_joint(file):
-    try:
+    if 'npy' in file:
         file = np.load(file,allow_pickle = True)
         if file[0]['x'].shape[1] <14:
             for x_,y_ in zip(file[0]['x'],file[0]['y']):
@@ -53,7 +53,7 @@ def add_joint(file):
                 np.append(file[0]['y'],neck[1])
         else:
             pass
-    except:
+    else:
         pass
         # num_joint = 16
 def joint_in(base):
