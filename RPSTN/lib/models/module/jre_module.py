@@ -42,7 +42,7 @@ class _JREModule(nn.Module):
         assert dimension in [1, 2, 3]
 
         self.is_visual = is_visual
-        self.joint_num = 13
+        self.joint_num = 16
         self.dimension = dimension
         self.sub_sample = sub_sample
 
@@ -109,9 +109,9 @@ class _JREModule(nn.Module):
         :param x: (b, c, t, h, w)
         :return:
         '''
-        batch_size, c, h, w = x.size()
+        batch_size, c, h, w = x.size()  # c = 13?
         np.save('result/features/conv1.npy', self.g(x).detach().cpu().numpy())
-        pdb.set_trace()
+        #pdb.set_trace()
         g_x = self.g(x).view(batch_size, self.inter_channels, -1)   # [b, c, h*w]
 
         if self.is_joint:
