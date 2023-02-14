@@ -25,11 +25,10 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         j_x = torch.sum(p_x * v_x,axis=2) # ba , k , 1
         j_y = torch.sum(p_y * v_y,axis=2) # ba , k , 1
         joints_ = torch.cat([j_x,j_y],axis=2)
+        joints_ = output
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
-    pdb.set_trace()
-    joints = output
-    return joints_ # ba , num_joints , 2, 1
+    return joints # ba , num_joints , 2, 1
 
 
 def softmax_heat(heatmaps,num_joints , ba):
@@ -63,7 +62,6 @@ def soft_ar(heatmap):
         .sum(2)
         .unsqueeze(2)
     )
-    pdb.set_trace()
     output = [approx_x, approx_y] #if self.return_xy else [approx_y, approx_x]
     output = torch.cat(output, 2)
     return output
