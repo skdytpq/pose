@@ -80,7 +80,7 @@ def accuracy(outputs, targets, thr_PCK, thr_PCKh, dataset, bbox, hm_type='gaussi
     cnt = 0
     visible = np.zeros((len(idx)))
 
-    if dataset == 'Penn_Action':
+    if dataset == 'pose_data':
         for i in range(len(idx)):
             acc[i] = dist_acc(dists[idx[i]])
             # acc[i] = dist_acc(heat_dist[idx[i]])
@@ -129,7 +129,7 @@ def accuracy(outputs, targets, thr_PCK, thr_PCKh, dataset, bbox, hm_type='gaussi
     PCK = np.zeros((len(idx)))
     avg_PCK = 0
 
-    if dataset == "Penn_Action":
+    if dataset == "pose_data":
         if normTorso:
             torso = np.linalg.norm(target[0, 2,:]-target[0, 7,:])
             if torso < 1:

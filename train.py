@@ -14,6 +14,7 @@ os.environ[‘KMP_DUPLICATE_LIB_OK’]=True
 from ITES import train_student
 from RPSTN.pose_estimation import train_penn
 from joint_heatmap import generate_2d_integral_preds_tensor
+from tensorboardX import SummaryWriter
 def set_seed(seed):
 
     random.seed(seed)
@@ -36,6 +37,7 @@ class Trainer(object):
         self.is_train = is_train
         self.is_visual = is_visual
         ## JRE
+        self.writer = SummaryWriter(args.dir)
         self.workers = 1
         self.weight_decay = 0.1
         self.momentum = 0.9
@@ -46,6 +48,7 @@ class Trainer(object):
         self.sigma = 2
         self.stride = 4
         self.heatmap_size = 64
+        self.is_visual = True
         ## ITES
         self.num_joints = 16
         self.n_fully_connected = 1024
@@ -168,6 +171,16 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
+            # self.iters += 1
+            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            if self.is_visual == True:
+                if epoch % 5 == 0 :
+                    b, t, c, h, w = input.shape
+                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
+                    input = input.view(-1, c, h, w)
+                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    save_batch_heatmaps(input,heat,file_name)
+
             kpts = kpts[:16] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 

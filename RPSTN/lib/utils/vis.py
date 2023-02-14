@@ -142,7 +142,7 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
     cv2.imwrite(file_name, ndarr.astype(np.uint8))
 
 
-def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,
+def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
                         normalize=True):
     '''
     batch_image: [batch_size, channel, height, width]
@@ -182,7 +182,7 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,
         resized_image = cv2.resize(image, 
                                    (int(heatmap_width), int(heatmap_height)))
 
-    
+        joint = joints[i]
         height_begin = heatmap_height * i
         height_end = heatmap_height * (i + 1)
         for j in range(num_joints):
@@ -195,11 +195,12 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,
             cv2.circle(masked_image,
                         (int(preds[i][j][0]), int(preds[i][j][1])),
                         1, [0, 0, 255], 1)
-
+            cv2.circle(resized_image,(int(joint[j,0],int(joint[j,1]))),1,(255, 0, 0),1)
             width_begin = heatmap_width * (j+1)
             width_end = heatmap_width * (j+2)
             grid_image[height_begin:height_end, width_begin:width_end, :] = \
                 masked_image
+            pdb.set_trace()
             # grid_image[height_begin:height_end, width_begin:width_end, :] = \
             #     colored_heatmap*0.7 + resized_image*0.3
 

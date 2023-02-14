@@ -14,7 +14,7 @@ import math
 import pdb
 import shutil
 import random
-
+from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
 from utils.utils import printAccuracies as printAccuracies
@@ -139,7 +139,8 @@ class Trainer(object):
 
             loss += losses #+ 0.5 * relation_loss)
             train_loss += loss.item()
-
+            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            pdb.set_trace()
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
@@ -156,7 +157,7 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    save_batch_heatmaps(input,heat,file_name)
+                    save_batch_heatmaps(input,heat,file_name,joint)
 
 
 
