@@ -196,7 +196,7 @@ class Trainer(object):
                 file_name = 'result/heats/{}_batch.jpg'.format(i)
                 input = input.view(-1, c, h, w)
                 heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                save_batch_heatmaps(input,heat,file_name)
+            save_batch_heatmaps(input,heat,file_name)
                 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
@@ -225,7 +225,7 @@ class Trainer(object):
 
         res_pck[:-1] = PCK
         res_pck[-1] = mPCK
-        np.save('result/pck/PCK@{}.npy'.format(pck_thred), res_pck)
+        #np.save('result/pck/PCK@{}.npy'.format(pck_thred), res_pck)
 
         PCKhAvg = PCKh.sum()/(self.numClasses)
         PCKAvg  =  PCK.sum()/(self.numClasses)

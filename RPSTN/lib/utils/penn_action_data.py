@@ -90,6 +90,8 @@ class Penn_Action(data.Dataset):
 
     def __getitem__(self, index):
         frames = self.frames_data[index]
+        if 'DS_Store' in  os.path.join(self.data_dir, frames):
+            pass
         data = np.load(os.path.join(self.data_dir, frames), allow_pickle=True)[0]
         nframes = data['nframes'][0]    # 151 , T : 고정적이지 않음
         framespath = data['framepath']
