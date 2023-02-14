@@ -204,7 +204,7 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,
             #     colored_heatmap*0.7 + resized_image*0.3
 
         grid_image[height_begin:height_end, 0:heatmap_width, :] = resized_image
-    pdb.set_trace()
+   # pdb.set_trace()
     cv2.imwrite(file_name, grid_image)
 
 

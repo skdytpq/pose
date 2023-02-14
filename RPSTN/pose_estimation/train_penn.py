@@ -150,6 +150,14 @@ class Trainer(object):
 
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            if self.is_visual == True:
+                if epoch % 5 == 0 :
+                    b, t, c, h, w = input.shape
+                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
+                    input = input.view(-1, c, h, w)
+                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    save_batch_heatmaps(input,heat,file_name)
+
 
 
     def validation(self, epoch):
