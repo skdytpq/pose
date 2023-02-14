@@ -6,13 +6,13 @@ import pdb
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
     #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
         heatmaps = heatmaps[:,i,:,:,:].rehsape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     #heatmaps = heatmaps.permute(0,3,1,2) # b,h,w,k -> b k x y # 8 , 5
-        device = torch.device("cuda:0")
         v_x , v_y = softmax_heat(heatmaps,num_joints , ba) # ba , k , (w,h) , 1\
         output = soft_ar(heatmaps)
         v_x , v_y = v_x.to(device),v_y.to(device)
