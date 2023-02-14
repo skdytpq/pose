@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-
+import pdb
 import numpy as np
 import torchvision
 import cv2
@@ -23,7 +23,7 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
     }
     '''
     # joint_colors = []
-    if dataset == 'PennAction':
+    if dataset == 'pose_data':
         skeleton = [[1, 2], [2, 4], [4, 6], [1, 3], [3, 5], [2, 8], [7, 8],
                     [8, 10], [10, 12], [1, 7], [7, 9], [9, 11]]
 
@@ -204,7 +204,7 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,
             #     colored_heatmap*0.7 + resized_image*0.3
 
         grid_image[height_begin:height_end, 0:heatmap_width, :] = resized_image
-
+    pdb.set_trace()
     cv2.imwrite(file_name, grid_image)
 
 
