@@ -19,6 +19,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     j_x = torch.sum(p_x * v_x,axis=2) # ba , k , 1
     j_y = torch.sum(p_y * v_y,axis=2) # ba , k , 1
     joints = torch.cat([j_x,j_y],axis=2)
+    pdb.set_trace()
     return joints # ba , num_joints , 2, 1
 
 
