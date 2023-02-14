@@ -9,7 +9,8 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     ba = heatmaps.shape[0]
     #heatmaps = heatmaps.permute(0,3,1,2) # b,h,w,k -> b k x y
     device = torch.device("cuda:0")
-    v_x , v_y = softmax_heat(heatmaps,num_joints , ba) # ba , k , (w,h) , 1
+    v_x , v_y = softmax_heat(heatmaps,num_joints , ba) # ba , k , (w,h) , 1\
+    output = soft_ar(heatmaps)
     v_x , v_y = v_x.to(device),v_y.to(device)
     p_x = torch.arange(1,x_dim + 1).to(device)
     p_y = torch.arange(1,y_dim + 1).to(device)
@@ -30,3 +31,31 @@ def softmax_heat(heatmaps,num_joints , ba):
     v_x = h_k.sum(axis=3).reshape(ba,num_joints,-1,1) # b,k,h
     v_y = h_k.sum(axis=2).reshape(ba,num_joints,-1,1) # b,k,w
     return v_x , v_y # b,k,(w,h),1
+
+def soft_ar(heatmap):
+    heatmap = heatmap.mul(2)
+    batch_size, num_channel, height, width = heatmap.size()
+    device: str = heatmap.device
+
+    softmax: torch.Tensor = F.softmax(
+        heatmap.view(batch_size, num_channel, height * width), dim=2
+    ).view(batch_size, num_channel, height, width)
+
+    xx, yy = torch.meshgrid(list(map(torch.arange, [width, height])))
+
+    approx_x = (
+        softmax.mul(xx.float().to(device))
+        .view(batch_size, num_channel, height * width)
+        .sum(2)
+        .unsqueeze(2)
+    )
+    approx_y = (
+        softmax.mul(yy.float().to(device))
+        .view(batch_size, num_channel, height * width)
+        .sum(2)
+        .unsqueeze(2)
+    )
+
+    output = [approx_x, approx_y] #if self.return_xy else [approx_y, approx_x]
+    output = torch.cat(output, 2)
+    return output
