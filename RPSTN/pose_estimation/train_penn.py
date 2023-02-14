@@ -59,7 +59,7 @@ class Trainer(object):
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
-
+        self.num_joints = 16
         self.workers = 8
         self.weight_decay = 0.1
         self.momentum = 0.9
