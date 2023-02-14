@@ -9,9 +9,10 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
+    heatmaps_ = heatmaps.copy()
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
-        heatmaps = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+        heatmaps = heatmaps_[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     #heatmaps = heatmaps.permute(0,3,1,2) # b,h,w,k -> b k x y # 8 , 5
         v_x , v_y = softmax_heat(heatmaps,num_joints , ba) # ba , k , (w,h) , 1\
         output = soft_ar(heatmaps)
