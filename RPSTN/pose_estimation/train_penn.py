@@ -139,8 +139,6 @@ class Trainer(object):
 
             loss += losses #+ 0.5 * relation_loss)
             train_loss += loss.item()
-            pdb.set_trace()
-            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
@@ -148,7 +146,8 @@ class Trainer(object):
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
-
+            pdb.set_trace()
+            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             if self.is_visual == True:
