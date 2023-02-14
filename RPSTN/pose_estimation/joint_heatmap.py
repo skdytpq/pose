@@ -25,6 +25,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
 
 
 def softmax_heat(heatmaps,num_joints , ba):
+    heatmaps = heatmaps.mul(100)
     soft_h = torch.sum(torch.exp(heatmaps[:,:,:,:]),(2,3)).reshape(ba,num_joints,1,1)  # b ,k,1,1
     h_k = torch.exp(heatmaps[:,:,:,:])/soft_h
     pdb.set_trace()
