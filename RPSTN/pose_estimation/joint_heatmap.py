@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 import numpy as np
-
+import pdb
 
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor)
@@ -23,4 +23,5 @@ def softmax_heat(heatmaps,num_joints , ba):
     h_k = heatmaps/soft_h
     v_x = h_k.sum(axis=3).reshape(ba,num_joints,-1,1) # b,k,h
     v_y = h_k.sum(axis=2).reshape(ba,num_joints,-1,1) # b,k,w
+    pdb.set_trace()
     return v_x , v_y # b,k,(w,h),1
