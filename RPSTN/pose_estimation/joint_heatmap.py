@@ -20,7 +20,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     j_x = torch.sum(p_x * v_x,axis=2) # ba , k , 1
     j_y = torch.sum(p_y * v_y,axis=2) # ba , k , 1
     joints = torch.cat([j_x,j_y],axis=2)
-    pdb.set_trace()
+    joints = output
     return joints # ba , num_joints , 2, 1
 
 
@@ -28,7 +28,6 @@ def softmax_heat(heatmaps,num_joints , ba):
     heatmaps = heatmaps.mul(100)
     soft_h = torch.sum(torch.exp(heatmaps[:,:,:,:]),(2,3)).reshape(ba,num_joints,1,1)  # b ,k,1,1
     h_k = torch.exp(heatmaps[:,:,:,:])/soft_h
-    pdb.set_trace()
     v_x = h_k.sum(axis=3).reshape(ba,num_joints,-1,1) # b,k,h
     v_y = h_k.sum(axis=2).reshape(ba,num_joints,-1,1) # b,k,w
     return v_x , v_y # b,k,(w,h),1
