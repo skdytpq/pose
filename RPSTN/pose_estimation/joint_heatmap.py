@@ -71,20 +71,21 @@ def soft_ar(heatmap):
 
 
 def soft_argmax(ba,voxels,num_joints):
-	voxels = voxels.reshape(ba,num_joints,voxels.shape[-2],voxels.shape[-1],1)
-	# alpha is here to make the largest element really big, so it
-	# would become very close to 1 after softmax
-	alpha = 1000.0 
-	N,C,H,W,D = voxels.shape
-	soft_max = nn.functional.softmax(voxels.view(N,C,-1)*alpha,dim=2)
-	soft_max = soft_max.view(voxels.shape)
-	indices_kernel = torch.arange(start=0,end=H*W*D).unsqueeze(0)
-	indices_kernel = indices_kernel.view((H,W,D))
-	conv = soft_max*indices_kernel
-	indices = conv.sum(2).sum(2).sum(2)
-	z = indices%D
-	y = (indices/D).floor()%W
-	x = (((indices/D).floor())/W).floor()%H
-	coords = torch.stack([x,y,z],dim=2)
+    device = torch.device("cuda:0")
+    voxels = voxels.reshape(ba,num_joints,voxels.shape[-2],voxels.shape[-1],1)
+    # alpha is here to make the largest element really big, so it
+    # would become very close to 1 after softmax
+    alpha = 1000.0 
+    N,C,H,W,D = voxels.shape
+    soft_max = nn.functional.softmax(voxels.view(N,C,-1)*alpha,dim=2)
+    soft_max = soft_max.view(voxels.shape)
+    indices_kernel = torch.arange(start=0,end=H*W*D).unsqueeze(0).to(device)
+    indices_kernel = indices_kernel.view((H,W,D))
+    conv = soft_max*indices_kernel
+    indices = conv.sum(2).sum(2).sum(2)
+    z = indices%D
+    y = (indices/D).floor()%W
+    x = (((indices/D).floor())/W).floor()%H
+    coords = torch.stack([x,y,z],dim=2)
 
-	return coords
+    return coords
