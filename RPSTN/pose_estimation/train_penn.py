@@ -204,7 +204,8 @@ class Trainer(object):
             input = input.view(-1, c, h, w)
             pdb.set_trace()
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-            save_batch_heatmaps(input,heat,file_name)
+            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            save_batch_heatmaps(input,heat,file_name,joint)
                 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
