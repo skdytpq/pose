@@ -2,7 +2,7 @@ import torch
 from torch.nn import functional as F
 import numpy as np
 import pdb
-
+import torch.nn as nn
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
     #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
@@ -30,6 +30,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2,1)
+    joints = soft_argmax(ba*seq,heatmaps,num_joints).to(device)
     return joints # ba , num_joints , 2, 1
 
 
@@ -67,3 +68,28 @@ def soft_ar(heatmap):
     output = [approx_x, approx_y] #if self.return_xy else [approx_y, approx_x]
     output = torch.cat(output, 2)
     return output
+
+def soft_argmax(ba,voxels,num_joints):
+	"""
+	Arguments: voxel patch in shape (batch_size, channel, H, W, depth)
+	Return: 3D coordinates in shape (batch_size, channel, 3)
+	"""
+    
+	voxels = voxels.reshape(ba,num_joints,voxels.shape[-2],voxels.shape[-1],1)
+	# alpha is here to make the largest element really big, so it
+	# would become very close to 1 after softmax
+	alpha = 1000.0 
+	N,C,H,W,D = voxels.shape
+	soft_max = nn.functional.softmax(voxels.view(N,C,-1)*alpha,dim=2)
+	soft_max = soft_max.view(voxels.shape)
+	indices_kernel = torch.arange(start=0,end=H*W*D).unsqueeze(0)
+	indices_kernel = indices_kernel.view((H,W,D))
+	conv = soft_max*indices_kernel
+	indices = conv.sum(2).sum(2).sum(2)
+	z = indices%D
+	y = (indices/D).floor()%W
+	x = (((indices/D).floor())/W).floor()%H
+	coords = torch.stack([x,y,z],dim=2)
+    coords = coords[:,:,0]
+
+	return coords
