@@ -203,7 +203,7 @@ class Trainer(object):
             file_name = 'result/heats/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             save_batch_heatmaps(input,heat,file_name,joint)
                 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
@@ -245,8 +245,8 @@ class Trainer(object):
             if not os.path.exists(source_model_save_path):
                 os.makedirs(source_model_save_path)
             if self.is_train is True:
-                shutil.copy2('lib/models/dkd_net.py', source_model_save_path)
-                np.save('experiments/best_index', start_index)
+                shutil.copy2('RPSTN/lib/models/dkd_net.py', source_model_save_path)
+                np.save('RPSTN/experiments/best_index', start_index)
                 save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+times, self.args.model_save_path)
 
         if mPCKh > self.bestPCKh:
