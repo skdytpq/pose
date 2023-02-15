@@ -200,7 +200,6 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
             width_end = heatmap_width * (j+2)
             grid_image[height_begin:height_end, width_begin:width_end, :] = \
                 masked_image
-            pdb.set_trace()
             # grid_image[height_begin:height_end, width_begin:width_end, :] = \
             #     colored_heatmap*0.7 + resized_image*0.3
 
