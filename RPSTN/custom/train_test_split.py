@@ -43,9 +43,9 @@ def add_joint(files):
         if file[0]['x'].shape[1] <16:
             r,s,n = [],[],[]
             for x_,y_ in zip(file[0]['x'],file[0]['y']):
-                rev = [float(round((x_[9]+x_[10])/2),3),float(round((y_[9]+y_[10])/2),3)]
-                spine = [float(round((x_[9]+x_[10] + x_[2] + x_[3])/4),3),float(round((y_[9]+y_[10]+y_[2] + y_[3]/4),3))]
-                neck =  [float(round((x_[1]+x_[2] + x_[3])/3),3),float(round((y_[1]+y_[2]+y_[3] )/3),3)]
+                rev = [float(round((x_[7]+x_[8])/2),3),float(round((y_[7]+y_[8])/2),3)]
+                spine = [float(round((x_[7]+x_[8] + x_[1] + x_[2])/4),3),float(round((y_[7]+y_[8]+y_[1] + y_[2])/4,3))]
+                neck =  [float(round((x_[0]+x_[1] + x_[2])/3),3),float(round((y_[0]+y_[1]+y_[2])/3),3)]
                 r.append(rev)
                 s.append(spine)
                 n.append(neck)
