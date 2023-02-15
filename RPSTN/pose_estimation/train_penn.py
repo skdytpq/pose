@@ -155,7 +155,7 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    heatmap_var = heatmap_var.view(-1, 16, heatmap_var.shape[-2], heatmap_var.shape[-1])
+                    heatmap_var =heatmap_var.view(-1,16,heatmap_var.shape[-2],heatmap_var.shape[-1])
                     save_batch_heatmaps(input,heatmap_var,file_name,joint)
 
 
