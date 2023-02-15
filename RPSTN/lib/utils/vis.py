@@ -167,8 +167,8 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
                           dtype=np.uint8)
 
     preds, maxvals = get_max_preds(batch_heatmaps.detach().cpu().numpy())
-    joints[:,:,0] = joints[:,:,0] % heatmap_width
-    joints[:,:,1] = torch.floor((joints[:, :, 1]) / heatmap_width)
+    #joints[:,:,0] = joints[:,:,0] % heatmap_width
+    #joints[:,:,1] = torch.floor((joints[:, :, 1]) / heatmap_width)
     for i in range(batch_size):
         image = batch_image[i].mul(255)\
                               .clamp(0, 255)\
@@ -200,6 +200,7 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
             width_end = heatmap_width * (j+2)
             grid_image[height_begin:height_end, width_begin:width_end, :] = \
                 masked_image
+            pdb.set_trace()
             # grid_image[height_begin:height_end, width_begin:width_end, :] = \
             #     colored_heatmap*0.7 + resized_image*0.3
 
