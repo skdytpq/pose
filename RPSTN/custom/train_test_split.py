@@ -75,8 +75,8 @@ def add_vis(files):
 def joint_in(base):
     for f in os.listdir(base):
         ph = os.path.join(base,f)
-        #add_joint(ph)
-        add_vis(ph)
+        add_joint(ph)
+        #add_vis(ph)
 
 def moving(train,test):
      for i in os.listdir(base):
