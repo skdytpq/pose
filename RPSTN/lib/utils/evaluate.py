@@ -64,6 +64,7 @@ def accuracy(outputs, targets, thr_PCK, thr_PCKh, dataset, bbox, hm_type='gaussi
     # bbox = bbox
     # print(bbox)
     norm = 1.0
+    dataset = 'pose_data'
     if hm_type == 'gaussian':
         pred, _ = get_max_preds(outputs)
         target, _ = get_max_preds(targets)
