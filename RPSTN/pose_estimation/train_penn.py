@@ -146,7 +146,7 @@ class Trainer(object):
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
-            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint = generate_2d_integral_preds_tensor(heatmap , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             if self.is_visual == True:
@@ -156,7 +156,7 @@ class Trainer(object):
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     heatmap_var =heatmap_var.view(-1,16,heatmap_var.shape[-2],heatmap_var.shape[-1])
-                    save_batch_heatmaps(input,heatmap_var,file_name,joint)
+                    save_batch_heatmaps(input,heatmap,file_name,joint)
 
 
 
@@ -203,7 +203,6 @@ class Trainer(object):
             #if self.is_visual:
             file_name = 'result/heats/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
-            pdb.set_trace()
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
             joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             save_batch_heatmaps(input,heat,file_name,joint)
