@@ -25,8 +25,8 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         j_x = torch.sum(p_x * v_x,axis=2) # ba , k , 1
         j_y = torch.sum(p_y * v_y,axis=2) # ba , k , 1
         joints_ = torch.cat([j_x,j_y],axis=2)
-        j_x = output[:,:,0]
-        j_y = output[:,:,1]
+        j_x = output[:,:,1]
+        j_y = output[:,:,0]
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2)
