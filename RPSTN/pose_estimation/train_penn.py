@@ -198,12 +198,11 @@ class Trainer(object):
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             #[8,5,3,256,256]?
             b, t, c, h, w = input.shape
-           
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #if self.is_visual:
             file_name = 'result/heats/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             save_batch_heatmaps(input,heat,file_name,joint)
                 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
