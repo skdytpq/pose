@@ -146,7 +146,7 @@ class Trainer(object):
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
-            joint = generate_2d_integral_preds_tensor(heatmap , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             if self.is_visual == True:
