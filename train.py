@@ -8,12 +8,14 @@ sys.path.append('RPSTN/custom')
 sys.path.append('RPSTN/files')
 sys.path.append('RPSTN/lib')
 sys.path.append('RPSTN/pose_estimation')
+sys.path.append('RPSTN/lib/utils')
 # ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
 import os
 os.environ[‘KMP_DUPLICATE_LIB_OK’]=True
 from ITES import train_student
 from RPSTN.pose_estimation import train_penn
 from joint_heatmap import generate_2d_integral_preds_tensor
+from RPSTN.lib.utils import evaluate as evaluate
 from tensorboardX import SummaryWriter
 def set_seed(seed):
 
@@ -191,15 +193,62 @@ class Trainer(object):
             losses = self.criterion(heat, heatmap_var)
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
             preds = model_pos_train(jfh,align_to_root=True)
-            
+            # Batch, 16,2
             loss_total =  loss_reprojection + loss_consistancy
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
+            train_loss = loss_total + losses
+            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             loss_total.backward()
-
+            
             optimizer_ite.step()
             # output => [ba , num_joints , 2]
+    def validation(self, epoch):
+        print('Start Testing....')
+        self.model.eval()
+        tbar = tqdm(self.val_loader, desc='\r')
+        val_loss = 0.0
+        
+        AP = np.zeros(self.numClasses)
+        PCK = np.zeros(self.numClasses)
+        PCKh = np.zeros(self.numClasses)
+        count = np.zeros(self.numClasses)
 
+        res_pck = np.zeros(self.numClasses + 1)
+        pck_thred = 1
+
+        idx = []
+        cnt = 0
+        preds = []
+
+        for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
+            cnt += 1
+            idx.append(start_index)
+            input_var = input.cuda()
+            heatmap_var = heatmap.cuda()
+
+            self.optimizer.zero_grad()
+
+            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
+            vis = label[:, :, :, -1]
+            vis = vis.view(-1, self.numClasses, 1)
+
+            losses = {}
+            loss   = 0
+
+            start_model = time.time()
+            heat = self.model(input_var)
+            losses = self.criterion(heat, heatmap_var)
+            loss  += losses.item() #+ 0.5 * relation_loss.item()
+            #[8,5,3,256,256]?
+            b, t, c, h, w = input.shape
+           
+            #if self.is_visual:
+            file_name = 'result/heats/{}_batch.jpg'.format(i)
+            input = input.view(-1, c, h, w)
+            pdb.set_trace()
+            heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+            joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
