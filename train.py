@@ -134,14 +134,14 @@ class Trainer(object):
             heatmap_var = heatmap.cuda()
             heat = model_jre(input_var)
             # self.iters += 1
-            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             if self.is_visual == True:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(input,heat,file_name)
+                    train_penn.save_batch_heatmaps(input,heat,file_name,jfh)
 
             kpts = kpts[:16] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
@@ -150,7 +150,7 @@ class Trainer(object):
             loss = 0
             start_model = time.time()
             losses = self.criterion_jre(heat, heatmap_var)
-            jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
+            # joint from heatmap K , 64 , 64 
             preds = model_ite(jfh,align_to_root=True)
             # Batch, 16,2
             
@@ -158,10 +158,11 @@ class Trainer(object):
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
             train_loss = loss_total + losses
-            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             loss_total.backward()
-            
             optimizer.step()
+            self.writer.add_scalar('loss_jre', (losses / self.batch_size), epoch)
+            self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
+            self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
         print('Start Testing....')
