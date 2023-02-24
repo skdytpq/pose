@@ -90,7 +90,7 @@ class Trainer(object):
 
         self.iters = 0
 
-        if self.args.pretrained_jre is not None:
+        if args.pretrained_jre is not None:
             checkpoint = torch.load(self.args.pretrained)
             p = checkpoint['state_dict']
             if self.dataset == "pose_data":
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('--is_train', default=False, type=bool)
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
     parser.add_argument('--dir' , default = 'run',type=str)
-    parser.add_argument('--pretrained_jre', default=None, type=str, dest='pretrained')
+    parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
     epochs =  100
