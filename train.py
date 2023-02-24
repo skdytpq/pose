@@ -132,6 +132,7 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
+            heat = model_jre(input_var)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             if self.is_visual == True:
@@ -148,7 +149,6 @@ class Trainer(object):
             losses = {}
             loss = 0
             start_model = time.time()
-            heat = model_jre(input_var)
             losses = self.criterion_jre(heat, heatmap_var)
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
             preds = model_ite(jfh,align_to_root=True)
