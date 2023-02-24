@@ -37,7 +37,7 @@ from tensorboardX import SummaryWriter
 from PIL import Image
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '2, 3'
-
+# python RPSTN/pose_estimation/train_penn.py --is_train True
 def set_seed(seed):
 
     random.seed(seed)
