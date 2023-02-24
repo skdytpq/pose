@@ -47,6 +47,7 @@ class Trainer(object):
         self.is_visual = is_visual
         ## JRE
         self.writer = SummaryWriter(args.dir)
+        self.test_dir = None
         self.workers = 1
         self.weight_decay = 0.1
         self.momentum = 0.9
