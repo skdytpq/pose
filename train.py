@@ -67,7 +67,7 @@ class Trainer(object):
 
 
         if self.dataset ==  "Penn_Action":
-            self.numClasses = 13
+            self.numClasses = 16
             self.test_dir = None
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
@@ -219,3 +219,29 @@ if __name__ == '__main__':
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
     parser.add_argument('--dir' , default = 'run',type=str)
     parser.add_argument('--pretrained_jre', default=None, type=str, dest='pretrained')
+    RANDSEED = 2021
+    starter_epoch = 0
+    epochs =  100
+    is_train = args.is_train
+    is_visual = args.visual
+    args = parser.parse_args()
+    args.dataset  = 'pose_data'
+    args.frame_memory = 5
+    if args.dataset == 'pose_data':
+        args.train_dir  = 'data/pose_data'
+        args.val_dir    = 'data/pose_data'
+        tb_log_dir = 'run/'
+    args.train_dir  = 'data/pose_data'
+    args.val_dir    = 'data/pose_data'
+  #  tb_log_dir = 'run/penn/'
+#    writer = SummaryWriter(log_dir= '', comment='weight_decay')
+#    args.writer = writer
+    set_seed(RANDSEED)
+    if is_train == True:
+        trainer = Trainer(args, is_train=True, is_visual=True) # 원래 False
+        for epoch in range(starter_epoch, epochs):
+            trainer.training(epoch)
+            trainer.validation(epoch)
+    else:
+        trainer = Trainer(args, is_train=False, is_visual=True)
+        trainer.validation(0)
