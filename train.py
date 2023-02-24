@@ -67,7 +67,7 @@ class Trainer(object):
         self.init_std = 0.01
 
 
-        if self.dataset ==  "Penn_Action":
+        if self.dataset ==  "pose_data":
             self.numClasses = 16
             self.test_dir = None
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
