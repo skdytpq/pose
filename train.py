@@ -82,17 +82,18 @@ class Trainer(object):
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
-        self.optimizer_jre = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-        self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
-                            momentum=args.momentum,
-                            weight_decay=args.weight_decay)
+        self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
+        self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
+  #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
+  #                          momentum=args.momentum,
+  #                          weight_decay=args.weight_decay)
 
         self.iters = 0
 
         if self.args.pretrained_jre is not None:
             checkpoint = torch.load(self.args.pretrained)
             p = checkpoint['state_dict']
-            if self.dataset == "Penn_Action":
+            if self.dataset == "pose_data":
                 prefix = 'invalid'
             state_dict = self.model.state_dict()
             model_dict = {}
@@ -115,7 +116,11 @@ class Trainer(object):
     def training(self, epoch):
         print('Start Training....')
         train_loss = 0.0
-        self.model.train()
+        model_jre = self.model_jre
+        model_ite = self.modle_pos_train
+        model_jre.train()
+        model_ite.train()
+        optimizer = self.optimizer
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
@@ -143,19 +148,20 @@ class Trainer(object):
             losses = {}
             loss = 0
             start_model = time.time()
-            heat = self.model(input_var)
+            heat = model_jre(input_var)
             losses = self.criterion(heat, heatmap_var)
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
-            preds = self.model_pos_train(jfh,align_to_root=True)
+            preds = model_ite(jfh,align_to_root=True)
             # Batch, 16,2
-            loss_total =  loss_reprojection + loss_consistancy
+            
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
+            loss_total =  loss_reprojection + loss_consistancy
             train_loss = loss_total + losses
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             loss_total.backward()
             
-            optimizer_ite.step()
+            optimizer.step()
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
         print('Start Testing....')
