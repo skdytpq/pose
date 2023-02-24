@@ -222,9 +222,9 @@ if __name__ == '__main__':
     RANDSEED = 2021
     starter_epoch = 0
     epochs =  100
+    args = parser.parse_args()
     is_train = args.is_train
     is_visual = args.visual
-    args = parser.parse_args()
     args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
