@@ -12,7 +12,7 @@ sys.path.append('RPSTN/lib/utils')
 # ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = True
-from ITES import train_student
+from ITES import train_t
 from RPSTN.pose_estimation import train_penn
 from joint_heatmap import generate_2d_integral_preds_tensor
 from RPSTN.lib.utils import evaluate as evaluate
