@@ -70,7 +70,7 @@ class CoordinateLoss(nn.Module):
             losses.append(dsntnn.average_loss(euc_loss + reg_loss))
         return sum(losses) / batch_size
 
-
+ 
 # if __name__ == '__main__':
 #     import torch
 

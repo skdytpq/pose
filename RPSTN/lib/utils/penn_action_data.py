@@ -145,11 +145,11 @@ class Penn_Action(data.Dataset):
             label[i, :, 1] = y[start_index + i]
             label[i, :, 2] = visibility[start_index + i]  # 1 * 13
             bbox[i, :]     = data['bbox'][start_index + i]  #
-
             # make the joints not in the figure vis=-1(Do not produce label) 
             for part in range(0, self.parts_num):  # for each part
                 if self.isNotOnPlane(label[i, part, 0], label[i, part, 1], dim[1], dim[0]):
                     label[i, part, 2] = -1
+
             
             kps[i, :16, :] = label[i] # kps 에서 :16 까지는 각 Joint 의 x,y visibility 를 다룬다
             # label[i]는 각 시점에서 x , y visibility 를 갖고있다.

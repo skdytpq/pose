@@ -9,7 +9,7 @@ import sys
 import numpy as np
 import cv2
 import os
-import models
+import models 
 import math
 import pdb
 import shutil
@@ -124,6 +124,7 @@ class Trainer(object):
 
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
+            pdb.set_trace()
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
@@ -204,7 +205,7 @@ class Trainer(object):
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
             save_batch_heatmaps(input,heat,file_name,joint)
-                
+
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
