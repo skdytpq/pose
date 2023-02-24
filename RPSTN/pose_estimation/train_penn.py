@@ -167,7 +167,7 @@ class Trainer(object):
         
         AP = np.zeros(self.numClasses)
         PCK = np.zeros(self.numClasses)
-        PCKh = np.zeros(self.numClasses)
+        PCKh = np.zeros(self.numClasses) 
         count = np.zeros(self.numClasses)
 
         res_pck = np.zeros(self.numClasses + 1)
