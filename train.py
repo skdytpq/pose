@@ -42,7 +42,7 @@ class Trainer(object):
         self.dataset = args.dataset
         self.frame_memory = args.frame_memory   
         self.writer = args.writer
-        self.gpus = 1#[int(i) for i in config.GPUS.split(',')]
+        self.gpus =  [int(i) for i in train_penn.config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
         ## JRE
