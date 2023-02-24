@@ -117,7 +117,7 @@ class Trainer(object):
         print('Start Training....')
         train_loss = 0.0
         model_jre = self.model_jre
-        model_ite = self.modle_pos_train
+        model_ite = self.model_pos_train
         model_jre.train()
         model_ite.train()
         optimizer = self.optimizer
@@ -149,7 +149,7 @@ class Trainer(object):
             loss = 0
             start_model = time.time()
             heat = model_jre(input_var)
-            losses = self.criterion(heat, heatmap_var)
+            losses = self.criterion_jre(heat, heatmap_var)
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size) # joint from heatmap K , 64 , 64 
             preds = model_ite(jfh,align_to_root=True)
             # Batch, 16,2
