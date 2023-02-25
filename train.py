@@ -167,9 +167,10 @@ class Trainer(object):
             self.writer.add_scalar('loss_jre', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
-            vis_joint = preds['shape_camera_coord']
-            if epoch % 5 == 0 :
-                draw_3d_pose(vis_joint[0,:,:],f'exp/vis/{epoch}.jpg')
+            with torch.no_grad():
+                vis_joint = preds['shape_camera_coord']
+                if epoch % 5 == 0 :
+                    draw_3d_pose(vis_joint[0,:,:],f'exp/vis/{epoch}.jpg')
 
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
