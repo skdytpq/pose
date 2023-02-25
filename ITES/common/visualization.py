@@ -73,6 +73,7 @@ def draw_2d_img_and_pose(info,keypoints, skeleton, path):
 def draw_3d_pose(poses, path):
     #poses n*3 dataset.skeleton()
     poses = poses - poses[0:1,:]
+    poses = poses.detach().numpy()
     poses = np.asarray(poses.cpu())
     nkp = int(poses.shape[0])
     pid = np.linspace(0., 1., nkp)
