@@ -162,7 +162,7 @@ class Trainer(object):
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
             train_loss = loss_total + losses
-            loss_total.backward()
+            train_loss.backward()
             optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
