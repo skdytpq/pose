@@ -1,3 +1,4 @@
+# python train.py --is_train True
 import sys
 sys.path.append("ITES")
 sys.path.append("ITES/common")
@@ -134,7 +135,7 @@ class Trainer(object):
             heatmap_var = heatmap.cuda()
             heat = model_jre(input_var)
             # self.iters += 1
-            pdb.set_trace()
+            #[8, 5, 16, 64, 64
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             if self.is_visual == True:
                 if epoch % 5 == 0 :
