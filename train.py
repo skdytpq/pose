@@ -201,7 +201,7 @@ class Trainer(object):
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
-
+            heat = model_jre(input_var)
             losses = {}
             loss = 0
             start_model = time.time()
