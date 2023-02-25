@@ -57,11 +57,11 @@ class Teacher_net(nn.Module):
         preds = {}
         ba = input_2d.shape[0] # batch
         dtype = input_2d.type()
-        pdb.set_trace()
+        #pdb.set_trace()
         input_2d_norm, root = self.normalize_keypoints(input_2d) # Batch,num_joint,2 
         # root 는 각 Batch 의 머리 좌표값
         # Head 를 기준으로 정규화를 진행
-        pdb.set_trace()
+        #pdb.set_trace()
         if self.z_augment: # random rotate 가 필요할 때 : consistency loss 계산
             R_rand = rand_rot(ba,
                               dtype=dtype,
