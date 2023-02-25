@@ -167,7 +167,7 @@ class Trainer(object):
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
             if epoch % 5 == 0 :
-                draw_3d_pose(jfh,f'exp/vis/{epoch}.jpg')
+                draw_3d_pose(jfh.detach.numpy(),f'exp/vis/{epoch}.jpg')
 
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
