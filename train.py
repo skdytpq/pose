@@ -135,6 +135,7 @@ class Trainer(object):
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
+            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             heat = model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64
@@ -148,7 +149,6 @@ class Trainer(object):
                     train_penn.save_batch_heatmaps(input,heat,file_name,jfh)
 
             kpts = kpts[:16] # joint
-            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 
             losses = {}
             loss = 0
@@ -209,7 +209,7 @@ class Trainer(object):
                 losses = {}
                 loss = 0
                 start_model = time.time()
-                losses = self.criterion_jre(heat, heatmap_var)
+                
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                 preds = model_ite(jfh,align_to_root=True)
@@ -218,12 +218,13 @@ class Trainer(object):
                 loss_reprojection = preds['l_reprojection'] 
                 loss_consistancy = preds['l_cycle_consistent']
                 loss_total =  loss_reprojection + loss_consistancy
-                val_loss = loss_total + losses
+                
 
                 start_model = time.time()
                 heat = model_jre(input_var)
-                losses = self.criterion(heat, heatmap_var)
-                loss  += losses.item() #+ 0.5 * relation_loss.item()
+                losses = self.criterion_jre(heat, heatmap_var)
+               # loss  += losses.item() #+ 0.5 * relation_loss.item()
+                val_loss = loss_total + losses
                 #[8,5,3,256,256]?
                 b, t, c, h, w = input.shape
             
