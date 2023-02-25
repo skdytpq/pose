@@ -4,7 +4,7 @@ from common.function import so3_exponential_map
 from common.camera import *
 from common.function import *
 from common.loss import *
-
+import pdb
 class Teacher_net(nn.Module):
     def __init__(self, num_joints_in, num_joints_out, in_features=2, n_fully_connected=1024, n_layers=6, dict_basis_size=12, weight_init_std = 0.01):
         super().__init__()
@@ -57,7 +57,9 @@ class Teacher_net(nn.Module):
         preds = {}
         ba = input_2d.shape[0] # batch
         dtype = input_2d.type()
+        pdb.set_trace()
         input_2d_norm, root = self.normalize_keypoints(input_2d)
+        pdb.set_trace()
         if self.z_augment: # random rotate 가 필요할 때 : consistency loss 계산
             R_rand = rand_rot(ba,
                               dtype=dtype,
