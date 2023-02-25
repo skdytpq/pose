@@ -58,7 +58,9 @@ class Teacher_net(nn.Module):
         ba = input_2d.shape[0] # batch
         dtype = input_2d.type()
         pdb.set_trace()
-        input_2d_norm, root = self.normalize_keypoints(input_2d)
+        input_2d_norm, root = self.normalize_keypoints(input_2d) # Batch,num_joint,2 
+        # root 는 각 Batch 의 머리 좌표값
+        # Head 를 기준으로 정규화를 진행
         pdb.set_trace()
         if self.z_augment: # random rotate 가 필요할 때 : consistency loss 계산
             R_rand = rand_rot(ba,
@@ -69,28 +71,37 @@ class Teacher_net(nn.Module):
             # 2차원 카메라 view 를 통해 rotation진행
         preds['keypoints_2d'] = input_2d_norm # 전체 키포인트 값
         preds['kp_mean'] = root # joint 의 중앙 지점
-        input_flatten = input_2d_norm.view(-1,self.num_joints_in*2) #2차원 텐서
-        feats = self.fe_net(input_flatten[:,:, None, None]) # fully connected layer 통과시켜 feature 뽑음
+        input_flatten = input_2d_norm.view(-1,self.num_joints_in*2) #2차원 텐서 [Batch , joint X 2]
+        feats = self.fe_net(input_flatten[:,:, None, None]) # Batch, n_fully_dim, 1,1
+        
+         # fully connected layer 통과시켜 feature 뽑음
         # 단일 값을 convolution 진행하기 위해 2차원 tensor로 취급하기 위해 None: None 사용
         # output  = 1
         shape_coeff = self.alpha_layer(feats)[:, :, 0, 0] # 1x1 convolution 진행후 나온 scalar 값
         # pose에 대한 coeff 를 뽑는다 : pose dictionary 의 원소 숫자와 동일하게
+        # [Batch X pose dictionary] , 각 Joint 의 형상이 Pose Dictionary 와 비슷한지
         shape_invariant = self.shape_layer(shape_coeff[:, :, None, None])[:, :, 0, 0] # 또다시 2차원 텐서 취급하여 집어넣음
         # shape_layer 의 inde
         # coeff 와 3d pose 를 맞춰주기 위해  3 * num_joint 의 output 
+        # 1X1 Convolution 진행
         shape_invariant = shape_invariant.view(ba, self.num_joints_out, 3) # expected Y hat
         # shape 에 대한 정보
         R_log = self.rot_layer(feats)[:,:,0,0] # fully connected layer
-        # cam 에 대한 matrix 도 학습을 진행한다.
+        # cam 에 대한 matrix 도 학습을 진행한다. , [Batch X 3]
         R = so3_exponential_map(R_log) # 3차원 Matrix : camera matrix
+        # Batch X 3 X 3
         T = R_log.new_zeros(ba, 3)       # no global depth offset
 
-        scale = R_log.new_ones(ba) # batch 만큼의 텐서 생성
+        scale = R_log.new_ones(ba) # batch 만큼의 텐서 생성 , [Batch]
         shape_camera_coord = self.rotate_and_translate(shape_invariant, R, T, scale) # joint matrix 화 R 을 곱함
+        # shape_invariant  : Batch X joint X 3 (Pose Dictionary 의 Coeff 에 1X1 conolution 을 진행한 값)
+        # R : Batch X 3 X 3 (Camera Matrix)
+        # T : Batch X 3 (zero tensor)
         # world 의 점을 2차원 카메라 공간에 투영    
         # cam 에 대한 정보
+        # Batch  X  joint X 3
         shape_image_coord = shape_camera_coord[:,:,0:2]/torch.clamp(5 + shape_camera_coord[:,:,2:3],min=1) # Perspective projection
-
+        # z 축 으로의 사영 결과값
         preds['camera'] = R
         preds['shape_camera_coord'] = shape_camera_coord
         preds['shape_coeff'] = shape_coeff # C 
@@ -108,6 +119,7 @@ class Teacher_net(nn.Module):
         shape_invariant = preds['shape_invariant'] # hat y
         if preds['align']:
             shape_invariant_root = shape_invariant - shape_invariant[:,0:1,:]
+            # root => head
         else: 
             shape_invariant_root = shape_invariant
         dtype = shape_invariant.type()

@@ -20,12 +20,12 @@ def so3_exponential_map(log_rot, eps: float = 0.0001): # 물체의 회전을 표
     Raises:
         ValueError if `log_rot` is of incorrect shape
     """
-
+    # Batch X 3 (dim)
     _, dim = log_rot.shape
     if dim != 3:
         raise ValueError('Input tensor shape has to be Nx3.')
 
-    nrms = (log_rot * log_rot).sum(1) # 1차원 tensor
+    nrms = (log_rot * log_rot).sum(1) # 1차원 tensor # 행에 대한 더한 값 추출
     phis = torch.clamp(nrms, 0.).sqrt() # 최소 값을 교체, 0
     phisi = 1. / (phis + eps)
     fac1 = phisi * phis.sin()
