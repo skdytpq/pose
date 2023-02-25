@@ -107,3 +107,4 @@ def draw_3d_pose(poses, path):
     plt.savefig(path,dpi=40)
     plt.close()
     return
+# 0 -> 1,2
