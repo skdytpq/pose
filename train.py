@@ -26,6 +26,7 @@ from tqdm import tqdm
 import time
 import random
 import numpy as np
+from ITES.common.visualization import draw_3d_pose
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -165,13 +166,18 @@ class Trainer(object):
             self.writer.add_scalar('loss_jre', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
+            if epoch % 5 == 0 :
+                draw_3d_pose(jfh,f'exp/vis/{epoch}.jpg')
+
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
         print('Start Testing....')
-        self.model.eval()
+        model_jre = self.model_jre
+        model_ite = self.model_pos_train
         tbar = tqdm(self.val_loader, desc='\r')
         val_loss = 0.0
-        
+        model_jre.eval()
+        model_ite.eval()
         AP = np.zeros(self.numClasses)
         PCK = np.zeros(self.numClasses)
         PCKh = np.zeros(self.numClasses)
@@ -197,7 +203,18 @@ class Trainer(object):
             vis = vis.view(-1, self.numClasses, 1)
 
             losses = {}
-            loss   = 0
+            loss = 0
+            start_model = time.time()
+            losses = self.criterion_jre(heat, heatmap_var)
+            # joint from heatmap K , 64 , 64 
+            jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            preds = model_ite(jfh,align_to_root=True)
+            # Batch, 16,2
+            
+            loss_reprojection = preds['l_reprojection'] 
+            loss_consistancy = preds['l_cycle_consistent']
+            loss_total =  loss_reprojection + loss_consistancy
+            val_loss = loss_total + losses
 
             start_model = time.time()
             heat = self.model(input_var)
@@ -207,11 +224,12 @@ class Trainer(object):
             b, t, c, h, w = input.shape
            
             #if self.is_visual:
-            file_name = 'result/heats/{}_batch.jpg'.format(i)
+            file_name = 'result/heats/val/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
-            pdb.set_trace()
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
             joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            train_penn.save_batch_heatmaps(input,heat,file_name,joint)
+            self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

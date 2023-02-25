@@ -150,7 +150,7 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
-            if self.is_visual == True:
+            if self.is_visual == True:  
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)

@@ -70,7 +70,7 @@ def draw_2d_img_and_pose(info,keypoints, skeleton, path):
     plt.close()
     return
 
-def draw_3d_pose(poses, skeleton, path):
+def draw_3d_pose(poses, path):
     #poses n*3 dataset.skeleton()
     poses = poses - poses[0:1,:]
     poses = np.asarray(poses.cpu())
@@ -92,11 +92,11 @@ def draw_3d_pose(poses, skeleton, path):
     ax.set_zticklabels([])
     ax.patch.set_facecolor("white")  
     ax.dist = 7.5
-    parents = skeleton.parents()
+    parents = [i for i in range(16)]#skeleton.parents()
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
-            continue
-        col = 'gray' if j in skeleton.joints_right() else 'orange'
+            continue 
+        col = 'gray' # if j in skeleton.joints_right() else 'orange'
         pos = poses
         ax.plot([pos[j, 0], pos[j_parent, 0]],[pos[j, 2], pos[j_parent, 2]],[pos[j, 1], pos[j_parent, 1]],linewidth=9,alpha=1,zdir='z', c=col)
     xs = poses[:,0]
