@@ -154,6 +154,8 @@ class Trainer(object):
             loss = 0
             start_model = time.time()
             losses = self.criterion_jre(heat, heatmap_var)
+            loss += losses
+            jre_loss = loss.item()
             # joint from heatmap K , 64 , 64 
             preds = model_ite(jfh,align_to_root=True)
             # Batch, 16,2
@@ -161,7 +163,7 @@ class Trainer(object):
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
-            train_loss = loss_total + losses
+            train_loss = loss_total + jre_loss
             train_loss.backward()
             optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
