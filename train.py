@@ -80,7 +80,7 @@ class Trainer(object):
 
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
-                            dict_basis_size=self.basis, weight_init_std = self.init_std)
+                            dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
