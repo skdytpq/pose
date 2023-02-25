@@ -164,7 +164,7 @@ class Trainer(object):
             train_loss = loss_total + losses
             loss_total.backward()
             optimizer.step()
-            self.writer.add_scalar('loss_jre', (losses / self.batch_size), epoch)
+            self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
         with torch.no_grad():
@@ -221,7 +221,7 @@ class Trainer(object):
                 val_loss = loss_total + losses
 
                 start_model = time.time()
-                heat = self.model(input_var)
+                heat = model_jre(input_var)
                 losses = self.criterion(heat, heatmap_var)
                 loss  += losses.item() #+ 0.5 * relation_loss.item()
                 #[8,5,3,256,256]?
