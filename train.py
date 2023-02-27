@@ -159,13 +159,14 @@ class Trainer(object):
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
+            path = f'exp/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(input,heat,file_name,jfh)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
         with torch.no_grad():
             vis_joint = preds['shape_camera_coord']
             if epoch % 5 == 0 :
@@ -229,10 +230,11 @@ class Trainer(object):
             
                 #if self.is_visual:
                 file_name = 'result/heats/val/{}_batch.jpg'.format(i)
+                path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
                 heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                joint = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
-                train_penn.save_batch_heatmaps(input,heat,file_name,joint)
+                joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
 
 if __name__ == '__main__':

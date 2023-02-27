@@ -9,7 +9,7 @@ import torchvision
 import cv2
 import torch
 import matplotlib.pyplot as plt
-
+import os
 from .evaluate import get_max_preds
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -142,13 +142,15 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
     cv2.imwrite(file_name, ndarr.astype(np.uint8))
 
 
-def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
+def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
                         normalize=True):
     '''
     batch_image: [batch_size, channel, height, width]
     batch_heatmaps: ['batch_size, num_joints, height, width]
     file_name: saved file name
     '''
+    bonelist = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
+
     if normalize:
         batch_image = batch_image.clone()
         min = float(batch_image.min())
@@ -162,13 +164,14 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
     heatmap_width = batch_heatmaps.size(3)
 
     grid_image = np.zeros((batch_size*heatmap_height,
-                           (num_joints+1)*heatmap_width,
+                           (num_joints+2)*heatmap_width, # joint -> each joint heatmap , 1 -> image , 1 -> skeleton
                            3),
                           dtype=np.uint8)
 
     preds, maxvals = get_max_preds(batch_heatmaps.detach().cpu().numpy())
     #joints[:,:,0] = joints[:,:,0] % heatmap_width
     #joints[:,:,1] = torch.floor((joints[:, :, 1]) / heatmap_width)
+    fig, axs = plt.subplots(batch_size, 1)
     for i in range(batch_size):
         image = batch_image[i].mul(255)\
                               .clamp(0, 255)\
@@ -195,15 +198,22 @@ def save_batch_heatmaps(batch_image, batch_heatmaps, file_name,joints,
             cv2.circle(masked_image,
                         (int(preds[i][j][0]), int(preds[i][j][1])),
                         1, [0, 0, 255], 1)
-            cv2.circle(resized_image,(int(joint[j,0]),int(joint[j,1])),1,(255, 0, 0),1)
+            cv2.circle(resized_image,(int(joint[j,0]),int(joint[j,1])),1,(255, 0, 0),1) # plot joint
             width_begin = heatmap_width * (j+1)
             width_end = heatmap_width * (j+2)
             grid_image[height_begin:height_end, width_begin:width_end, :] = \
                 masked_image
             # grid_image[height_begin:height_end, width_begin:width_end, :] = \
             #     colored_heatmap*0.7 + resized_image*0.3
-
         grid_image[height_begin:height_end, 0:heatmap_width, :] = resized_image
+        x = joint[:,0]
+        y = joint[:,1]
+        for bone in bonelist:
+            axs[i,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
+            plt.gca().invert_yaxis()
+            plt.gca().invert_xaxis()
+        plt.savefig(f'{path}')
+    
    # pdb.set_trace()
     cv2.imwrite(file_name, grid_image)
 

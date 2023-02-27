@@ -1,7 +1,7 @@
 
 import matplotlib
 matplotlib.use('Agg')
-
+import os
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, writers
 from mpl_toolkits.mplot3d import Axes3D
@@ -23,11 +23,11 @@ def draw_2d_pose(keypoints, skeleton, path):
     # ax.set_ylim3d([-radius, radius ])
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    parents = skeleton.parents()
+    parents = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
             continue
-        col = 'gray' if j in skeleton.joints_right() else 'orange'
+        col = 'gray' # if j in skeleton.joints_right() else 'orange'
         ax.plot([keypoints[j, 0], keypoints[j_parent, 0]],
                                     [keypoints[j, 1], keypoints[j_parent, 1]], linewidth=9,alpha=1,color=col)
     xs = keypoints[:,0]
@@ -92,7 +92,7 @@ def draw_3d_pose(poses, path):
     ax.set_zticklabels([])
     ax.patch.set_facecolor("white")  
     ax.dist = 7.5
-    parents = [i for i in range(16)]#skeleton.parents()
+    parents = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
             continue 
