@@ -207,11 +207,10 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
             # grid_image[height_begin:height_end, width_begin:width_end, :] = \
             #     colored_heatmap*0.7 + resized_image*0.3
         grid_image[height_begin:height_end, 0:heatmap_width, :] = resized_image
-        x = joint[:,0]
-        y = joint[:,1]
-
-        for bone in bonelist:
-            if i % 10 == 0 and n <4 :
+        if i % 10 == 0 and n <4 :
+            x = joint[i,0]
+            y = joint[i,1]
+            for bone in bonelist:
                 axs[n,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
                 axs[n,1].imshow(resized_image)
                 plt.gca().invert_yaxis()
