@@ -9,7 +9,7 @@ import numpy as np
 import subprocess as sp
 from matplotlib import cm
 import cv2
-            
+import pdb   
 def draw_2d_pose(keypoints, skeleton, path):
     keypoints = np.asarray(keypoints.cpu())
     keypoints = keypoints - keypoints[0:1,:]
@@ -97,6 +97,7 @@ def draw_3d_pose(poses, path):
     x = poses[:,0]
     y = poses[:,1]
     z = poses[:,2]
+    pdb.set_trace()
     for bone in parents:
         ax.plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]],[z[bone[0]],z[bone[1]]], 'r')
     xs = poses[:,0]
