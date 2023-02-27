@@ -161,7 +161,7 @@ class Trainer(object):
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
-            if self.is_visual == True:
+            if self.is_visual == True and i == 0:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
