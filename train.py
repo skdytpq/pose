@@ -61,6 +61,7 @@ class Trainer(object):
         self.stride = 4
         self.heatmap_size = 64
         self.is_visual = True
+        self.ground = args.ground  # 시각화에 GT를 사용할지의 여부
         ## ITES
         self.num_joints = 16
         self.n_fully_connected = 1024
@@ -167,7 +168,10 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
+                    if self.ground:
+                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
+                    else:
+                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
         with torch.no_grad():
             vis_joint = preds['shape_camera_coord']
             if epoch % 5 == 0 :
@@ -253,6 +257,7 @@ if __name__ == '__main__':
     parser.add_argument('--is_train', default=False, type=bool)
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
     parser.add_argument('--dir' , default = 'run',type=str)
+    parser.add_argument('--ground' , default = False,type=bool)
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0

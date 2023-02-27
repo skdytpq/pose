@@ -93,6 +93,7 @@ def draw_3d_pose(poses, path):
     ax.patch.set_facecolor("white")  
     ax.dist = 7.5
     parents = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
+    parents = np.array(parents)-1
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
             continue 
