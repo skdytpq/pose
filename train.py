@@ -174,11 +174,11 @@ class Trainer(object):
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
                 vis_joint = vis_joint.cpu()
-                np.save('3dpred.npy',vis_joint.numpy())
+               # np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 5 == 0 :
                     if i % 10 == 0:
                         for i in range(10):
-                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')  
+                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/train/{epoch}_{i}.jpg')  
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
@@ -244,11 +244,17 @@ class Trainer(object):
                 file_name = 'result/heats/val/{}_batch.jpg'.format(i)
                 path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
-                if i == 0 :
+                if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
+                if epoch % 5 == 0 :
+                    vis_joint = preds['shape_camera_coord']
+                    vis_joint = vis_joint.cpu()
+                    if i % 10 == 0:
+                        for i in range(10):
+                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/val/{epoch}_{i}.jpg')  
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
