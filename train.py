@@ -161,13 +161,6 @@ class Trainer(object):
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
-            with torch.no_grad():
-                vis_joint = preds['shape_camera_coord']
-                vis_joint = vis_joint.cpu()
-                np.save('3dpred.npy',vis_joint.numpy())
-                if epoch % 5 == 0 :
-                    for i in range(10):
-                        draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')  
             if self.is_visual == True and i == 0:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
@@ -178,6 +171,14 @@ class Trainer(object):
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+            with torch.no_grad():
+                vis_joint = preds['shape_camera_coord']
+                vis_joint = vis_joint.cpu()
+                np.save('3dpred.npy',vis_joint.numpy())
+                if epoch % 5 == 0 :
+                    if i % 10 == 0:
+                        for i in range(10):
+                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')  
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
