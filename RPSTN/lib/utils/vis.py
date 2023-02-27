@@ -171,7 +171,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
     preds, maxvals = get_max_preds(batch_heatmaps.detach().cpu().numpy())
     #joints[:,:,0] = joints[:,:,0] % heatmap_width
     #joints[:,:,1] = torch.floor((joints[:, :, 1]) / heatmap_width)
-    fig, axs = plt.subplots(4, 2,figsize=(5,10))
+    fig, axs = plt.subplots(4, 2,figsize=(5,10), sharey=True)
     n = 0 # visualize skeleton
     for i in range(batch_size):
         image = batch_image[i].mul(255)\
