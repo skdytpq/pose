@@ -163,6 +163,7 @@ class Trainer(object):
             path = f'exp/train/skeleton2d/{epoch}.jpg'
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
+                vis_joint = vis_joint.cpu()
                 np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 5 == 0 :
                     for i in range(10):
