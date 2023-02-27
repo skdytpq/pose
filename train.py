@@ -132,7 +132,6 @@ class Trainer(object):
 
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
-
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
@@ -140,20 +139,10 @@ class Trainer(object):
             # self.iters += 1
             #[8, 5, 16, 64, 64
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-            if self.is_visual == True:
-                if epoch % 5 == 0 :
-                    b, t, c, h, w = input.shape
-                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
-                    input = input.view(-1, c, h, w)
-                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(input,heat,file_name,jfh)
-
             kpts = kpts[:16] # joint
-
             losses = {}
             loss = 0
             start_model = time.time()
-            pdb.set_trace()
             losses = self.criterion_jre(heat, heatmap_var)
             loss += losses
             jre_loss = loss.item()
@@ -170,6 +159,13 @@ class Trainer(object):
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
+            if self.is_visual == True:
+                if epoch % 5 == 0 :
+                    b, t, c, h, w = input.shape
+                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
+                    input = input.view(-1, c, h, w)
+                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    train_penn.save_batch_heatmaps(input,heat,file_name,jfh)
         with torch.no_grad():
             vis_joint = preds['shape_camera_coord']
             if epoch % 5 == 0 :
