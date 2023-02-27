@@ -210,14 +210,14 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
         if i % 5 == 0 and n <4 :
             x = joint[:,0]
             y = joint[:,1]
+            pdb.set_trace()
             if 0 in x or 0 in y : # not visible
                 pass
             else:
                 for bone in bonelist:
                     axs[n,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
                     axs[n,1].imshow(resized_image)
-                    plt.gca().invert_yaxis()
-                    plt.gca().invert_xaxis()
+                    #plt.gca().invert_xaxis()
                 n+=1
         plt.savefig(path)
     
