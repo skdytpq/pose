@@ -95,8 +95,8 @@ def draw_3d_pose(poses, path):
     parents = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
     parents = np.array(parents)-1
     for j, j_parent in enumerate(parents):
-        if j_parent == -1:
-            continue 
+       # if j_parent == -1:
+       #     continue 
         col = 'gray' # if j in skeleton.joints_right() else 'orange'
         pos = poses
         ax.plot([pos[j, 0], pos[j_parent, 0]],[pos[j, 2], pos[j_parent, 2]],[pos[j, 1], pos[j_parent, 1]],linewidth=9,alpha=1,zdir='z', c=col)
