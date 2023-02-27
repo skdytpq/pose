@@ -217,6 +217,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
                     axs[n,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
                     axs[n,0].invert_yaxis()
                     axs[n,1].imshow(resized_image)
+                    
                 n+=1
         plt.savefig(path)
     
