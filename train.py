@@ -150,8 +150,7 @@ class Trainer(object):
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64 
             preds = model_ite(jfh,align_to_root=True)
-            # Batch, 16,2
-            
+            # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
@@ -162,6 +161,12 @@ class Trainer(object):
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
+            with torch.no_grad():
+                vis_joint = preds['shape_camera_coord']
+                np.save('3dpred.npy',vis_joint)
+                if epoch % 5 == 0 :
+                    for i in range(10):
+                        draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')  
             if self.is_visual == True and i == 0:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
@@ -172,11 +177,11 @@ class Trainer(object):
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
-        with torch.no_grad():
-            vis_joint = preds['shape_camera_coord']
-            if epoch % 5 == 0 :
-                for i in range(10):
-                    draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')
+#        with torch.no_grad():
+#            vis_joint = preds['shape_camera_coord']
+#            if epoch % 5 == 0 :
+#                for i in range(10):
+#                    draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')
 
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
