@@ -210,7 +210,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
         y = joint[:,1]
         pdb.set_trace()
         for bone in bonelist:
-            axs[i,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
+            axs[i].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
             plt.gca().invert_yaxis()
             plt.gca().invert_xaxis()
         plt.savefig(path)
