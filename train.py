@@ -244,9 +244,10 @@ class Trainer(object):
                 file_name = 'result/heats/val/{}_batch.jpg'.format(i)
                 path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
-                joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-                heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
+                if i == 0 :
+                    joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
 
 if __name__ == '__main__':
