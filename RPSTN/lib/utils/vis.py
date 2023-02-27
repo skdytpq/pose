@@ -172,6 +172,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
     #joints[:,:,0] = joints[:,:,0] % heatmap_width
     #joints[:,:,1] = torch.floor((joints[:, :, 1]) / heatmap_width)
     fig, axs = plt.subplots(4, 2,figsize=(5,10))
+    n = 0 # visualize skeleton
     for i in range(batch_size):
         image = batch_image[i].mul(255)\
                               .clamp(0, 255)\
@@ -208,12 +209,14 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
         grid_image[height_begin:height_end, 0:heatmap_width, :] = resized_image
         x = joint[:,0]
         y = joint[:,1]
+
         for bone in bonelist:
             if i % 10 == 0:
-                axs[i,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
-                axs[i,1].imshow(resized_image)
+                axs[n,0].plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]], 'r')
+                axs[n,1].imshow(resized_image)
                 plt.gca().invert_yaxis()
                 plt.gca().invert_xaxis()
+                n+=1
         plt.savefig(path)
     
    # pdb.set_trace()
