@@ -97,13 +97,12 @@ def draw_3d_pose(poses, path):
     x = poses[:,0]
     y = poses[:,1]
     z = poses[:,2]
-    pdb.set_trace()
     for bone in parents:
         ax.plot([x[bone[0]], x[bone[1]]], [y[bone[0]], y[bone[1]]],[z[bone[0]],z[bone[1]]], 'r')
     xs = poses[:,0]
     zs = poses[:,1]
     ys = poses[:,2]
-    ax.scatter(xs, ys, zs, s=80, c=pid, marker='o', cmap='gist_ncar',zorder=2)
+    #ax.scatter(xs, ys, zs, s=80, c=pid, marker='o', cmap='gist_ncar',zorder=2)
     # ax.scatter(xs, ys, zs, s=30, c='red', marker='o')
     plt.savefig(path,dpi=40)
     plt.close()
