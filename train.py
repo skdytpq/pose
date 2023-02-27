@@ -153,6 +153,7 @@ class Trainer(object):
             losses = {}
             loss = 0
             start_model = time.time()
+            pdb.set_trace()
             losses = self.criterion_jre(heat, heatmap_var)
             loss += losses
             jre_loss = loss.item()
