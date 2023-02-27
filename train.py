@@ -139,6 +139,7 @@ class Trainer(object):
             # self.iters += 1
             #[8, 5, 16, 64, 64
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             kpts = kpts[:16] # joint
             losses = {}
             loss = 0
@@ -166,7 +167,7 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
         with torch.no_grad():
             vis_joint = preds['shape_camera_coord']
             if epoch % 5 == 0 :
