@@ -55,7 +55,7 @@ class Trainer(object):
         self.model_arch = args.model_arch
         self.dataset = args.dataset
         self.frame_memory = args.frame_memory   
-        self.writer = SummaryWriter(args.dir)
+        self.writer = SummaryWriter('exp/tensor/2d')
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
@@ -124,7 +124,6 @@ class Trainer(object):
 
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
-            pdb.set_trace()
 
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
@@ -150,13 +149,14 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True:  
-                if epoch % 5 == 0 :
+                if epoch % 5 == 0  and i == 0:
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    save_batch_heatmaps(input,heat,file_name,joint)
+                    save_batch_heatmaps(path,input,heat,file_name,joint)
 
 
 
@@ -204,7 +204,9 @@ class Trainer(object):
             file_name = 'result/heats/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-            save_batch_heatmaps(input,heat,file_name,joint)
+            path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
+            if i == 0:
+                save_batch_heatmaps(path,input,heat,file_name,joint)
 
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 

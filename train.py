@@ -48,7 +48,7 @@ class Trainer(object):
         self.is_train = is_train
         self.is_visual = is_visual
         ## JRE
-        self.writer = SummaryWriter('exp/tensor')
+        self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
         self.workers = 1
         self.weight_decay = 0.1
