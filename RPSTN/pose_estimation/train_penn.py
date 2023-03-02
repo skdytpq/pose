@@ -153,7 +153,7 @@ class Trainer(object):
             if self.is_visual == True:  
                 if epoch % 5 == 0  and i == 0:
                     b, t, c, h, w = input.shape
-                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
+                    file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     save_batch_heatmaps(path,input,heat,file_name,joint)
@@ -201,7 +201,7 @@ class Trainer(object):
             b, t, c, h, w = input.shape
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #if self.is_visual:
-            file_name = 'result/heats/{}_batch.jpg'.format(i)
+            file_name = 'result/heats/2d/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
             path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
