@@ -147,7 +147,7 @@ class Trainer(object):
 
             tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-            # self.iters += 1
+            #self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True:  
@@ -157,7 +157,6 @@ class Trainer(object):
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     save_batch_heatmaps(path,input,heat,file_name,joint)
-
 
 
     def validation(self, epoch):
@@ -201,7 +200,7 @@ class Trainer(object):
             b, t, c, h, w = input.shape
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #if self.is_visual:
-            file_name = 'result/heats/2d/{}_batch.jpg'.format(i)
+            file_name = 'result/heats/2d/val/{}_batch.jpg'.format(i)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
             path = f'exp/2d/val/skeleton2d/{epoch}.jpg'

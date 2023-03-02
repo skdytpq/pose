@@ -156,6 +156,7 @@ class Trainer(object):
             loss_total =  loss_reprojection + loss_consistancy
             train_loss = loss_total + jre_loss
             train_loss.backward()
+            
             optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
@@ -164,7 +165,7 @@ class Trainer(object):
             if self.is_visual == True and i == 0:
                 if epoch % 5 == 0 :
                     b, t, c, h, w = input.shape
-                    file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     if self.ground:
@@ -241,7 +242,7 @@ class Trainer(object):
                 b, t, c, h, w = input.shape
             
                 #if self.is_visual:
-                file_name = 'result/heats/2d/val/{}_batch.jpg'.format(i)
+                file_name = 'result/heats/val/{}_batch.jpg'.format(i)
                 path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
                 if epoch % 5 == 0 and i == 0 :
