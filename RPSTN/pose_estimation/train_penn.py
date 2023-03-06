@@ -146,13 +146,13 @@ class Trainer(object):
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
-            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True:  
                 if epoch % 5 == 0  and i == 0:
                     b, t, c, h, w = input.shape
+                    joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                     file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
