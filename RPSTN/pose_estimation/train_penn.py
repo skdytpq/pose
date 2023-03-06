@@ -63,7 +63,7 @@ class Trainer(object):
         self.workers = 8
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 8
+        self.batch_size = 6
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -150,7 +150,7 @@ class Trainer(object):
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True:  
-                if epoch % 5 == 0  and i == 0:
+                if  i == 0:
                     b, t, c, h, w = input.shape
                     joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                     file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
