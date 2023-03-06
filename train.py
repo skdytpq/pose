@@ -87,6 +87,8 @@ class Trainer(object):
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
         self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
+        if args.pretrained:
+            self.model_jre.load_state_dict(torch.load(args.pretrained))
   #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
   #                          momentum=args.momentum,
   #                          weight_decay=args.weight_decay)
@@ -154,7 +156,10 @@ class Trainer(object):
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
-            train_loss = loss_total + jre_loss
+            if args.pretrained:
+                train_loss = loss_total
+            else:
+                train_loss = loss_total + jre_loss
             train_loss.backward()
             
             optimizer.step()

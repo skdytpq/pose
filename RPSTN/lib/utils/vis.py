@@ -210,6 +210,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
         if  n <4 :
             x = joint[:,0]
             y = joint[:,1]
+            pdb.set_trace()
             if  x.min() < 1 or y.min()  < 1: # not visible
                 pass
             else:
