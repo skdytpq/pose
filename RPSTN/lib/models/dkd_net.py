@@ -87,7 +87,7 @@ class DKD_Network(nn.Module):
             f = self.pose_conv1x1_V(f) # 1X1XC convolution 을 통해 pose information 추출
             # 1X1XC convonlution 은 논문에서 나오지 않음
             # 현재의 시점에서의 feature 생성
-            f = self.bn(f) # pose information
+            f = self.bn(f) # pose information 
 
             con_fea_maps = torch.cat([h_prev, f_prev], dim=1)  # 이전 frame 에서 가져온 정보
             con_fea_maps = self.conv1x1_reduce_dim(con_fea_maps) # feature dimension 인 C 로 convolution 진행
