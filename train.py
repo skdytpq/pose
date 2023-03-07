@@ -132,7 +132,7 @@ class Trainer(object):
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
             learning_rate = train_penn.adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
-
+            optimizer.zero_grad()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
             input_var = input.cuda()
@@ -160,6 +160,7 @@ class Trainer(object):
                 train_loss = loss_total
             else:
                 train_loss = loss_total + jre_loss
+            
             train_loss.backward()
             
             optimizer.step()

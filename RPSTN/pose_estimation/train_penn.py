@@ -124,7 +124,7 @@ class Trainer(object):
 
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
-
+            
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
             kpts = kpts[:16] # joint
@@ -140,7 +140,7 @@ class Trainer(object):
             loss += losses #+ 0.5 * relation_loss)
             train_loss += loss.item()
             self.optimizer.zero_grad()
-            loss.backward()
+            train_loss.backward()
             self.optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
