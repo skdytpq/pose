@@ -212,7 +212,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
             y = joint[:,1]
             #pdb.set_trace()
             if  x.min() < 1 or y.min()  < 1: # not visible
-                pdb.set_trace()
+                #pdb.set_trace()
                 pass
             else:
                 for bone in bonelist:
