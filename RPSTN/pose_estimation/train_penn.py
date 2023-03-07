@@ -138,14 +138,14 @@ class Trainer(object):
 
 
             loss += losses #+ 0.5 * relation_loss)
-            train_loss += loss.item()
+            #train_loss += loss.item()
             self.optimizer.zero_grad()
-            train_loss.backward()
+            loss.backward()
             self.optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
-            tbar.set_postfix(loss='%.4f'%(train_loss / self.batch_size), acc='%.2f'%(train_acc * 100))
+            tbar.set_postfix(loss='%.4f'%(loss / self.batch_size), acc='%.2f'%(train_acc * 100))
             #self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
