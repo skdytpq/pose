@@ -3,10 +3,10 @@ import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import shutil
-base = '../data/npy_labels'
-base_train = '../data/train'
-base_test = '../data/test'
-test = '../data/train'
+base = '../data/pose_data/npy_labels'
+base_train = '../data/pose_data/train'
+base_test = '../data/pose_data/test'
+test = '../data/pose_data/train'
 # 993개의 데이터 셋
 def split(base):
     dat = os.listdir(base)
