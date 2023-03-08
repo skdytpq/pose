@@ -85,6 +85,7 @@ class Trainer(object):
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         if args.pretrained:
+            pdb.set_trace()
             self.model_jre.load_state_dict(torch.load(args.pretrained['state_dict']))
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
