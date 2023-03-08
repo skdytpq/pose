@@ -79,7 +79,8 @@ class Trainer(object):
                                                                 self.batch_size)
         #loader output = images, label_map, label, img_paths, person_box, start_index,kpts
         model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, self.is_visual, is_train=True if self.is_train else False)
-
+        if args.pretrained:
+            model_jre.load_state_dict(torch.load(args.pretrained))
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
@@ -87,8 +88,7 @@ class Trainer(object):
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
         self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
-        if args.pretrained:
-            self.model_jre.load_state_dict(torch.load(args.pretrained))
+
   #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
   #                          momentum=args.momentum,
   #                          weight_decay=args.weight_decay)
