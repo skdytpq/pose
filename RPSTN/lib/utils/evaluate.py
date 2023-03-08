@@ -32,26 +32,26 @@ def dist_acc(dists, threshold=0.5):
         return -1
 
 
-def get_max_preds(batch_heatmaps):
+def get_max_preds(batch_heatmaps): # 5, 16, 64,64
     batch_size = batch_heatmaps.shape[0]
     num_joints = batch_heatmaps.shape[1]
     width = batch_heatmaps.shape[3]
 
     # print('In get_max_preds: ', batch_size, num_joints, width)
 
-    heatmaps_reshaped = batch_heatmaps.reshape((batch_size, num_joints, -1))
-    idx = np.argmax(heatmaps_reshaped, 2)
-    maxvals = np.amax(heatmaps_reshaped, 2)
+    heatmaps_reshaped = batch_heatmaps.reshape((batch_size, num_joints, -1)) # B 16 H*W
+    idx = np.argmax(heatmaps_reshaped, 2) # B 16
+    maxvals = np.amax(heatmaps_reshaped, 2) # B 16
 
     maxvals = maxvals.reshape((batch_size, num_joints, 1))
     idx = idx.reshape((batch_size, num_joints, 1))
 
-    preds = np.tile(idx, (1, 1, 2)).astype(np.float32)
+    preds = np.tile(idx, (1, 1, 2)).astype(np.float32) # 1 , 1 , 2개로 늘림 # 2 , B , 16
 
     preds[:, :, 0] = (preds[:, :, 0]) % width
     preds[:, :, 1] = np.floor((preds[:, :, 1]) / width)
 
-    pred_mask = np.tile(np.greater(maxvals, 0.0), (1, 1, 2))
+    pred_mask = np.tile(np.greater(maxvals, 0.0), (1, 1, 2)) # Boolean
     pred_mask = pred_mask.astype(np.float32)
 
     preds *= pred_mask
