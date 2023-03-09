@@ -177,6 +177,7 @@ class Trainer(object):
 
                         for i in range(10):
                             sub_path = f'exp/img/train{epoch}_{i}.jpg'
+                            pdb.set_trace()
                             image = input[i].mul(255)\
                         .clamp(0, 255)\
                         .byte()\
