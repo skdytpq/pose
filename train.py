@@ -85,7 +85,7 @@ class Trainer(object):
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         if args.pretrained:
-            self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
+            self.model_jre = self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
         self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
@@ -96,23 +96,7 @@ class Trainer(object):
 
         self.iters = 0
         pretrained_jre = None
-        if pretrained_jre is not None:
-            checkpoint = torch.load(self.args.pretrained)
-            p = checkpoint['state_dict']
-            if self.dataset == "pose_data":
-                prefix = 'invalid'
-            state_dict = self.model.state_dict()
-            model_dict = {}
 
-            for k,v in p.items():
-                if k in state_dict:
-                    if not k.startswith(prefix):                                
-                        model_dict[k] = v
-
-            state_dict.update(model_dict)
-            self.model.load_state_dict(state_dict)
-            print('Loading Successfully')
-            
         self.isBest = 0
         self.bestPCK  = 0
         self.bestPCKh = 0
