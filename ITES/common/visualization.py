@@ -10,6 +10,7 @@ import subprocess as sp
 from matplotlib import cm
 import cv2
 import pdb   
+
 def draw_2d_pose(keypoints, skeleton, path):
     keypoints = np.asarray(keypoints.cpu())
     keypoints = keypoints - keypoints[0:1,:]
@@ -70,7 +71,7 @@ def draw_2d_img_and_pose(info,keypoints, skeleton, path):
     plt.close()
     return
 
-def draw_3d_pose(poses, path):
+def draw_3d_pose(poses,image ,path,sub_path):
     #poses n*3 dataset.skeleton()
     poses = poses - poses[0:1,:]
     poses = np.asarray(poses.cpu())
@@ -106,5 +107,9 @@ def draw_3d_pose(poses, path):
     # ax.scatter(xs, ys, zs, s=30, c='red', marker='o')
     plt.savefig(path,dpi=40)
     plt.close()
+    resized_image = cv2.resize(image, 
+                            (int(64), int(64)))
+    plt.imshow(resized_image)
+    plt.savefig(sub_path)
     return
 # 0 -> 1,2

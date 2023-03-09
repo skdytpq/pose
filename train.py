@@ -168,12 +168,21 @@ class Trainer(object):
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
+                # preds['shape_camera_coord'] <- 2차원 projection 좌표계
+                # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
                # np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 5 == 0 :
                     if i % 10 == 0:
+
                         for i in range(10):
-                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/train/{epoch}_{i}.jpg')  
+                            sub_path = f'exp/img/train{epoch}_{i}.jpg'
+                            image = input[i].mul(255)\
+                        .clamp(0, 255)\
+                        .byte()\
+                        .permute(1, 2, 0)\
+                        .cpu().numpy()
+                            draw_3d_pose(vis_joint[i,:,:],image,f'exp/vis/train/{epoch}_{i}.jpg',sub_path)  
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
