@@ -103,10 +103,10 @@ if '__main__':
     if prepare :
         split(base)
         train,test = stratify()
-        moving(train,test)
-        split(test)
+        #moving(train,test)
+        #split(test)
     
-    else:
-        joint_in('../data/pose_data/train')
-        joint_in('../data/pose_data/test')
+    #else:
+        #joint_in('../data/pose_data/train')
+        #joint_in('../data/pose_data/test')
     print('=====================Ratio of data & Ratio of train======================')
