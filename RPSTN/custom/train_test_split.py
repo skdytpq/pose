@@ -29,6 +29,7 @@ def split(base):
 def stratify():
     x_ = []
     y_ = []
+    pdb.set_trace()
     for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
         x = file[0]['framepath']
