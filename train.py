@@ -175,7 +175,7 @@ class Trainer(object):
                 if epoch % 5 == 0 :
                     if i  == 0:
                         for j in range(10):
-                            sub_path = f'exp/img/train{epoch}_{j}.jpg'
+                            sub_path = f'exp/img/train/{epoch}_{j}.jpg'
                             image = input[j].mul(255)\
                         .clamp(0, 255)\
                         .byte()\
@@ -256,8 +256,14 @@ class Trainer(object):
                     vis_joint = preds['shape_camera_coord']
                     vis_joint = vis_joint.cpu()
                     if i % 10 == 0:
-                        for i in range(10):
-                            draw_3d_pose(vis_joint[i,:,:],f'exp/vis/val/{epoch}_{i}.jpg')  
+                        for j in range(10):
+                            sub_path = f'exp/img/test/{epoch}_{j}.jpg'
+                            image = input[j].mul(255)\
+                        .clamp(0, 255)\
+                        .byte()\
+                        .permute(1, 2, 0)\
+                        .cpu().numpy()
+                            draw_3d_pose(vis_joint[i,:,:],image,f'exp/vis/val/{epoch}_{i}.jpg',sub_path)  
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
