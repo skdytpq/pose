@@ -83,7 +83,7 @@ def add_vis(files):
 def joint_in(base):
     for f in os.listdir(base):
         ph = os.path.join(base,f)
-        #add_joint(ph)
+        add_joint(ph)
         add_vis(ph)
 
 def moving(train,test):
@@ -98,7 +98,7 @@ def moving(train,test):
             print('ERROR : exception occured! please check y_data category')
             break
 if '__main__':
-    prepare = 0
+    prepare = input(int('0 : split , 1 : joint'))
     if prepare :
         split(base)
         train,test = stratify()
