@@ -98,7 +98,7 @@ def moving(train,test):
             print('ERROR : exception occured! please check y_data category')
             break
 if '__main__':
-    prepare = 1
+    prepare = 0
     if prepare :
         split(base)
         train,test = stratify()
