@@ -3,7 +3,7 @@ from scipy import io
 import os
 import pickle
 import pandas as pd
-base = '../data/pose_data/labels'
+base = '../data/pose_data/labels' 
 whole_cat = ['strum_guitar' 'bench_press' 'jumping_jacks' 'tennis_serve' 'squat'
  'golf_swing' 'pullup' 'baseball_swing' 'tennis_forehand' 'bowl' 'pushup'
  'baseball_pitch' 'jump_rope' 'clean_and_jerk' 'situp']
