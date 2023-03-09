@@ -29,7 +29,6 @@ def split(base):
 def stratify():
     x_ = []
     y_ = []
-    pdb.set_trace()
     for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
         x = file[0]['framepath']
@@ -100,7 +99,7 @@ def moving(train,test):
             print('ERROR : exception occured! please check y_data category')
             break
 if '__main__':
-    prepare = 0
+    prepare = 1
     if prepare :
         split(base)
         train,test = stratify()
