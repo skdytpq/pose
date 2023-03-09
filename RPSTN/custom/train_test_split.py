@@ -36,7 +36,6 @@ def stratify():
         x_.append(x)
         y_.append(y)
     x_train, x_test, y_train, y_test = train_test_split(x_, y_, test_size=0.3, random_state=777, stratify=y_) 
-    pdb.set_trace()
     return x_train,x_test
 
 def add_joint(files):
