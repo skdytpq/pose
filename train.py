@@ -173,17 +173,15 @@ class Trainer(object):
                 vis_joint = vis_joint.cpu()
                # np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 5 == 0 :
-                    if i % 10 == 0:
-
-                        for i in range(10):
-                            sub_path = f'exp/img/train{epoch}_{i}.jpg'
-                            pdb.set_trace()
-                            image = input[i].mul(255)\
+                    if i  == 0:
+                        for j in range(10):
+                            sub_path = f'exp/img/train{epoch}_{j}.jpg'
+                            image = input[j].mul(255)\
                         .clamp(0, 255)\
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose(vis_joint[i,:,:],image,f'exp/vis/train/{epoch}_{i}.jpg',sub_path)  
+                            draw_3d_pose(vis_joint[j,:,:],image,f'exp/vis/train/{epoch}_{j}.jpg',sub_path)  
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
