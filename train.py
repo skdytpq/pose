@@ -87,7 +87,10 @@ class Trainer(object):
         if args.pretrained:
             self.model_jre = self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
-        self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
+        if args.pretrained:
+            self.param = list(self.model_pos_train.parameters())
+        else:
+            self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
         self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
 
   #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
