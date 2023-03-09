@@ -255,7 +255,7 @@ class Trainer(object):
                 if epoch % 5 == 0 :
                     vis_joint = preds['shape_camera_coord']
                     vis_joint = vis_joint.cpu()
-                    if i % 10 == 0:
+                    if i == 0:
                         for j in range(10):
                             sub_path = f'exp/img/test/{epoch}_{j}.jpg'
                             image = input[j].mul(255)\
