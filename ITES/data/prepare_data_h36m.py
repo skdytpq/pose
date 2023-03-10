@@ -9,6 +9,7 @@ from shutil import rmtree
 
 import sys
 sys.path.append('../')
+sys.path.append('ITES/')
 from common.h36m_dataset import Human36mDataset
 from common.camera import world_to_camera, project_to_2d, image_coordinates, camera_to_world
 from common.utils import wrap
