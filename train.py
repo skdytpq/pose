@@ -109,24 +109,23 @@ class Trainer(object):
     def training(self, epoch):
         print('Start Training....')
         train_loss = 0.0
-        model_jre = self.model_jre
-        model_ite = self.model_pos_train
-        model_jre.train()
-        model_ite.train()
-        optimizer = self.optimizer
+        self.model_jre.train()
+        self.model_pos_train.train()
+        self.optimizer
+        args = args
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
             learning_rate = train_penn.adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
-            optimizer.zero_grad()
+            self.optimizer.zero_grad()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
-            heat = model_jre(input_var)
+            heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
@@ -139,7 +138,7 @@ class Trainer(object):
             loss += losses
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64 
-            preds = model_ite(jfh,align_to_root=True)
+            preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
@@ -151,7 +150,7 @@ class Trainer(object):
             
             train_loss.backward()
             
-            optimizer.step()
+            self.optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
@@ -171,7 +170,7 @@ class Trainer(object):
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
                 # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
-               # np.save('3dpred.npy',vis_joint.numpy())
+                # np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 5 == 0 :
                     if i  == 0:
                         for j in range(10):
@@ -194,6 +193,7 @@ class Trainer(object):
         model_jre = self.model_jre
         model_ite = self.model_pos_train
         tbar = tqdm(self.val_loader, desc='\r')
+        args = args
         val_loss = 0.0
         model_jre.eval()
         model_ite.eval()
@@ -264,6 +264,15 @@ class Trainer(object):
                         .permute(1, 2, 0)\
                         .cpu().numpy()
                             draw_3d_pose(vis_joint[i,:,:],image,f'exp/vis/val/{epoch}_{i}.jpg',sub_path)  
+        if epoch >= 1:
+            chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
+            print('Saving checkpoint to', chk_path)
+            torch.save({
+                'epoch': epoch,
+                'lr': self.lr,
+                'optimizer': self.optimizer.state_dict(),
+                'model_pos':self.model_pos_train.state_dict(),
+            }, chk_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -281,6 +290,7 @@ if __name__ == '__main__':
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
     parser.add_argument('--dir' , default = 'run',type=str)
     parser.add_argument('--ground' , default = False,type=bool)
+    parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=bool)
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
