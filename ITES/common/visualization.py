@@ -113,3 +113,40 @@ def draw_3d_pose(poses,image ,path,sub_path):
     plt.savefig(sub_path)
     return
 # 0 -> 1,2
+def draw_3d_pose1(poses, skeleton, path):
+    #poses n*3 dataset.skeleton()
+    poses = poses - poses[0:1,:]
+    poses = np.asarray(poses.cpu())
+    nkp = int(poses.shape[0])
+    pid = np.linspace(0., 1., nkp)
+    poses[:,1:2] = -poses[:,1:2]
+    poses[:,0:1] = -poses[:,0:1]
+    plt.ioff()
+    fig = plt.figure()
+    radius = np.abs(poses).max()
+    ax = fig.gca(projection='3d')
+    ax.view_init(elev=15, azim=70)
+    ax.set_xlim3d([-radius , radius])
+    ax.set_zlim3d([-radius, radius])
+    ax.set_ylim3d([-radius, radius ])
+    # ax.set_aspect('equal')
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    ax.set_zticklabels([])
+    ax.patch.set_facecolor("white")  
+    ax.dist = 7.5
+    parents = skeleton.parents()
+    for j, j_parent in enumerate(parents):
+        if j_parent == -1:
+            continue
+        col = 'gray' if j in skeleton.joints_right() else 'orange'
+        pos = poses
+        ax.plot([pos[j, 0], pos[j_parent, 0]],[pos[j, 2], pos[j_parent, 2]],[pos[j, 1], pos[j_parent, 1]],linewidth=9,alpha=1,zdir='z', c=col)
+    xs = poses[:,0]
+    zs = poses[:,1]
+    ys = poses[:,2]
+    ax.scatter(xs, ys, zs, s=80, c=pid, marker='o', cmap='gist_ncar',zorder=2)
+    # ax.scatter(xs, ys, zs, s=30, c='red', marker='o')
+    plt.savefig(path,dpi=40)
+    plt.close()
+    return

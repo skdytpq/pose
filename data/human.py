@@ -1,6 +1,6 @@
 import tarfile
 import os
-
-tar = tarfile.open(os.listdir('data/cdf'))
-tar.extractall()
-tar.close()
+base = os.listdir('data/cdf')
+for i in base:
+    with tarfile.open(os.path.join(base,i), 'r:gz') as tr:
+        tr.extractall(path='test_tar')
