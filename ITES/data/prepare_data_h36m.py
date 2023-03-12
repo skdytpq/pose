@@ -83,8 +83,7 @@ if __name__ == '__main__':
         for subject in subjects:
             camera_info = h36m_cameras_extrinsic_params[subject]
             output[subject] = {}
-            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf.mat')# _mono삭제
-            pdb.set_trace()
+            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf')# _mono삭제
             assert len(file_list) == 120, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
             action_list = []
             for f in file_list:
@@ -97,7 +96,7 @@ if __name__ == '__main__':
             for action in action_list:
                 position_list = []
                 for idx,carema_id in enumerate(id_order):
-                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions_mono/'+action+'.'+carema_id+'.cdf.mat'
+                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/'+action+'.'+carema_id+'.cdf' # .mat 삭제
                     # if subject == 'S11' and action == 'Directions':
                     #     continue # Discard corrupted video
 
