@@ -2,6 +2,7 @@ import os
 import scipy.io as sio
 import os
 import cdflib
+import numpy as np
 pose_directory = 'cdf'
 subjects = ['S1', 'S5', 'S6', 'S7', 'S8', 'S9', 'S11']
 for subject in subjects:
