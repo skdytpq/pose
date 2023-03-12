@@ -12,5 +12,5 @@ for subject in subjects:
             path = os.path.join(sub_path, filename)
             data = cdflib.CDF(path)
             mat_filename = os.path.splitext(filename)[0] + '.mat'
-            mat_path = os.path.join(dirs, mat_filename)
+            mat_path = os.path.join(sub_path, mat_filename)
             sio.savemat(mat_path, {'data': data})
