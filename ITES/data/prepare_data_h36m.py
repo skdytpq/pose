@@ -83,6 +83,7 @@ if __name__ == '__main__':
         for subject in subjects:
             camera_info = h36m_cameras_extrinsic_params[subject]
             output[subject] = {}
+
             file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf')# _mono삭제
             assert len(file_list) == 120, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
             action_list = []
