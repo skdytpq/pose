@@ -10,7 +10,7 @@ for subject in subjects:
     for filename in dirs:
         if filename.endswith('.cdf'):
             path = os.path.join(sub_path, filename)
-            os.environ["CDF_LIB"] = f"/home/work/pose/pose/data/cdf/{subject}/MyPoseFeatures/D3_Positions"
+            os.environ["CDF_LIB"] = f"cdf/{subject}/MyPoseFeatures/D3_Positions"
             from spacepy import pycdf
             data = pycdf.CDF(path)
             mat_filename = os.path.splitext(filename)[0] + '.mat'
