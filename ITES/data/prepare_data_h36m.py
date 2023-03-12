@@ -6,7 +6,7 @@ import numpy as np
 import h5py
 from glob import glob
 from shutil import rmtree
-
+import pdb
 import sys
 sys.path.append('../')
 sys.path.append('ITES/')
@@ -83,7 +83,8 @@ if __name__ == '__main__':
         for subject in subjects:
             camera_info = h36m_cameras_extrinsic_params[subject]
             output[subject] = {}
-            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf.mat')
+            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf.mat')# _mono삭제
+            pdb.set_trace()
             assert len(file_list) == 120, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
             action_list = []
             for f in file_list:
