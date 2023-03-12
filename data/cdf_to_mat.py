@@ -15,7 +15,6 @@ for subject in subjects:
             path = os.path.join(sub_path, filename)
             data = cdflib.CDF(path)
             pdb.set_trace()
-            data = np.loadtxt(data)
             mat_filename = os.path.splitext(filename)[0] + '.mat'
             mat_path = os.path.join(sub_path2, mat_filename)
-            sio.savemat(mat_path, {'data': data})
+            sio.savemat(mat_path, {'data': data[0]})
