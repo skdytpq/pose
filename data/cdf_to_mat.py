@@ -3,6 +3,7 @@ import scipy.io as sio
 import os
 import cdflib
 import numpy as np
+import pdb
 pose_directory = 'cdf'
 subjects = ['S1', 'S5', 'S6', 'S7', 'S8', 'S9', 'S11']
 for subject in subjects:
@@ -13,6 +14,7 @@ for subject in subjects:
         if filename.endswith('.cdf'):
             path = os.path.join(sub_path, filename)
             data = cdflib.CDF(path)
+            pdb.set_trace()
             data = np.loadtxt(data)
             mat_filename = os.path.splitext(filename)[0] + '.mat'
             mat_path = os.path.join(sub_path2, mat_filename)
