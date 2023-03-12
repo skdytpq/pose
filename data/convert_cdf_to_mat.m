@@ -9,4 +9,4 @@ names = {dirs.name};
 for i = 1:numel(names)
     data = cdfread(strcat(paths{i}, '/', names{i}));
     save(strcat(paths{i}, '/', names{i}, '.mat'), 'data');
-end
+end 
