@@ -10,7 +10,7 @@ for subject in subjects:
     sub_path = os.path.join(f'monocdf/{subject}', 'MyPoseFeatures/D3_Positions')
     sub_path2 = os.path.join(f'data/{subject}', 'MyPoseFeatures/D3_Positions')
     os.makedirs(sub_path2,exist_ok=True)
-    dirs = os.listdir(os.path.join(f'cdf/{subject}', 'MyPoseFeatures/D3_Positions'))
+    dirs = os.listdir(os.path.join(f'monocdf/{subject}', 'MyPoseFeatures/D3_Positions'))
     for filename in dirs:
         if filename.endswith('.cdf'):
             path = os.path.join(sub_path, filename)
