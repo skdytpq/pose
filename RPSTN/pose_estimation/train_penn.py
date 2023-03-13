@@ -149,14 +149,18 @@ class Trainer(object):
             #self.iters += 1
             self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
+            path2 = f'exp/2d/train/skeleton2d/{epoch}_input.jpg'
             if self.is_visual == True:  
                 if  i == 0:
                     b, t, c, h, w = input.shape
                     joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                     file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+                    file_name_2 = 'result/heats/2d/train/{}_input_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    heatmap_var = heatmap_var.view(-1, 16, heat.shape[-2], heat.shape[-1])
                     save_batch_heatmaps(path,input,heat,file_name,joint)
+                    save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
 
 
     def validation(self, epoch):
@@ -208,7 +212,7 @@ class Trainer(object):
             path2 = f'exp/2d/val/skeleton2d/{epoch}_input.jpg'
             if i == 0:
                 save_batch_heatmaps(path,input_,heat_,file_name,joint)
-                save_batch_heatmaps(path2,input_,heat_var_,file_name,joint)
+                #save_batch_heatmaps(path2,input_,heat_var_,file_name,joint)
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):

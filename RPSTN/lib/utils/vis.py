@@ -223,7 +223,10 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
                     axs[n,1].imshow(resized_image)
 
                 n+=1
-        plt.savefig(path)
+        if 'input' in path:
+            pass
+        else:
+            plt.savefig(path)
     
    # pdb.set_trace()
     cv2.imwrite(file_name, grid_image)
