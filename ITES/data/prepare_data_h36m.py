@@ -121,7 +121,7 @@ if __name__ == '__main__':
                     print(output[subject][canonical_name]-position_list[0])
         
         print('Saving...')
-        #np.savez_compressed(output_filename, positions_3d=output)
+        np.savez_compressed(output_filename, positions_3d=output)
         
         print('Done.')
         
