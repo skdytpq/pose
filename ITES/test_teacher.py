@@ -267,6 +267,6 @@ if args.vis:
             shape_camera_coord = preds['shape_camera_coord']
             for i in range(len(shape_camera_coord)):
                 shape_camera_coord[i],_ = calibrate_by_procrustes(shape_camera_coord[i],None,inputs_3d[i])
-                draw_3d_pose(shape_camera_coord[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_teacher_result.jpg')
+                draw_3d_pose1(shape_camera_coord[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_teacher_result.jpg')
                 draw_2d_pose(inputs_2d[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_input.jpg')
 
