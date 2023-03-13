@@ -226,7 +226,7 @@ while epoch < args.epochs:
     epoch_loss_3d_train_cs = 0
     N = 0
     model_pos_train.train()
-    for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(train_loader):
+    for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(train_loader): # Batch : 128
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
