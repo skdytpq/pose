@@ -201,13 +201,14 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #if self.is_visual:
             file_name = 'result/heats/2d/val/{}_batch.jpg'.format(i)
-            input = input.view(-1, c, h, w)
-            heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+            input_ = input.view(-1, c, h, w)
+            heat_ = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+            heat_var_ = heatmap_var.view(-1, 16, heat.shape[-2], heat.shape[-1])
             path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/val/skeleton2d/{epoch}_input.jpg'
             if i == 0:
-                save_batch_heatmaps(path,input,heat,file_name,joint)
-                save_batch_heatmaps(path2,input,heatmap_var,file_name,joint)
+                save_batch_heatmaps(path,input_,heat_,file_name,joint)
+                save_batch_heatmaps(path2,input_,heat_var_,file_name,joint)
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
