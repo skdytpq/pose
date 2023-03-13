@@ -24,12 +24,12 @@ from torch.utils.data import DataLoader
 args = parse_args()
 print(args)
 
-try:
+'''try:
     # Create checkpoint directory if it does not exist
     os.makedirs(args.checkpoint)
 except OSError as e:
     if e.errno != errno.EEXIST:
-        raise RuntimeError('Unable to create checkpoint directory:', args.checkpoint)
+        raise RuntimeError('Unable to create checkpoint directory:', args.checkpoint)'''
 
 # bones = [(0,1),(1,2),(2,3),(0,4),(4,5),(5,6),(0,7),(8,11),(11,12),(12,13),(8,14),(14,15),(15,16),(7,8),(8,9),(9,10)]
 # avg_bone_length = [0.13452314, 0.4557758 , 0.4516843 , 0.13452327, 0.45577532 ,0.4516843,0.2456195 ,0.15755513, 0.28403646,
