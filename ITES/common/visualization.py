@@ -24,11 +24,11 @@ def draw_2d_pose(keypoints, skeleton, path):
     # ax.set_ylim3d([-radius, radius ])
     ax.set_xticklabels([])
     ax.set_yticklabels([])
-    parents = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13],[8,9],[14,16],[2,3]]
+    parents = skeleton.parents()
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
             continue
-        col = 'gray' # if j in skeleton.joints_right() else 'orange'
+        col = 'gray' if j in skeleton.joints_right() else 'orange'
         ax.plot([keypoints[j, 0], keypoints[j_parent, 0]],
                                     [keypoints[j, 1], keypoints[j_parent, 1]], linewidth=9,alpha=1,color=col)
     xs = keypoints[:,0]
@@ -38,39 +38,7 @@ def draw_2d_pose(keypoints, skeleton, path):
     plt.savefig(path)
     plt.close()
     return
-
-def draw_2d_img_and_pose(info,keypoints, skeleton, path):
-    video = str(info[0])
-    index = int(info[1])
-    img = np.asarray(read_video(video,index))
-    # frame = cv2.circle(frame,(kps[idx][i][0],kps[idx][i][1]),5,(0,0,255),-1)
-
-    keypoints = np.asarray(keypoints.cpu())
-    nkp = int(keypoints.shape[0])
-    pid = np.linspace(0., 1., nkp)
-    fig = plt.figure(1,figsize=(5,6))
-    ax = fig.gca()
-    # ax.set_xlim3d([-radius , radius])
-    # ax.set_ylim3d([-radius, radius ])
-    ax.set_xticklabels([])
-    ax.set_yticklabels([])
-    parents = skeleton.parents()
-    for j, j_parent in enumerate(parents):
-        if j_parent == -1:
-            continue
-        col = 'greenyellow' if j in skeleton.joints_right() else 'greenyellow'
-        ax.plot([keypoints[j, 0], keypoints[j_parent, 0]],
-                                    [keypoints[j, 1], keypoints[j_parent, 1]], linewidth=2.5,alpha=1,color=col)
-    xs = keypoints[:,0]
-    ys = keypoints[:,1]
-    # ax.scatter(xs, ys, s=25, c='blue', marker='o', cmap='gist_ncar')
-    ax.scatter(xs, ys, s=25, c='fuchsia', marker='o',zorder=2)
-    plt.axis('off')
-    plt.imshow(img)
-    plt.savefig(path,dpi=40)
-    plt.close()
-    return
-
+    
 def draw_3d_pose(poses,image ,path,sub_path):
     #poses n*3 dataset.skeleton()
     poses = poses - poses[0:1,:]
