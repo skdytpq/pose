@@ -69,7 +69,7 @@ kps_left, kps_right = list(keypoints_symmetry[0]), list(keypoints_symmetry[1])
 joints_left, joints_right = list(dataset.skeleton().joints_left()), list(dataset.skeleton().joints_right())
 keypoints = keypoints['positions_2d'].item()
 
-for subject in dataset.subjects():
+for subject in dataset.subjects(): # subject = S1,S2, ...
     assert subject in keypoints, 'Subject {} is missing from the 2D detections dataset'.format(subject)
     for action in dataset[subject].keys():
         if args.dataset != 'gt' and action =='Directions' and subject =='S11':
@@ -88,7 +88,7 @@ for subject in dataset.subjects():
                 keypoints[subject][action][cam_idx] = keypoints[subject][action][cam_idx][:mocap_length]
 
         assert len(keypoints[subject][action]) == len(dataset[subject][action]['positions_3d'])
-
+# dataset[subject].keys() -> 행동들
 for subject in keypoints.keys():
     for action in keypoints[subject]:
         for cam_idx, kps in enumerate(keypoints[subject][action]):
@@ -98,7 +98,7 @@ for subject in keypoints.keys():
 
 subjects_train = args.subjects_train.split(',')
 subjects_test = args.subjects_test.split(',')
-pdb.set_trace()
+
 def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     out_poses_3d = []
     out_poses_2d = []
@@ -153,6 +153,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
                 out_camera_params[i] = out_camera_params[i][::stride]
 
     return out_camera_params, out_poses_3d, out_poses_2d
+    # 240,1,9      ,240,1,17,3  249,1,17,2
 
 action_filter = None if args.actions == '*' else args.actions.split(',')
 if action_filter is not None:
@@ -218,7 +219,6 @@ if args.resume:
         print('WARNING: this checkpoint does not contain an optimizer state. The optimizer will be reinitialized.')
 
     lr = checkpoint['lr']
-pdb.set_trace()
 print('*** Start training ***')
 while epoch < args.epochs:
     start_time = time()
