@@ -230,7 +230,7 @@ while epoch < args.epochs:
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
-        pdb.set_trace()
+        pdb.set_trace() # 128 , 17 , 3
         optimizer.zero_grad()
         if epoch < 15:
             preds = model_pos_train(inputs_2d,align_to_root=True)
