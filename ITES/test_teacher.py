@@ -261,7 +261,7 @@ if args.vis:
             if torch.cuda.is_available():
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
-
+            pdb.set_trace()
             # Predict 3D poses
             preds = model_pos(inputs_2d)
             shape_camera_coord = preds['shape_camera_coord']
