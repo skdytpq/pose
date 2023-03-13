@@ -187,7 +187,7 @@ if torch.cuda.is_available():
 
 chk_filename = args.checkpoint
 print('Loading checkpoint', chk_filename)
-checkpoint = torch.load(chk_filename, map_location=lambda storage, loc: storage)
+checkpoint = torch.load(chk_filename)#, map_location=lambda storage, loc: storage)
 model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
 model_pos.load_state_dict(checkpoint['model_pos'], strict=False)
 
@@ -261,10 +261,11 @@ if args.vis:
             if torch.cuda.is_available():
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
-            pdb.set_trace()
+            
             # Predict 3D poses
             preds = model_pos(inputs_2d)
             shape_camera_coord = preds['shape_camera_coord']
+            pdb.set_trace()
             for i in range(len(shape_camera_coord)):
                 shape_camera_coord[i],_ = calibrate_by_procrustes(shape_camera_coord[i],None,inputs_3d[i])
                 draw_3d_pose1(shape_camera_coord[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_teacher_result.jpg')
