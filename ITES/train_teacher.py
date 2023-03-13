@@ -98,7 +98,7 @@ for subject in keypoints.keys():
 
 subjects_train = args.subjects_train.split(',')
 subjects_test = args.subjects_test.split(',')
-
+pdb.set_trace()
 def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     out_poses_3d = []
     out_poses_2d = []
@@ -218,7 +218,7 @@ if args.resume:
         print('WARNING: this checkpoint does not contain an optimizer state. The optimizer will be reinitialized.')
 
     lr = checkpoint['lr']
-
+pdb.set_trace()
 print('*** Start training ***')
 while epoch < args.epochs:
     start_time = time()
