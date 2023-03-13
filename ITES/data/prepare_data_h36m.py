@@ -152,6 +152,6 @@ if __name__ == '__main__':
         'num_joints': dataset.skeleton().num_joints(),
         'keypoints_symmetry': [dataset.skeleton().joints_left(), dataset.skeleton().joints_right()]
     }
-    #np.savez_compressed(output_filename_2d, positions_2d=output_2d_poses, metadata=metadata)
+    np.savez_compressed(output_filename_2d, positions_2d=output_2d_poses, metadata=metadata)
     
     print('Done.')
