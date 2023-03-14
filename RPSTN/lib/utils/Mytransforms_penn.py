@@ -142,13 +142,13 @@ def scale(image, kpt, center, f_xy):
     center[0] *= f_xy[0]
     center[1] *= f_xy[1]
 
-    kpt[:16, 0] = np.clip(kpt[:16, 0], 0, w)
-    kpt[:16, 1] = np.clip(kpt[:16, 1], 0, h)
+    kpt[:13, 0] = np.clip(kpt[:13, 0], 0, w)
+    kpt[:13, 1] = np.clip(kpt[:13, 1], 0, h)
     return image, kpt, center
 
 def crop(image, kpt, center, length):
-    x, y = kpt[:16, 0], kpt[:16, 1]
-    bbox = np.array([kpt[17, 0], kpt[17, 1], kpt[20, 0], kpt[20, 1]])
+    x, y = kpt[:13, 0], kpt[:13, 1]
+    bbox = np.array([kpt[14, 0], kpt[14, 1], kpt[17, 0], kpt[17, 1]])
     x, y, bbox = x.astype(np.int), y.astype(np.int), bbox.astype(np.int)
 
     x_min, y_min, x_max, y_max = bbox
@@ -172,11 +172,11 @@ def crop(image, kpt, center, length):
         f_xy = [float(length) / float(side_length[0]), float(length) / float(side_length[1])]
 
         kps = kpt.copy()
-        kps[:16, 0], kps[:16, 1] = x, y
+        kps[:13, 0], kps[:13, 1] = x, y
 
         image, kps, center = scale(image, kps, center, f_xy)
-        x, y = kps[:16, 0], kps[:16, 1]
-        bbox = np.array([kps[17, 0], kps[17, 1], kps[20, 0], kps[20, 1]])
+        x, y = kps[:13, 0], kps[:13, 1]
+        bbox = np.array([kps[14, 0], kps[14, 1], kps[17, 0], kps[17, 1]])
 
         new_w, new_h = image.shape[1], image.shape[0]
         cropped = np.zeros((length, length, image.shape[2]))
@@ -195,9 +195,9 @@ def crop(image, kpt, center, length):
 
         bbox += np.array([x_min, y_min, 0, 0])
         bbox  = np.array([bbox[0], bbox[1], bbox[0]+bbox[2], bbox[1]+bbox[3]])
-        kpt[:16, 0], kpt[:16, 1] = x, y
-        kpt[17, 0], kpt[17, 1], kpt[20, 0], kpt[20, 1] = bbox
-        kpt[16, 0], kpt[16, 1] = (bbox[0]+bbox[2]) / 2, (bbox[1]+bbox[3]) / 2
+        kpt[:13, 0], kpt[:13, 1] = x, y
+        kpt[14, 0], kpt[14, 1], kpt[17, 0], kpt[17, 1] = bbox
+        kpt[13, 0], kpt[13, 1] = (bbox[0]+bbox[2]) / 2, (bbox[1]+bbox[3]) / 2
         center = [length/2, length/2]
 
     return np.ascontiguousarray(cropped), kpt, center
