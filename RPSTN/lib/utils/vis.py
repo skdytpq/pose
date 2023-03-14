@@ -150,8 +150,8 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
     batch_heatmaps: ['batch_size, num_joints, height, width]
     file_name: saved file name
     '''
-    bonelist = [[1,16],[2,4],[3,5],[2,4],[3,5],[4,6],[5,7],[10,8],[9,11],[8,10],[9,11],[10,12],[11,13]]
-    bonelist = np.array(bonelist)-1
+    bonelist = [[1, 2], [2, 4], [4, 6], [1, 3], [3, 5], [2, 8], [7, 8],
+                    [8, 10], [10, 12], [1, 7], [7, 9], [9, 11]]
     if normalize:
         batch_image = batch_image.clone()
         min = float(batch_image.min())
