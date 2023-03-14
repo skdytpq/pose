@@ -59,7 +59,7 @@ class Trainer(object):
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
-        self.num_joints = 16
+        self.num_joints = 13
         self.workers = 8
         self.weight_decay = 0.1
         self.momentum = 0.9
@@ -74,7 +74,7 @@ class Trainer(object):
         cudnn.benchmark = True 
 
         if self.dataset ==  "pose_data":
-            self.numClasses = 16
+            self.numClasses = 13
             self.test_dir = None
 
         self.train_loader, self.val_loader, self.test_loader = getDataloader(self.dataset, self.train_dir, \
@@ -127,7 +127,7 @@ class Trainer(object):
             
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
-            kpts = kpts[:16] # joint
+            kpts = kpts[:13] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
 
             losses = {}
@@ -138,7 +138,7 @@ class Trainer(object):
 
 
             loss += losses #+ 0.5 * relation_loss)
-            #train_loss += loss.item()
+            train_loss += loss.item()
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
@@ -147,7 +147,7 @@ class Trainer(object):
 
             tbar.set_postfix(loss='%.4f'%(loss / self.batch_size), acc='%.2f'%(train_acc * 100))
             #self.iters += 1
-            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            #self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/train/skeleton2d/{epoch}_input.jpg'
             if self.is_visual == True:  
@@ -157,10 +157,11 @@ class Trainer(object):
                     file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
                     file_name_2 = 'result/heats/2d/train/{}_input_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
-                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-                    heatmap_var = heatmap_var.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                    heatmap_var = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     save_batch_heatmaps(path,input,heat,file_name,joint)
                     save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
+        self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
 
 
     def validation(self, epoch):
@@ -204,16 +205,16 @@ class Trainer(object):
             b, t, c, h, w = input.shape
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             #if self.is_visual:
-            file_name = 'result/heats/2d/val/{}_batch.jpg'.format(i)
+            file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
             input_ = input.view(-1, c, h, w)
-            heat_ = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
-            heat_var_ = heatmap_var.view(-1, 16, heat.shape[-2], heat.shape[-1])
+            heat_ = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+            heat_var_ = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
             path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/val/skeleton2d/{epoch}_input.jpg'
             if i == 0:
                 save_batch_heatmaps(path,input_,heat_,file_name,joint)
                 #save_batch_heatmaps(path2,input_,heat_var_,file_name,joint)
-            input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 16, heat.shape[-2], heat.shape[-1]).contiguous()
+            input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 13, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\
@@ -231,10 +232,10 @@ class Trainer(object):
             mPCKh = PCKh[:].sum()/(self.numClasses)
 
 
-            val_loss += loss
+        val_loss += loss
 
-            self.writer.add_scalar('val_loss', (val_loss / self.batch_size), epoch)
-            tbar.set_postfix(valoss='%.6f' % (val_loss / self.batch_size), mPCK=mPCK)
+        self.writer.add_scalar('val_loss', (val_loss / self.batch_size), epoch)
+        tbar.set_postfix(valoss='%.6f' % (val_loss / self.batch_size), mPCK=mPCK)
 
         printAccuracies(mAP, AP, mPCKh, PCKh, mPCK, PCK, self.dataset)
 

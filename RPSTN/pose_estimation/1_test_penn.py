@@ -146,14 +146,14 @@ class Trainer(object):
                 coor_file_name = 'result/coords/gt_pred_batch_{}_update.jpg'.format(i)
 
                 input = input.view(-1, c, h, w)
-                heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                 pred_val, maxval = evaluate.get_max_preds(heat.detach().cpu().numpy())
-                gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 16, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
-                gt_label = label[:, :, :, :-1].view(-1, 16, 2)
-                vis = label[:, :, :, -1].view(-1, 16, 1)
+                gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
+                gt_label = label[:, :, :, :-1].view(-1, 13, 2)
+                vis = label[:, :, :, -1].view(-1, 13, 1)
         
             input = input.view(b, t, c, h, w)
-            heat = heat.view(b, t, 16, heat.shape[-2], heat.shape[-1])
+            heat = heat.view(b, t, 13, heat.shape[-2], heat.shape[-1])
 
             for j in range(heat.size(0)): #self.frame_memory):
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\

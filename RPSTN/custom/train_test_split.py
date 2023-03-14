@@ -101,6 +101,7 @@ if '__main__':
     prepare = int(input('0 : split , 1 : joint'))
     if prepare :
         split(base)
+        base = '../data/pose_data/npy_labels'
         train,test = stratify()
         moving(train,test)
         split(test)

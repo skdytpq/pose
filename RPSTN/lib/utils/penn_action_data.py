@@ -61,7 +61,7 @@ class Penn_Action(data.Dataset):
         self.transform = transform
         self.is_train = is_train
         self.sigma = sigma
-        self.parts_num = 16 # joint 개수 
+        self.parts_num = 13 # joint 개수 
         self.seqTrain = frame_memory  # 5 로 지정
         self.min_scale = 0.8
         self.max_scale = 1.4
@@ -151,17 +151,17 @@ class Penn_Action(data.Dataset):
                     label[i, part, 2] = -1
 
             
-            kps[i, :16, :] = label[i] # kps 에서 :16 까지는 각 Joint 의 x,y visibility 를 다룬다
+            kps[i, :13, :] = label[i] # kps 에서 :16 까지는 각 Joint 의 x,y visibility 를 다룬다
             # label[i]는 각 시점에서 x , y visibility 를 갖고있다.
             center_x = int(self.width/2)
             center_y = int(self.height/2)
             center   = [center_x, center_y]
 
-            kps[i, 16] = [int((bbox[i,0]+bbox[i,2])/2),int((bbox[i,1]+bbox[i,3])/2),1]
-            kps[i, 17] = [bbox[i,0],bbox[i,1],1] 
-            kps[i, 18] = [bbox[i,0],bbox[i,3],1] 
-            kps[i, 19] = [bbox[i,2],bbox[i,1],1] 
-            kps[i, 20] = [bbox[i,2],bbox[i,3],1] 
+            kps[i, 13] = [int((bbox[i,0]+bbox[i,2])/2),int((bbox[i,1]+bbox[i,3])/2),1]
+            kps[i, 14] = [bbox[i,0],bbox[i,1],1] 
+            kps[i, 15] = [bbox[i,0],bbox[i,3],1] 
+            kps[i, 16] = [bbox[i,2],bbox[i,1],1] 
+            kps[i, 17] = [bbox[i,2],bbox[i,3],1] 
             # kps 는 일괄적으로 이미지를 crop 하기 위해 각 x,y, visibility, bbox 좌표를 모은 것 
             img, kps[i], center = self.transform(img, kps[i], center, randoms)
             box  = kps[i, -5:]
