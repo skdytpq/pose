@@ -7,7 +7,6 @@ import torch.nn as nn
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
     #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-    pdb.set_trace()
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
@@ -31,7 +30,6 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         j_y = output[:,:,0]
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
-        pdb.set_trace()
     joints = joints.reshape(-1,num_joints,2)
    # joints = soft_argmax(ba*seq,heatmaps,num_joints)[:,:,:-1].to(device)
     return joints # ba , num_joints , 2, 1
