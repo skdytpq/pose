@@ -138,9 +138,9 @@ class Trainer(object):
             heat = self.model(input_var, heatmap_var)
             losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
-                        
+
             b, t, c, h, w = input.shape
-           
+            
             if self.is_visual:
                 heat_file_name = 'result/heats/{}_batch_update.jpg'.format(i)
                 coor_file_name = 'result/coords/gt_pred_batch_{}_update.jpg'.format(i)
@@ -151,7 +151,7 @@ class Trainer(object):
                 gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
                 gt_label = label[:, :, :, :-1].view(-1, 13, 2)
                 vis = label[:, :, :, -1].view(-1, 13, 1)
-        
+            
             input = input.view(b, t, c, h, w)
             heat = heat.view(b, t, 13, heat.shape[-2], heat.shape[-1])
 
