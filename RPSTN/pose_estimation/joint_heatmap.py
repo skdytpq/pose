@@ -3,9 +3,11 @@ from torch.nn import functional as F
 import numpy as np
 import pdb
 import torch.nn as nn
+
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
     #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    pdb.set_trace()
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
@@ -21,7 +23,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         p_y = torch.arange(1,y_dim + 1).to(device)
         p_x = p_x.repeat(ba,num_joints,1).reshape(ba,num_joints,-1,1) # ba , k , (w,h) , 1 
         p_y = p_y.repeat(ba,num_joints,1).reshape(ba,num_joints,-1,1) # ba , k , (w,h) , 1
-
+        output2 = soft_argmax(ba,heatmaps_,num_joints)
         j_x = torch.sum(p_x * v_x,axis=2) # ba , k , 1
         j_y = torch.sum(p_y * v_y,axis=2) # ba , k , 1
         joints_ = torch.cat([j_x,j_y],axis=2)
@@ -29,6 +31,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         j_y = output[:,:,0]
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
+        pdb.set_trace()
     joints = joints.reshape(-1,num_joints,2)
    # joints = soft_argmax(ba*seq,heatmaps,num_joints)[:,:,:-1].to(device)
     return joints # ba , num_joints , 2, 1
@@ -45,13 +48,16 @@ def softmax_heat(heatmaps,num_joints , ba):
 def soft_ar(heatmap):
     heatmap = heatmap.mul(50)
     batch_size, num_channel, height, width = heatmap.size()
+    # Batch , channe l , 64 , 64
     device: str = heatmap.device
 
     softmax: torch.Tensor = F.softmax(
         heatmap.view(batch_size, num_channel, height * width), dim=2
     ).view(batch_size, num_channel, height, width)
-
+    # B , chaneel , 64X64 
     xx, yy = torch.meshgrid(list(map(torch.arange, [width, height])))
+    xx  = xx + 1
+    yy = yy + 1
     # 64,64 [0~64]
     approx_x = (
         softmax.mul(xx.float().to(device))
@@ -79,13 +85,12 @@ def soft_argmax(ba,voxels,num_joints):
     N,C,H,W,D = voxels.shape
     soft_max = nn.functional.softmax(voxels.view(N,C,-1)*alpha,dim=2)
     soft_max = soft_max.view(voxels.shape)
-    indices_kernel = torch.arange(start=0,end=H*W*D).unsqueeze(0).to(device)
+    indices_kernel = torch.arange(start=0,end=H*W).unsqueeze(0).to(device)
     indices_kernel = indices_kernel.view((H,W,D))
     conv = soft_max*indices_kernel
     indices = conv.sum(2).sum(2).sum(2)
-    z = indices%D
     y = (indices/D).floor()%W
     x = (((indices/D).floor())/W).floor()%H
-    coords = torch.stack([x,y,z],dim=2)
+    coords = torch.stack([x,y],dim=2)
 
     return coords
