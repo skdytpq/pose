@@ -44,7 +44,7 @@ def softmax_heat(heatmaps,num_joints , ba):
     return v_x , v_y # b,k,(w,h),1
 
 def soft_ar(heatmap):
-    heatmap = heatmap.mul(500)
+    heatmap = heatmap.mul(1500)
     batch_size, num_channel, height, width = heatmap.size()
     # Batch , channe l , 64 , 64
     device: str = heatmap.device
