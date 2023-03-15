@@ -7,6 +7,7 @@ import torch.nn as nn
 def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
     #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    pdb.set_trace()
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
