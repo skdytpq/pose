@@ -11,7 +11,6 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
     heatmaps_ = heatmaps
-    pdb.set_trace()
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
         heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
@@ -31,7 +30,6 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         j_y = output[:,:,0]
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
-        pdb.set_trace()
     joints = joints.reshape(-1,num_joints,2)
    # joints = soft_argmax(ba*seq,heatmaps,num_joints)[:,:,:-1].to(device)
     return joints # ba , num_joints , 2, 1
@@ -48,13 +46,16 @@ def softmax_heat(heatmaps,num_joints , ba):
 def soft_ar(heatmap):
     heatmap = heatmap.mul(50)
     batch_size, num_channel, height, width = heatmap.size()
+    # Batch , channe l , 64 , 64
     device: str = heatmap.device
 
     softmax: torch.Tensor = F.softmax(
         heatmap.view(batch_size, num_channel, height * width), dim=2
     ).view(batch_size, num_channel, height, width)
-
+    # B , chaneel , 64X64 
     xx, yy = torch.meshgrid(list(map(torch.arange, [width, height])))
+    xx  = xx + 1
+    yy = yy + 1
     # 64,64 [0~64]
     approx_x = (
         softmax.mul(xx.float().to(device))
