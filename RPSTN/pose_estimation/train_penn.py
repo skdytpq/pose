@@ -211,7 +211,6 @@ class Trainer(object):
             heat_var_ = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
             path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/val/skeleton2d/{epoch}_input.jpg'
-            pdb.set_trace()
             if i == 0:
                 save_batch_heatmaps(path,input_,heat_,file_name,joint)
                 #save_batch_heatmaps(path2,input_,heat_var_,file_name,joint)

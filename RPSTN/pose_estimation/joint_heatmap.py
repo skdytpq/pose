@@ -54,8 +54,6 @@ def soft_ar(heatmap):
     ).view(batch_size, num_channel, height, width)
     # B , chaneel , 64X64 
     xx, yy = torch.meshgrid(list(map(torch.arange, [width, height])))
-    xx  = xx + 1
-    yy = yy + 1
     # 64,64 [0~64]
     approx_x = (
         softmax.mul(xx.float().to(device))
