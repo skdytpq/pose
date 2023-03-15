@@ -303,7 +303,7 @@ if __name__ == '__main__':
     if is_train == True:
         trainer = Trainer(args, is_train=True, is_visual=True) # 원래 False
         for epoch in range(starter_epoch, epochs):
-            trainer.training(epoch)
+            #trainer.training(epoch)
             trainer.validation(epoch)
     else:
         trainer = Trainer(args, is_train=False, is_visual=True)
