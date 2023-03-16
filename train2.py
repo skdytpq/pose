@@ -1,34 +1,39 @@
-import numpy as np
-
-from common.arguments import parse_args
-import torch
-
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import os
+# python train.py --is_train True
 import sys
-import errno
-
-from common.camera import *
-from common.model_teacher import *
-from common.loss import *
-from common.generators_pspt import PoseGenerator
-from common.function import *
-from time import time
-from common.utils import deterministic_random
-import math
-from torch.utils.data import DataLoader
-from torchsummary import summary
-args = parse_args()
-print(args)
-
-try:
-    # Create checkpoint directory if it does not exist
-    os.makedirs(args.checkpoint)
-except OSError as e:
-    if e.errno != errno.EEXIST:
-        raise RuntimeError('Unable to create checkpoint directory:', args.checkpoint)
+sys.path.append("ITES")
+sys.path.append("ITES/common")
+sys.path.append("ITES/data")
+sys.path.append("ITES/img")
+sys.path.append("ITES/checkpoint")
+sys.path.append('RPSTN/custom')
+sys.path.append('RPSTN/files')
+sys.path.append('RPSTN/lib')
+sys.path.append('RPSTN/pose_estimation')
+sys.path.append('RPSTN/lib/utils')
+# ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
+import os
+import pdb
+from ITES.common.utils import deterministic_random
+#os.environ["KMP_DUPLICATE_LIB_OK"] = True
+from ITES import train_t
+from RPSTN.pose_estimation import train_penn
+from joint_heatmap import generate_2d_integral_preds_tensor
+from RPSTN.lib.utils import evaluate as evaluate
+from tensorboardX import SummaryWriter
+import argparse
+import torch
+from tqdm import tqdm
+import time
+import random
+import numpy as np
+from ITES.common.visualization import draw_3d_pose
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 print('Loading dataset...')
 dataset_path = 'data/data_3d_' + args.dataset + '.npz'
@@ -267,7 +272,7 @@ while epoch < args.epochs:
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda()
-                pdb.set_trace()
+                
                 preds = model_pos(inputs_2d)
 
                 shape_camera_coord = preds['shape_camera_coord']
