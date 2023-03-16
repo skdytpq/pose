@@ -182,7 +182,7 @@ model_pos = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().n
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 is_train = True
 model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, False, is_train=True if is_train else False)
-optimizer_jre = torch.optim.Adam(model_jre.parameters(), lr=args.lr)
+optimizer_jre = torch.optim.Adam(model_jre.parameters(), lr=learning_rate)
 # num_joint, num_joint out , in_features -> may be
 model_params = 0
 for parameter in model_pos.parameters():
