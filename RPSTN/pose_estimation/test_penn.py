@@ -161,7 +161,7 @@ class Trainer(object):
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\
                                             heatmap_var[j].detach().cpu().numpy(), 0.2, 0.5, self.dataset, bbox[j], normTorso=True)
                 preds.append(pred)
-                 for k in range(self.numClasses):
+                for k in range(self.numClasses):
                     if visible[k] == 1:
                         AP[k] = (AP[k] * count[k] + acc[k]) / (count[k]+1)
                         PCK[k] = (PCK[k] * count[k] + acc_PCK[k]) / (count[k]+1)
