@@ -140,6 +140,8 @@ class Trainer(object):
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+            input = input.view(-1, c, h, w)
+            heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
             save_batch_heatmaps(path,input,heat,file_name,joint)
             b, t, c, h, w = input.shape
             
