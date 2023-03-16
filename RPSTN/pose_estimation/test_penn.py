@@ -45,26 +45,26 @@ class Trainer(object):
         self.val_dir = args.val_dir
         self.model_arch = args.model_arch
         self.dataset = args.dataset
-        self.frame_memory = args.frame_memory   # 每个视频帧数 T
-        self.writer = args.writer
+        self.frame_memory = args.frame_memory   
+        self.writer = SummaryWriter('exp/tensor/2d')
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
         self.is_visual = is_visual
-
+        self.num_joints = 13
         self.workers = 8
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 1
+        self.batch_size = 6
         self.lr = 0.0005
         self.gamma = 0.333
-        self.step_size = [4, 8, 15, 25, 40, 80]#13275
+        self.step_size = [8, 15, 25, 40, 80]#13275
         self.sigma = 2
         self.stride = 4
         self.heatmap_size = 64
 
         cudnn.benchmark = True
 
-        if self.dataset ==  "Penn_Action":
+        if self.dataset ==  "pose_data":
             self.numClasses = 13
             self.test_dir = None
 
