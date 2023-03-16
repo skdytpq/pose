@@ -127,7 +127,7 @@ class Trainer(object):
             self.optimizer.zero_grad()
 
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
-            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
 
@@ -142,6 +142,7 @@ class Trainer(object):
             file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             save_batch_heatmaps(path,input,heat,file_name,joint)
             b, t, c, h, w = input.shape
             
