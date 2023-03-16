@@ -9,18 +9,17 @@ import sys
 import numpy as np
 import cv2
 import os
-import models
+import models 
 import math
 import pdb
 import shutil
-
-# sys.path.append("..")
+import random
+from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
 from utils.utils import printAccuracies as printAccuracies
 from utils.utils import guassian_kernel as guassian_kernel
 from utils.utils import get_parameters  as get_parameters
-from utils import Mytransforms as  Mytransforms 
 from utils.utils import getDataloader as getDataloader
 from utils.utils import AverageMeter as AverageMeter
 from utils import evaluate as evaluate
@@ -117,7 +116,7 @@ class Trainer(object):
         idx = []
         cnt = 0
         preds = []
-        for i, (input, heatmap, label, img_path, bbox, start_index) in enumerate(tbar):
+        for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
             print(img_path)
             np.save('result/images/img_path.npy', img_path)
             cnt += 1
@@ -128,6 +127,7 @@ class Trainer(object):
             self.optimizer.zero_grad()
 
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
 
@@ -138,7 +138,9 @@ class Trainer(object):
             heat = self.model(input_var, heatmap_var)
             losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
-
+            path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
+            file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+            save_batch_heatmaps(path,input,heat,file_name,joint)
             b, t, c, h, w = input.shape
             
             if self.is_visual:
@@ -151,7 +153,7 @@ class Trainer(object):
                 gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
                 gt_label = label[:, :, :, :-1].view(-1, 13, 2)
                 vis = label[:, :, :, -1].view(-1, 13, 1)
-            
+
             input = input.view(b, t, c, h, w)
             heat = heat.view(b, t, 13, heat.shape[-2], heat.shape[-1])
 
@@ -221,13 +223,13 @@ if __name__ == '__main__':
     
     is_train = args.is_train
     is_visual = args.visual
-    args.dataset    = 'Penn_Action'
+    args.dataset  = 'pose_data'
 
     args.frame_memory = 5
     
-    if args.dataset == 'Penn_Action':
-        args.train_dir  = 'data/PennAction/'
-        args.val_dir    = 'data/PennAction/'
+    if args.dataset == 'pose_data':
+        args.train_dir  = '../data/pose_data'
+        args.val_dir    = '../data/pose_data'
 
     if is_train == True:
         trainer = Trainer(args, is_train=True, is_visual=False)
