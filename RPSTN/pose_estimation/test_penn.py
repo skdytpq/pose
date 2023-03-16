@@ -161,7 +161,7 @@ class Trainer(object):
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\
                                             heatmap_var[j].detach().cpu().numpy(), 0.2, 0.5, self.dataset, bbox[j], normTorso=True)
                 preds.append(pred)
-                for k in range(self.numClasses):
+                 for k in range(self.numClasses):
                     if visible[k] == 1:
                         AP[k] = (AP[k] * count[k] + acc[k]) / (count[k]+1)
                         PCK[k] = (PCK[k] * count[k] + acc_PCK[k]) / (count[k]+1)
@@ -230,6 +230,7 @@ if __name__ == '__main__':
     if args.dataset == 'pose_data':
         args.train_dir  = '../data/pose_data'
         args.val_dir    = '../data/pose_data'
+        args.test_dir = '../data/pose_data'
 
     if is_train == True:
         trainer = Trainer(args, is_train=True, is_visual=False)
