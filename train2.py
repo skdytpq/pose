@@ -294,7 +294,6 @@ while epoch < args.epochs:
                     for k in range(13):
                         xk = int(kpts[k][0] / 4)
                         yk = int(kpts[k][1] / 4)
-
                         ul = [int(xk - tmp_size), int(yk - tmp_size)]
                         br = [int(xk + tmp_size + 1), int(yk + tmp_size + 1)]
 
