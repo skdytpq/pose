@@ -12,7 +12,7 @@ sys.path.append('RPSTN/lib')
 sys.path.append('RPSTN/pose_estimation')
 sys.path.append('RPSTN/lib/utils')
 from RPSTN.pose_estimation import train_penn
-from common.arguments import parse_args
+from ITES.common.arguments import parse_args
 import torch
 import pdb
 import torch.nn as nn
