@@ -173,6 +173,7 @@ class Penn_Action(data.Dataset):
             images[i, :, :, :] = transforms.ToTensor()(img)
             heatmap = np.zeros((label_size, label_size, self.parts_num), dtype=np.float32)
             # 64 X 64 X 13
+            # 여기서 부터 heatmap만들기
             tmp_size = self.sigma * 3
             for k in range(self.parts_num):
                 xk = int(kpts[k][0] / self.stride)

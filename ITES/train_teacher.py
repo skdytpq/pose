@@ -266,7 +266,7 @@ while epoch < args.epochs:
             for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(valid_loader):
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
-                    inputs_2d = inputs_2d.cuda()
+                    inputs_2d = inputs_2d.cuda() # Batch , joint , 2
                 pdb.set_trace()
                 preds = model_pos(inputs_2d)
 

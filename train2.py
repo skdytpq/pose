@@ -1,3 +1,4 @@
+import numpy as np
 # python train.py --is_train True
 import sys
 sys.path.append("ITES")
@@ -10,30 +11,36 @@ sys.path.append('RPSTN/files')
 sys.path.append('RPSTN/lib')
 sys.path.append('RPSTN/pose_estimation')
 sys.path.append('RPSTN/lib/utils')
-# ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
-import os
-import pdb
-from ITES.common.utils import deterministic_random
-#os.environ["KMP_DUPLICATE_LIB_OK"] = True
-from ITES import train_t
 from RPSTN.pose_estimation import train_penn
-from joint_heatmap import generate_2d_integral_preds_tensor
-from RPSTN.lib.utils import evaluate as evaluate
-from tensorboardX import SummaryWriter
-import argparse
+from common.arguments import parse_args
 import torch
-from tqdm import tqdm
-import time
-import random
-import numpy as np
-from ITES.common.visualization import draw_3d_pose
-def set_seed(seed):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+import pdb
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import os
+import sys
+import errno
+from ITES import train_t
+from ITES.common.camera import *
+from ITES.common.model_teacher import *
+from ITES.common.loss import *
+from ITES.common.generators_pspt import PoseGenerator
+from ITES.common.function import *
+from time import time
+from ITES.common.utils import deterministic_random
+import math
+from torch.utils.data import DataLoader
+from torchsummary import summary
+args = parse_args()
+print(args)
+
+try:
+    # Create checkpoint directory if it does not exist
+    os.makedirs(args.checkpoint)
+except OSError as e:
+    if e.errno != errno.EEXIST:
+        raise RuntimeError('Unable to create checkpoint directory:', args.checkpoint)
 
 print('Loading dataset...')
 dataset_path = 'data/data_3d_' + args.dataset + '.npz'
@@ -166,13 +173,16 @@ if action_filter is not None:
 
 cameras_valid, poses_valid, poses_valid_2d = fetch(subjects_test, action_filter)
 
-model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
+model_pos_train = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 # 
-model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
+model_pos = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
+is_train = True
+model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, False, is_train=True if is_train else False)
+optimizer_jre = torch.optim.Adam(model_jre.parameters(), lr=args.lr)
 # num_joint, num_joint out , in_features -> may be
 model_params = 0
 for parameter in model_pos.parameters():
@@ -197,7 +207,7 @@ valid_loader = DataLoader(PoseGenerator(poses_valid, poses_valid_2d, cameras_val
 cameras_train, poses_train, poses_train_2d = fetch(subjects_train, action_filter, subset=args.subset)
 
 lr = args.learning_rate
-
+jre_lr = args.learning_rate
 optimizer = torch.optim.SGD(model_pos_train.parameters(), lr=lr,
                             momentum=args.momentum,
                             weight_decay=args.weight_decay)
@@ -212,10 +222,13 @@ errors_3d_valid_p1 = []
 errors_3d_valid_p2 = []
 
 epoch = 0
+def guassian_kernel(size_w, size_h, center_x, center_y, sigma):
+    gridy, gridx = np.mgrid[0:size_h, 0:size_w]
+    D2 = (gridx - center_x) ** 2 + (gridy - center_y) ** 2
+    return np.exp(-D2 / 2.0 / sigma / sigma)
 
 train_loader = DataLoader(PoseGenerator(poses_train, poses_train_2d, cameras_train), batch_size=args.batch_size,
                             shuffle=True, num_workers=args.num_workers, pin_memory=True)
-pdb.set_trace()
 if args.resume:
     epoch = checkpoint['epoch']
     if 'optimizer' in checkpoint and checkpoint['optimizer'] is not None:
@@ -271,8 +284,27 @@ while epoch < args.epochs:
             for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(valid_loader):
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
-                    inputs_2d = inputs_2d.cuda()
-                
+                    inputs_2d = inputs_2d.cuda() # Batch , joint , 2
+                pdb.set_trace()
+                heatmap = np.zeros((64, 64, 13), dtype=np.float32)
+                for i in inputs_2d.shape[0]:
+                    kpts = inputs_2d[i]
+                    sigma = 2
+                    tmp_size  = sigma * 3
+                    for k in range(13):
+                        xk = int(kpts[k][0] / 4)
+                        yk = int(kpts[k][1] / 4)
+
+                        ul = [int(xk - tmp_size), int(yk - tmp_size)]
+                        br = [int(xk + tmp_size + 1), int(yk + tmp_size + 1)]
+
+                        if ul[0] >= 64 or ul[1] >= 64 \
+                            or br[0] < 0 or br[1] < 0:
+                            continue # label size -> heatmap size
+                        heat_map = guassian_kernel(size_h=64, size_w=64, center_x=xk, center_y=yk, sigma=3)
+                        heat_map[heat_map > 1] = 1
+                        heat_map[heat_map < 0.0099] = 0
+                        heatmap[:, :, k] = heat_map
                 preds = model_pos(inputs_2d)
 
                 shape_camera_coord = preds['shape_camera_coord']
