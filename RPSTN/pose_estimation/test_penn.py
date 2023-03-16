@@ -135,7 +135,7 @@ class Trainer(object):
             loss   = 0
 
             start_model = time.time()
-            heat = self.model(input_var, heatmap_var)
+            heat = self.model(input_var)
             losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
