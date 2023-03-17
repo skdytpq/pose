@@ -32,6 +32,7 @@ from ITES.common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
 from torchsummary import summary
+from core.loss import MSESequenceLoss, JointsMSELoss
 args = parse_args()
 print(args)
 
@@ -205,7 +206,7 @@ valid_loader = DataLoader(PoseGenerator(poses_valid, poses_valid_2d, cameras_val
                                       num_workers=args.num_workers, pin_memory=True)
 
 cameras_train, poses_train, poses_train_2d = fetch(subjects_train, action_filter, subset=args.subset)
-
+criterion_jre = MSESequenceLoss().cuda()
 lr = args.learning_rate
 jre_lr = args.learning_rate
 optimizer = torch.optim.SGD(model_pos_train.parameters(), lr=lr,
@@ -244,11 +245,41 @@ while epoch < args.epochs:
     epoch_loss_3d_train_cs = 0
     N = 0
     model_pos_train.train()
+    model_jre.train()
     for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(train_loader): # Batch : 128
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
-        pdb.set_trace() # 128 , 17 , 3
+            pdb.set_trace() # 128 , 17 , 3
+            heatmap_var = np.zeros((inputs_2d.shape[0],64,64,13))
+            heatmap = np.zeros((64, 64, 13), dtype=np.float32)
+            for i in inputs_2d.shape[0]:
+                kpts = inputs_2d[i]
+                sigma = 2
+                tmp_size  = sigma * 3
+                for k in range(13):
+                    xk = int(kpts[k][0] / 4)
+                    yk = int(kpts[k][1] / 4)
+                    ul = [int(xk - tmp_size), int(yk - tmp_size)]
+                    br = [int(xk + tmp_size + 1), int(yk + tmp_size + 1)]
+
+                    if ul[0] >= 64 or ul[1] >= 64 \
+                        or br[0] < 0 or br[1] < 0:
+                        continue # label size -> heatmap size
+                    heat_map = guassian_kernel(size_h=64, size_w=64, center_x=xk, center_y=yk, sigma=3)
+                    heat_map[heat_map > 1] = 1
+                    heat_map[heat_map < 0.0099] = 0
+                    heatmap[:, :, k] = heat_map
+                heatmap_var[i,:,:,:] = heatmap
+        optimizer_jre.zero_grad()
+        losses = {}
+        jre = model_jre(inputs_2d)
+        loss = 0
+        losses = criterion_jre(jre,heatmap_var)
+        loss += losses
+        loss.backward()
+        optimizer_jre.step()
+        
         optimizer.zero_grad()
         if epoch < 15:
             preds = model_pos_train(inputs_2d,align_to_root=True)
