@@ -251,7 +251,7 @@ while epoch < args.epochs:
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
             pdb.set_trace() # 128 , 17 , 3
-            heatmap_var = np.zeros((inputs_2d.shape[0],64,64,13))
+            heatmap_var = np.zeros((args.batch_size,64,64,13))
             heatmap = np.zeros((64, 64, 13), dtype=np.float32)
             for i in inputs_2d.shape[0]:
                 kpts = inputs_2d[i]
@@ -279,7 +279,7 @@ while epoch < args.epochs:
         loss += losses
         loss.backward()
         optimizer_jre.step()
-        
+
         optimizer.zero_grad()
         if epoch < 15:
             preds = model_pos_train(inputs_2d,align_to_root=True)
