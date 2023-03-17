@@ -246,14 +246,15 @@ while epoch < args.epochs:
     N = 0
     model_pos_train.train()
     model_jre.train()
-    heatmap_var = np.zeros((args.batch_size,64,64,13),dtype=np.float32)
+    
     for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(train_loader): # Batch : 128
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
             pdb.set_trace() # 128 , 17 , 3
-            heatmap = np.zeros((64, 64, 13), dtype=np.float32)
-            for i in inputs_2d.shape[0]:
+            heatmap_var = np.zeros((args.batch_size,64,64,13),dtype=np.float32)
+            for i in range(inputs_2d.shape[0]):
+                heatmap = np.zeros((64, 64, 13), dtype=np.float32)
                 kpts = inputs_2d[i]
                 sigma = 2
                 tmp_size  = sigma * 3
@@ -270,7 +271,7 @@ while epoch < args.epochs:
                     heat_map[heat_map > 1] = 1
                     heat_map[heat_map < 0.0099] = 0
                     heatmap[:, :, k] = heat_map
-                heatmap_var[i,:,:,:] = heatmap
+                    heatmap_var[i,:,:,:] = heatmap
         optimizer_jre.zero_grad()
         losses = {}
         jre = model_jre(inputs_2d)
