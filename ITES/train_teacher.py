@@ -48,7 +48,8 @@ else:
     raise KeyError('Invalid dataset')
 
 print('Preparing data...')
-#data keys
+# data keys
+# npz 파일만 반영됨
 for subject in dataset.subjects():
     for action in dataset[subject].keys():
         anim = dataset[subject][action]

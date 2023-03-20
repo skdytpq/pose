@@ -76,7 +76,6 @@ for subject in dataset.subjects():
 
 print('Loading 2D detections...')
 keypoints = np.load('data/data_2d_' + args.dataset + '_' + args.keypoints + '.npz', allow_pickle=True)
-pdb.set_trace()
 keypoints_metadata = keypoints['metadata'].item()
 keypoints_symmetry = keypoints_metadata['keypoints_symmetry']
 kps_left, kps_right = list(keypoints_symmetry[0]), list(keypoints_symmetry[1])
@@ -127,7 +126,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
                         break
                 if not found:
                     continue
-
+            
             poses_2d = keypoints[subject][action]
             for i in range(len(poses_2d)):  # Iterate across cameras
                 out_poses_2d.append(poses_2d[i])
@@ -144,7 +143,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
                 assert len(poses_3d) == len(poses_2d), 'Camera count mismatch'
                 for i in range(len(poses_3d)):  # Iterate across cameras
                     out_poses_3d.append(poses_3d[i])
-
+    pdb.set_trace()
     if len(out_camera_params) == 0:
         out_camera_params = None
     if len(out_poses_3d) == 0:

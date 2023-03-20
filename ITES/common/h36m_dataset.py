@@ -4,7 +4,7 @@ import copy
 from common.skeleton import Skeleton
 from common.mocap_dataset import MocapDataset
 from common.camera import normalize_screen_coordinates, image_coordinates
-       
+import pdb
 h36m_skeleton = Skeleton(parents=[-1,  0,  1,  2,  3,  4,  0,  6,  7,  8,  9,  0, 11, 12, 13, 14, 12,
        16, 17, 18, 19, 20, 19, 22, 12, 24, 25, 26, 27, 28, 27, 30],
        joints_left=[6, 7, 8, 9, 10, 16, 17, 18, 19, 20, 21, 22, 23],
@@ -229,7 +229,8 @@ class Human36mDataset(MocapDataset):
         
         # Load serialized dataset
         data = np.load(path, allow_pickle=True)['positions_3d'].item()
-        
+        pdb.set_trace()
+        ## Image 에 대해서도 판단해야함 img path 가 있는지 판단
         self._data = {}
         for subject, actions in data.items():
             self._data[subject] = {}
