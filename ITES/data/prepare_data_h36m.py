@@ -116,6 +116,8 @@ if __name__ == '__main__':
                 #     print(position_list[1]-position_list[2])
                 #     print(position_list[2]-position_list[3])
                 output[subject][canonical_name] = sum(position_list)/4
+                # cam_id 가 없는 채로 업데이트가 되는가?
+                # 각 cam_id 의 mean 으로 나누어짐
                 if action == 'Directions 1':
                     print(output[subject][canonical_name])
                     print(output[subject][canonical_name]-position_list[0])
