@@ -3,7 +3,7 @@ import torch
 from torch.utils.data import Dataset
 import random
 
-
+ 
 class PoseGenerator(Dataset):
     def __init__(self, poses_3d, poses_2d, cam):
         assert poses_3d is not None
