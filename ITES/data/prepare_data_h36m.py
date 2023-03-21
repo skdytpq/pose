@@ -147,7 +147,6 @@ if __name__ == '__main__':
                 pos_2d = wrap(project_to_2d, pos_3d, cam['intrinsic'], unsqueeze=True)
                 pos_2d_pixel_space = image_coordinates(pos_2d, w=cam['res_w'], h=cam['res_h'])
                 positions_2d.append(pos_2d_pixel_space.astype('float32'))
-                pdb.set_trace()
             output_2d_poses[subject][action] = positions_2d
             
     print('Saving...')
