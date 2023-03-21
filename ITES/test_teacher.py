@@ -264,6 +264,7 @@ if args.vis:
             
             # Predict 3D poses
             preds = model_pos(inputs_2d)
+            pdb.set_trace()
             shape_camera_coord = preds['shape_camera_coord']
             for i in range(len(shape_camera_coord)):
                 shape_camera_coord[i],_ = calibrate_by_procrustes(shape_camera_coord[i],None,inputs_3d[i])

@@ -229,7 +229,6 @@ class Human36mDataset(MocapDataset):
         
         # Load serialized dataset
         data = np.load(path, allow_pickle=True)['positions_3d'].item()
-        pdb.set_trace()
         ## Image 에 대해서도 판단해야함 img path 가 있는지 판단
         # img path -> action + camid
         self._data = {}
