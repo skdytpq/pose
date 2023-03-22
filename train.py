@@ -162,6 +162,7 @@ class Trainer(object):
             jfh = torch.cat([jfh,top],dim = 1)
             ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10])
             jfh = torch.index_select(jfh, dim=1, index=ind)
+            jfh = jfh.cuda()
             jfh = normalize_2d(jfh)
             preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
@@ -265,10 +266,9 @@ class Trainer(object):
                 jfh = torch.cat([jfh,top],dim = 1)
                 ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10])
                 jfh = torch.index_select(jfh, dim=1, index=ind)
+                jfh = jfh.cuda()
                 jfh = normalize_2d(jfh)
-                preds = self.model_pos_traiㅜ
-                # permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-                jfh = normalize_2d(jfh)
+                #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 preds = self.model_pos_train(jfh,align_to_root=True)
                 # Batch, 13,2
                 
