@@ -220,7 +220,7 @@ class Trainer(object):
         model_jre = self.model_jre
         model_ite = self.model_pos_train
         tbar = tqdm(self.val_loader, desc='\r')
-        args = args
+        args = self.args
         val_loss = 0.0
         model_jre.eval()
         model_ite.eval()
