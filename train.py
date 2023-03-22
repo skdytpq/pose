@@ -40,7 +40,7 @@ def set_seed(seed):
 
 def normalize_2d(pose):
     # pose:(N,J,2)
-    mean_bone = np.mean(np.linalg.norm(pose[:,0:1,:]-pose[:,10:11,:],axis=2,ord=2)) #hip to head
+    mean_bone = torch.mean(torch.linalg.norm(pose[:,0:1,:]-pose[:,10:11,:],axis=2,ord=2)) #hip to head
     c = 5
     scale = (1/c) / mean_bone
     pose = pose * scale
