@@ -139,8 +139,8 @@ class Trainer(object):
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
-            jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-            jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
+            jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
             kpts = kpts[:13] # joint
             losses = {}
             loss = 0
