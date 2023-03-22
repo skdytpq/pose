@@ -247,7 +247,7 @@ class Trainer(object):
         PCKAvg  =  PCK.sum()/(self.numClasses)
         times = time.strftime('%Y%m%d', time.localtime())
 
-        if mPCK > self.isBest:
+        if mPCK >= self.isBest:
             self.isBest = mPCK
             source_model_save_path = self.args.source_model_save_path + self.args.model_name
             if not os.path.exists(source_model_save_path):
