@@ -74,7 +74,7 @@ class Trainer(object):
         self.is_visual = True
         self.ground = args.ground  # 시각화에 GT를 사용할지의 여부
         ## ITES
-        self.num_joints = 13
+        self.num_joints = 17
         self.n_fully_connected = 1024
         self.n_layers = 6
         self.basis = 12
