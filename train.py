@@ -35,6 +35,14 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
+def normalize_2d(self,pose):
+    # pose:(N,J,2)
+    mean_bone = np.mean(np.linalg.norm(pose[:,0:1,:]-pose[:,10:11,:],axis=2,ord=2)) #hip to head
+    c = 5
+    scale = (1/c) / mean_bone
+    pose = pose * scale
+    return pose 
+
 class Trainer(object):
     def __init__(self, args, is_train, is_visual):
         self.args = args
@@ -63,7 +71,7 @@ class Trainer(object):
         self.is_visual = True
         self.ground = args.ground  # 시각화에 GT를 사용할지의 여부
         ## ITES
-        self.num_joints = 16
+        self.num_joints = 13
         self.n_fully_connected = 1024
         self.n_layers = 6
         self.basis = 12
@@ -71,7 +79,7 @@ class Trainer(object):
 
 
         if self.dataset ==  "pose_data":
-            self.numClasses = 16
+            self.numClasses = 13
             self.test_dir = None
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
@@ -127,10 +135,10 @@ class Trainer(object):
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             heat = self.model_jre(input_var)
             # self.iters += 1
-            #[8, 5, 16, 64, 64
+            #[8, 5, 16, 64, 64]
             jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
-            kpts = kpts[:16] # joint
+            kpts = kpts[:13] # joint
             losses = {}
             loss = 0
             start_model = time.time()
@@ -160,7 +168,7 @@ class Trainer(object):
                     b, t, c, h, w = input.shape
                     file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
-                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     if self.ground:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
@@ -227,8 +235,9 @@ class Trainer(object):
                 
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                jfh = normalize_2d(jfh)
                 preds = model_ite(jfh,align_to_root=True)
-                # Batch, 16,2
+                # Batch, 13,2
                 
                 loss_reprojection = preds['l_reprojection'] 
                 loss_consistancy = preds['l_cycle_consistent']
@@ -249,7 +258,7 @@ class Trainer(object):
                 input = input.view(-1, c, h, w)
                 if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-                    heat = heat.view(-1, 16, heat.shape[-2], heat.shape[-1])
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
                 if epoch % 5 == 0 :

@@ -174,7 +174,6 @@ class Teacher_net(nn.Module):
                             kp_loc,
                             rescale=1.):
         # center around the root joint
-        pdb.set_trace()
         kp_mean = kp_loc[:, 0, :]
         kp_loc_norm = kp_loc - kp_mean[:, None, :] # [batch , mean , [x,y]]
         kp_loc_norm = kp_loc_norm * rescale
