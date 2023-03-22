@@ -26,7 +26,10 @@ from tqdm import tqdm
 import time
 import random
 import numpy as np
-from ITES.common.visualization import draw_3d_pose
+from ITES.common.visualization import draw_3d_pose , draw_3d_pose1
+from ITES.common.h36m_dataset import Human36mDataset
+dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
+dataset = Human36mDataset(dataset_path)
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -145,8 +148,20 @@ class Trainer(object):
             losses = self.criterion_jre(heat, heatmap_var)
             loss += losses
             jre_loss = loss.item()
-            # joint from heatmap K , 64 , 64 
-            pdb.set_trace()
+            # joint from heatmap K , 64 , 64  [40, 13, 2]
+            rev = (jfh[:,7] + jfh[:,8])/2
+            rev = rev.reshape(-1,1,2)
+            spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
+            spine = spine.reshape(-1,1,2)
+            neck = (jfh[:,0] + jfh[:,1] + jfh[:,2])/3
+            neck = neck.reshape(-1,1,2)
+            top = jfh[:,0].reshape(-1,1,2)
+            jfh = torch.cat([jfh,rev],dim = 1)
+            jfh = torch.cat([jfh,spine],dim = 1)
+            jfh = torch.cat([jfh,neck],dim = 1)
+            jfh = torch.cat([jfh,top],dim = 1)
+            ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10])
+            jfh = torch.index_select(jfh, dim=1, index=ind)
             jfh = normalize_2d(jfh)
             preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
@@ -181,7 +196,7 @@ class Trainer(object):
                 # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
                 # np.save('3dpred.npy',vis_joint.numpy())
-                if epoch % 5 == 0 :
+                if epoch % 1 == 0 :
                     if i  == 0:
                         for j in range(10):
                             sub_path = f'exp/img/train/{epoch}_{j}.jpg'
@@ -190,7 +205,7 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose(vis_joint[j,:,:],image,f'exp/vis/train/{epoch}_{j}.jpg',sub_path)  
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch)+'_teacher_result.jpg')
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
@@ -237,10 +252,24 @@ class Trainer(object):
                 
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
-                pdb.set_trace()
+                rev = (jfh[:,7] + jfh[:,8])/2
+                rev = rev.reshape(-1,1,2)
+                spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
+                spine = spine.reshape(-1,1,2)
+                neck = (jfh[:,0] + jfh[:,1] + jfh[:,2])/3
+                neck = neck.reshape(-1,1,2)
+                top = jfh[:,0].reshape(-1,1,2)
+                jfh = torch.cat([jfh,rev],dim = 1)
+                jfh = torch.cat([jfh,spine],dim = 1)
+                jfh = torch.cat([jfh,neck],dim = 1)
+                jfh = torch.cat([jfh,top],dim = 1)
+                ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10])
+                jfh = torch.index_select(jfh, dim=1, index=ind)
+                jfh = normalize_2d(jfh)
+                preds = self.model_pos_traiㅜ
                 # permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 jfh = normalize_2d(jfh)
-                preds = model_ite(jfh,align_to_root=True)
+                preds = self.model_pos_train(jfh,align_to_root=True)
                 # Batch, 13,2
                 
                 loss_reprojection = preds['l_reprojection'] 
@@ -265,7 +294,7 @@ class Trainer(object):
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
-                if epoch % 5 == 0 :
+                if epoch % 1 == 0 :
                     vis_joint = preds['shape_camera_coord']
                     vis_joint = vis_joint.cpu()
                     if i == 0:
@@ -276,7 +305,7 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose(vis_joint[i,:,:],image,f'exp/vis/val/{epoch}_{i}.jpg',sub_path)  
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch)+'val_teacher_result.jpg')
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
