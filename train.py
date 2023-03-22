@@ -147,6 +147,7 @@ class Trainer(object):
             start_model = time.time()
             losses = self.criterion_jre(heat, heatmap_var)
             loss += losses
+            jfh_copy = jfh
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             rev = (jfh[:,7] + jfh[:,8])/2

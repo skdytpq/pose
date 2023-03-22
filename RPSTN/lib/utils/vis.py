@@ -188,7 +188,6 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
         resized_image = cv2.resize(image, 
                                    (int(heatmap_width), int(heatmap_height)))
         joint = joints[i]
-        pdb.set_trace()
         height_begin = heatmap_height * i
         height_end = heatmap_height * (i + 1)
         for j in range(num_joints):
