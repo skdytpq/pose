@@ -38,7 +38,7 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def normalize_2d(self,pose):
+def normalize_2d(pose):
     # pose:(N,J,2)
     mean_bone = np.mean(np.linalg.norm(pose[:,0:1,:]-pose[:,10:11,:],axis=2,ord=2)) #hip to head
     c = 5
