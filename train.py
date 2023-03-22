@@ -97,6 +97,7 @@ class Trainer(object):
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         if args.pretrained:
             self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
+            pdb.set_trace()
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
@@ -333,7 +334,7 @@ if __name__ == '__main__':
     parser.add_argument('--visual', default=False, type=bool, help='If visualize results')
     parser.add_argument('--dir' , default = 'run',type=str)
     parser.add_argument('--ground' , default = False,type=bool)
-    parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=bool)
+    parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
