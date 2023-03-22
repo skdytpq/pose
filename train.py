@@ -146,6 +146,8 @@ class Trainer(object):
             loss += losses
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64 
+            pdb.set_trace()
+            jfh = normalize_2d(jfh)
             preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
