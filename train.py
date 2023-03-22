@@ -120,7 +120,7 @@ class Trainer(object):
         self.model_jre.train()
         self.model_pos_train.train()
         self.optimizer
-        args = args
+        args = self.args
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         
@@ -235,6 +235,8 @@ class Trainer(object):
                 
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                pdb.set_trace()
+                # permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 jfh = normalize_2d(jfh)
                 preds = model_ite(jfh,align_to_root=True)
                 # Batch, 13,2
