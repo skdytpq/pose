@@ -191,7 +191,7 @@ class Trainer(object):
                     if self.ground:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
-                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
@@ -207,7 +207,7 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
@@ -253,7 +253,7 @@ class Trainer(object):
                 start_model = time.time()
                 
                 # joint from heatmap K , 64 , 64 
-                jfh  = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 rev = (jfh[:,7] + jfh[:,8])/2
                 rev = rev.reshape(-1,1,2)
                 spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
@@ -291,7 +291,7 @@ class Trainer(object):
                 path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
                 if epoch % 5 == 0 and i == 0 :
-                    joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                    joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
@@ -306,7 +306,7 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch)+'val_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
