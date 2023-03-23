@@ -246,8 +246,8 @@ class Trainer(object):
         PCKhAvg = PCKh.sum()/(self.numClasses)
         PCKAvg  =  PCK.sum()/(self.numClasses)
         times = time.strftime('%Y%m%d', time.localtime())
-        if epoch % 10 == 0:
-            save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+f'{epoch}'+'_'+times, self.args.model_save_path)
+        # if epoch % 10 == 0:
+        save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+f'{epoch}'+'_'+times, self.args.model_save_path)
 
         if mPCK >= self.isBest:
             self.isBest = mPCK
