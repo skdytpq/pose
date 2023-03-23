@@ -290,13 +290,13 @@ if __name__ == '__main__':
     is_train = args.is_train
     is_visual = args.visual
     args.dataset  = 'pose_data'
-    args.frame_memory = 5
+    args.frame_memory = 20
     if args.dataset == 'pose_data':
-        args.train_dir  = '../data/pose_data'
-        args.val_dir    = '../data/pose_data'
+        args.train_dir  = '../data/pose_data/itedata'
+        args.val_dir    = '../data/pose_data/itedata'
         tb_log_dir = 'run/penn/'
-    args.train_dir  = '../data/pose_data'
-    args.val_dir    = '../data/pose_data'
+    args.train_dir  = '../data/pose_data/itedata'
+    args.val_dir    = '../data/pose_data/itedata'
   #  tb_log_dir = 'run/penn/'
 #    writer = SummaryWriter(log_dir= '', comment='weight_decay')
 #    args.writer = writer
