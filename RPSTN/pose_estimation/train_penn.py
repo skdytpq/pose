@@ -199,6 +199,7 @@ class Trainer(object):
 
             start_model = time.time()
             heat = self.model(input_var)
+            pdb.set_trace()
             losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             #[8,5,3,256,256]?
