@@ -134,7 +134,6 @@ class Trainer(object):
             loss = 0
             start_model = time.time()
             heat = self.model(input_var)
-            pdb.set_trace()
             losses = self.criterion(heat, heatmap_var)
 
 
