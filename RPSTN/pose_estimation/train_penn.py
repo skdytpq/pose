@@ -292,7 +292,7 @@ if __name__ == '__main__':
     is_train = args.is_train
     is_visual = args.visual
     args.dataset  = 'pose_data'
-    args.frame_memory = 20
+    args.frame_memory = 5
     if args.dataset == 'pose_data':
         args.train_dir  = '../data/pose_data/itedata'
         args.val_dir    = '../data/pose_data/itedata'
