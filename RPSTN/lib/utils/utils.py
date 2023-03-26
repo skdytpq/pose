@@ -16,8 +16,7 @@ import cv2
 import time
 from utils import penn_action_data as penn_action
 from utils import Sub_JHMDB_data as sub_jhmdb
-
-
+import pdb
 class AverageMeter(object):
     """ Computes ans stores the average and current value"""
     def __init__(self):
@@ -171,6 +170,7 @@ def get_max_preds(batch_heatmaps):
 def getDataloader(dataset, train_dir, val_dir, test_dir, sigma, stride, workers, frame_memory, batch_size):
     # train_loader, val_loader, test_loader = None, None, None
     if dataset == 'pose_data':
+        pdb.set_trace()
         train_loader = torch.utils.data.DataLoader(
                                             penn_action.Penn_Action(train_dir, sigma, frame_memory, True,
                                             Mytransforms.Compose([
