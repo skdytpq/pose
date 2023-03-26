@@ -69,19 +69,19 @@ class Penn_Action(data.Dataset):
         self.heatmap_size = 64
         self.stride = 4
 
-        self.root_dir = 'pose_data/'#root_dir
+        self.root_dir = root_dir
         self.label_dir = root_dir + 'labels'
-        self.frame_dir = os.path.join(self.base,'frames')#root_dir + 'frames' 
-        self.train_dir = os.path.join(self.base,'train')
-        self.val_dir = os.path.join(self.base,'test') 
+        self.frame_dir = '../data/pose_data/frames' #os.path.join(self.base,'frames')#root_dir + 'frames' 
+        self.train_dir = os.path.join(root_dir,'train')
+        self.val_dir = os.path.join(root_dir,'test') 
 
         if self.is_train is True:
-            self.data_dir = '../data/pose_data/train' # root_dir + 'train/'
+            self.data_dir = os.path.join(root_dir ,'train')
             self.p_scale = 1
             self.p_rotate = 1
             self.p_flip = 1
         else:
-            self.data_dir ='../data/pose_data/test' #root_dir + 'test/'
+            self.data_dir =os.path.join(root_dir,'test') #root_dir + 'test/'
             self.p_scale = 0
             self.p_rotate = 0
             self.p_flip = 0
