@@ -255,6 +255,7 @@ class Trainer(object):
                 
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
+                jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
                 rev = (jfh[:,7] + jfh[:,8])/2
                 rev = rev.reshape(-1,1,2)
                 spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
