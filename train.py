@@ -84,7 +84,6 @@ class Trainer(object):
         if self.dataset ==  "pose_data":
             self.numClasses = 13
             self.test_dir = None
-        pdb.set_trace()
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
                                                                 self.workers, self.frame_memory, \
