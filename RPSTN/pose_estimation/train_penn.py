@@ -296,8 +296,8 @@ if __name__ == '__main__':
         args.train_dir  = '../data/pose_data/itedata'
         args.val_dir    = '../data/pose_data/itedata'
         tb_log_dir = 'run/penn/'
-    args.train_dir  = '../data/pose_data/itedata'
-    args.val_dir    = '../data/pose_data/itedata' 
+    args.train_dir  = '../data/pose_data'
+    args.val_dir    = '../data/pose_data' 
   #  tb_log_dir = 'run/penn/'
 #    writer = SummaryWriter(log_dir= '', comment='weight_decay')
 #    args.writer = writer
