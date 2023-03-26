@@ -89,7 +89,7 @@ def joint_in(base):
 def moving(train,test):
      for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
-        add_joint(file)
+        # add_joint(file)
         if file[0]['framepath'] in  train:
             shutil.move(os.path.join(base,i),os.path.join(base_train,i))
         elif file[0]['framepath'] in test:
@@ -98,7 +98,7 @@ def moving(train,test):
             print('ERROR : exception occured! please check y_data category')
             break
 if '__main__':
-    prepare = int(input('0 : split , 1 : joint'))
+    prepare = int(input('0 : stratify , 1 : joint'))
     if prepare :
         split(base)
         base = '../data/pose_data/npy_labels'

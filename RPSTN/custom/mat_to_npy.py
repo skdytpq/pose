@@ -7,7 +7,7 @@ base = '../data/pose_data/labels'
 whole_cat = ['strum_guitar' 'bench_press' 'jumping_jacks' 'tennis_serve' 'squat'
  'golf_swing' 'pullup' 'baseball_swing' 'tennis_forehand' 'bowl' 'pushup'
  'baseball_pitch' 'jump_rope' 'clean_and_jerk' 'situp']
-cat = 'bench_press','squat','pullup','jumping_jacks' # ,'pushup','situp'
+cat =  whole_cat #'bench_press','squat','pullup','jumping_jacks' # ,'pushup','situp'
 def read_mat():
     i = 0
     for name in os.listdir(base):
