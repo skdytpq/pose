@@ -169,11 +169,11 @@ class Trainer(object):
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             jfh = make_joint(jfh)
+            kpts = kpts.cuda()
+            jfh = jfh.cuda()
             kpts = make_joint(kpts)
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
-            kpts.cuda()
-            jfh = jfh.cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
@@ -265,11 +265,12 @@ class Trainer(object):
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
+                jfh = jfh.cuda()
+                kpts = kpts.cuda()
                 kpts = make_joint(kpts)
                 kpts = normalize_2d(kpts)
                 jfh = normalize_2d(jfh)
-                jfh = jfh.cuda()
-                kpts = kpts.cuda()
+
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 preds = self.model_pos_train(kpts,align_to_root=True)
                 # Batch, 13,2
