@@ -174,7 +174,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
-            kpts.type(torch.float).cuda()
+            kpts = kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
