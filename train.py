@@ -45,6 +45,21 @@ def normalize_2d(pose):
     scale = (1/c) / mean_bone
     pose = pose * scale
     return pose 
+def make_joint(jfh):
+    rev = (jfh[:,7] + jfh[:,8])/2
+    rev = rev.reshape(-1,1,2)
+    spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
+    spine = spine.reshape(-1,1,2)
+    neck = (jfh[:,0] + jfh[:,1] + jfh[:,2])/3
+    neck = neck.reshape(-1,1,2)
+    top = jfh[:,0].reshape(-1,1,2)
+    jfh = torch.cat([jfh,rev],dim = 1)
+    jfh = torch.cat([jfh,spine],dim = 1)
+    jfh = torch.cat([jfh,neck],dim = 1)
+    jfh = torch.cat([jfh,top],dim = 1)
+    ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
+    jfh = torch.index_select(jfh, dim=1, index=ind)
+    return jfh
 
 class Trainer(object):
     def __init__(self, args, is_train, is_visual):
@@ -139,10 +154,14 @@ class Trainer(object):
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
+            
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
             jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
+            pdb.set_trace()
             kpts = kpts[:13] # joint
+            
+            kpts = torch.Tensor(kpts)
             losses = {}
             loss = 0
             start_model = time.time()
@@ -151,21 +170,12 @@ class Trainer(object):
             jfh_copy = jfh
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
-            rev = (jfh[:,7] + jfh[:,8])/2
-            rev = rev.reshape(-1,1,2)
-            spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
-            spine = spine.reshape(-1,1,2)
-            neck = (jfh[:,0] + jfh[:,1] + jfh[:,2])/3
-            neck = neck.reshape(-1,1,2)
-            top = jfh[:,0].reshape(-1,1,2)
-            jfh = torch.cat([jfh,rev],dim = 1)
-            jfh = torch.cat([jfh,spine],dim = 1)
-            jfh = torch.cat([jfh,neck],dim = 1)
-            jfh = torch.cat([jfh,top],dim = 1)
-            ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
-            jfh = torch.index_select(jfh, dim=1, index=ind)
+            jfh = make_joint(jfh)
+            kpts = make_joint(kpts)
+            kpts.cuda()
             jfh = jfh.cuda()
             jfh = normalize_2d(jfh)
+            kpts = normalize_2d(kpts)
             preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
@@ -252,24 +262,15 @@ class Trainer(object):
                 losses = {}
                 loss = 0
                 start_model = time.time()
-                
+                kpts = kpts[:13]
+                kpts = torch.Tensor(kpts)
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-                rev = (jfh[:,7] + jfh[:,8])/2
-                rev = rev.reshape(-1,1,2)
-                spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
-                spine = spine.reshape(-1,1,2)
-                neck = (jfh[:,0] + jfh[:,1] + jfh[:,2])/3
-                neck = neck.reshape(-1,1,2)
-                top = jfh[:,0].reshape(-1,1,2)
-                jfh = torch.cat([jfh,rev],dim = 1)
-                jfh = torch.cat([jfh,spine],dim = 1)
-                jfh = torch.cat([jfh,neck],dim = 1)
-                jfh = torch.cat([jfh,top],dim = 1)
-                ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
-                jfh = torch.index_select(jfh, dim=1, index=ind)
+                kpts = make_joint(kpts)
                 jfh = jfh.cuda()
+                kpts = kpts.cuda()
+                kpts = normalize_2d(kpts)
                 jfh = normalize_2d(jfh)
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 preds = self.model_pos_train(jfh,align_to_root=True)
