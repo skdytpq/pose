@@ -174,7 +174,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
-            kpts = torch.FloatTensor(kpts)
+            kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
@@ -271,7 +271,7 @@ class Trainer(object):
                 kpts = make_joint(kpts)
                 kpts = normalize_2d(kpts)
                 jfh = normalize_2d(jfh)
-                kpts = torch.FloatTensor(kpts)
+                kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 preds = self.model_pos_train(kpts,align_to_root=True)
                 # Batch, 13,2
