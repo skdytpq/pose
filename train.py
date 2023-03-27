@@ -158,10 +158,8 @@ class Trainer(object):
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
             jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-            pdb.set_trace()
             kpts = kpts[:13] # joint
-            
-            kpts = torch.Tensor(kpts)
+            kpts = kpts.reshape(-1,13,2)
             losses = {}
             loss = 0
             start_model = time.time()
@@ -176,7 +174,7 @@ class Trainer(object):
             jfh = jfh.cuda()
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
-            preds = self.model_pos_train(jfh,align_to_root=True)
+            preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
@@ -202,7 +200,7 @@ class Trainer(object):
                     if self.ground:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
-                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
+                        train_penn.save_batch_heatmaps(path,input,heat,file_name,kpts)
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
@@ -263,7 +261,7 @@ class Trainer(object):
                 loss = 0
                 start_model = time.time()
                 kpts = kpts[:13]
-                kpts = torch.Tensor(kpts)
+                kpts = kpts.reshape(-1,13,2)
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
@@ -273,7 +271,7 @@ class Trainer(object):
                 kpts = normalize_2d(kpts)
                 jfh = normalize_2d(jfh)
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-                preds = self.model_pos_train(jfh,align_to_root=True)
+                preds = self.model_pos_train(kpts,align_to_root=True)
                 # Batch, 13,2
                 
                 loss_reprojection = preds['l_reprojection'] 
@@ -296,7 +294,7 @@ class Trainer(object):
                 if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(path,input,heat,file_name,joint)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,kpts)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
                 if epoch % 1 == 0 :
                     vis_joint = preds['shape_camera_coord']
