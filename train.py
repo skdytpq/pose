@@ -177,7 +177,7 @@ class Trainer(object):
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
-            preds = self.model_pos_train(kpts,align_to_root=True)
+            preds = self.model_pos_train(jfh,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
@@ -203,7 +203,7 @@ class Trainer(object):
                     if self.ground:
                         train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
                     else:
-                        train_penn.save_batch_heatmaps(path,input,heat,file_name,kpts)
+                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
@@ -275,7 +275,7 @@ class Trainer(object):
                 jfh = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-                preds = self.model_pos_train(kpts,align_to_root=True)
+                preds = self.model_pos_train(jfh,align_to_root=True)
                 # Batch, 13,2
                 
                 loss_reprojection = preds['l_reprojection'] 
@@ -298,7 +298,7 @@ class Trainer(object):
                 if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(path,input,heat,file_name,kpts)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
                 self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
                 if epoch % 1 == 0 :
                     vis_joint = preds['shape_camera_coord']
