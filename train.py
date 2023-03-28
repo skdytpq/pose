@@ -139,7 +139,7 @@ class Trainer(object):
         train_loss = 0.0
         self.model_jre.train()
         self.model_pos_train.train()
-        self.optimizer
+        optimizer = self.optimizer
         args = self.args
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
@@ -147,7 +147,7 @@ class Trainer(object):
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
             learning_rate = train_penn.adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
-            self.optimizer.zero_grad()
+            optimizer.zero_grad()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
             input_var = input.cuda()
@@ -182,14 +182,14 @@ class Trainer(object):
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
             loss_total =  loss_reprojection + loss_consistancy
-            if args.pretrained:
-                train_loss = loss_total
-            else:
-                train_loss = loss_total + jre_loss
+            #if args.pretrained:
+            train_loss = loss_total
+            #else:
+            #    train_loss = loss_total + jre_loss
             
             train_loss.backward()
             
-            self.optimizer.step()
+            optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
