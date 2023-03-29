@@ -57,7 +57,8 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,spine],dim = 1)
     jfh = torch.cat([jfh,neck],dim = 1)
     jfh = torch.cat([jfh,top],dim = 1)
-    ind = torch.tensor([10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
+    ind = torch.tensor([9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]).cuda()
+    #[9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]
     jfh = torch.index_select(jfh, dim=1, index=ind)
     return jfh
 
@@ -163,7 +164,7 @@ class Trainer(object):
             kpts = kpts[:13] # joint
             kpts = kpts.reshape(-1,13,2)
             a = input_var.detach().cpu().numpy()
-            np.save('test.npy',a)
+            #np.save('test.npy',a)
             losses = {}
             loss = 0
             start_model = time.time()
@@ -180,7 +181,7 @@ class Trainer(object):
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
-            pdb.set_trace()
+            # pdb.set_trace()
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
