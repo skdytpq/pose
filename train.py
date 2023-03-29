@@ -57,7 +57,8 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,spine],dim = 1)
     jfh = torch.cat([jfh,neck],dim = 1)
     jfh = torch.cat([jfh,top],dim = 1)
-    ind = torch.tensor([9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]).cuda()
+    ind = torch.tensor([9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
+    #[9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     #[9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]
     #[10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     jfh = torch.index_select(jfh, dim=1, index=ind)
