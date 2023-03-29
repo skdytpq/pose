@@ -144,7 +144,7 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-            save_batch_heatmaps(path,input,heat,file_name,joint)
+           # save_batch_heatmaps(path,input,heat,file_name,joint)
             if i == 0:
                 if self.is_visual:
                     heat_file_name = 'result/heats/{}_batch_update.jpg'.format(i)
