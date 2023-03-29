@@ -175,11 +175,10 @@ class Trainer(object):
             jfh = jfh.cuda()
             kpts = make_joint(kpts)
             jfh = normalize_2d(jfh)
-            if 2 > kpts.min():
-                pdb.set_trace()
-            #kpts = normalize_2d(kpts)
+            kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
+            pdb.set_trace()
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
@@ -273,7 +272,7 @@ class Trainer(object):
                 jfh = jfh.cuda()
                 kpts = kpts.cuda()
                 kpts = make_joint(kpts)
-                #kpts = normalize_2d(kpts)
+                kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
                 jfh = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
