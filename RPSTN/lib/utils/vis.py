@@ -31,7 +31,7 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
     #         '#FFFF66', '#FFCC99 ', '#FF9900', '#FFFF66', '#FFCC99 ', '#FF9900']
 
         joint_colors = [[51, 0, 255], [102, 102, 255], [102, 102, 255], [153, 51, 0], [153, 51, 0], [0, 102, 51], [0, 102, 51],
-                [102, 255, 255], [102, 255, 255], [51, 153, 255], [51, 153, 255], [153, 204, 255]
+                [102, 255, 255], [102, 255, 255], [51, 153, 255], [51, 153, 255], [153, 204, 255],[0, 102, 51]
                 ]
 
         colors = [[0, 102, 51], [0, 102, 204], [153, 51, 0], [0, 102, 204], [153, 51, 0], [0, 102, 51], [0, 102, 51],
@@ -92,7 +92,7 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
             # joints = batch_joints[k]
             joints_vis = batch_joints_vis[k]
 
-            col = 0
+            col = 0 # 12
             for joint, joint_vis in zip(joints, joints_vis):
                 pdb.set_trace()
                 joint[0] = x * width + padding + joint[0]
