@@ -94,7 +94,6 @@ def save_batch_image_with_joints(dataset, batch_image, batch_joints, gt_val, bat
 
             col = 0 # 12
             for joint, joint_vis in zip(joints, joints_vis):
-                pdb.set_trace()
                 joint[0] = x * width + padding + joint[0]
                 joint[1] = y * height + padding + joint[1]
                 if joint_vis[0]>0:
