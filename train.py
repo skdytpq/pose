@@ -177,6 +177,8 @@ class Trainer(object):
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
+            if 1 > kpts.min():
+                pdb.set_trace()
             preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
