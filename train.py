@@ -163,7 +163,7 @@ class Trainer(object):
             kpts = kpts[:13] # joint
             kpts = kpts.reshape(-1,13,2)
             a = input_var.detach().cpu().numpy
-            np.save(a , 'test.npy')
+            np.save('test.npy',a)
             losses = {}
             loss = 0
             start_model = time.time()
