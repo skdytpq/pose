@@ -149,7 +149,7 @@ class Trainer(object):
                 if self.is_visual:
                     heat_file_name = 'result/heats/{}_batch_update.jpg'.format(i)
                     coor_file_name = 'result/coords/gt_pred_batch_{}_update.jpg'.format(i)
-                    j_file = 'result/joint/pred_{].jpg'.format(i)
+                    j_file = 'result/joint/pred_{}.jpg'.format(i)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     pred_val, maxval = evaluate.get_max_preds(heat.detach().cpu().numpy())
