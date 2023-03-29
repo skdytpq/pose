@@ -156,7 +156,7 @@ class Trainer(object):
                     gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
                     gt_label = label[:, :, :, :-1].view(-1, 13, 2)
                     vis = label[:, :, :, -1].view(-1, 13, 1)
-                    save_batch_image_with_joints('pose_data',heat,pred_val,gt_val,vis,j_file)
+                    save_batch_image_with_joints('pose_data',input,pred_val,gt_val,vis,j_file)
 
             input = input.view(b, t, c, h, w)
             heat = heat.view(b, t, 13, heat.shape[-2], heat.shape[-1])
