@@ -221,7 +221,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
                 axs[n,0].invert_yaxis()
                 axs[n,1].imshow(resized_image)
 
-                n+=1
+            n+=1
         if 'input' in path:
             pass
         else:
