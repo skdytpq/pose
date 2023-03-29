@@ -59,6 +59,7 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,top],dim = 1)
     ind = torch.tensor([9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]).cuda()
     #[9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]
+    #[10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     jfh = torch.index_select(jfh, dim=1, index=ind)
     return jfh
 
@@ -80,7 +81,7 @@ class Trainer(object):
         self.workers = 1
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 8
+        self.batch_size = 4
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -181,7 +182,7 @@ class Trainer(object):
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
-            # pdb.set_trace()
+            #pdb.set_trace()
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
             loss_consistancy = preds['l_cycle_consistent']
