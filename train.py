@@ -122,7 +122,10 @@ class Trainer(object):
             self.param = list(self.model_pos_train.parameters())
         else:
             self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
-        self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
+        self.optimizer = torch.optim.SGD( self.model_pos_train.parameters(), lr=0.001,
+                            momentum=0.9,
+                            weight_decay=0.0005)
+        #self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
 
   #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
   #                          momentum=args.momentum,
