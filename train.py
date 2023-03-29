@@ -273,7 +273,7 @@ class Trainer(object):
                 jfh = jfh.cuda()
                 kpts = kpts.cuda()
                 kpts = make_joint(kpts)
-                kpts = normalize_2d(kpts)
+                #kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
                 jfh = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
