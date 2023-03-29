@@ -162,7 +162,7 @@ class Trainer(object):
             jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
             kpts = kpts[:13] # joint
             kpts = kpts.reshape(-1,13,2)
-            a = input_var.detach().cpu().numpy
+            a = input_var.detach().cpu().numpy()
             np.save('test.npy',a)
             losses = {}
             loss = 0
