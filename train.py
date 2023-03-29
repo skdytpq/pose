@@ -145,7 +145,7 @@ class Trainer(object):
         args = self.args
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
-        
+        t_loss =0
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
             learning_rate = train_penn.adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
@@ -193,11 +193,10 @@ class Trainer(object):
             #    train_loss = loss_total + jre_loss
             
             train_loss.backward()
-            
+            t_loss += train_loss
             optimizer.step()
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
-            self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
-            self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
+            #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True and i == 0:
                 if epoch % 1 == 0 :
@@ -225,6 +224,7 @@ class Trainer(object):
                         .permute(1, 2, 0)\
                         .cpu().numpy()
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+            self.writer.add_scalar('teacher_loss', (train_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
