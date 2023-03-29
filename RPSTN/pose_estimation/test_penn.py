@@ -139,29 +139,29 @@ class Trainer(object):
             losses = self.criterion(heat, heatmap_var)
             b, t, c, h, w = input.shape
             loss  += losses.item() #+ 0.5 * relation_loss.item()
-            path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
-            file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+            path = f'exp/2d/test/skeleton2d/{epoch}.jpg'
+            file_name = 'result/heats/2d/test/train/{}_batch.jpg'.format(epoch)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             input = input.view(-1, c, h, w)
             heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
             save_batch_heatmaps(path,input,heat,file_name,joint)
-     
-            
-            if self.is_visual:
-                heat_file_name = 'result/heats/{}_batch_update.jpg'.format(i)
-                coor_file_name = 'result/coords/gt_pred_batch_{}_update.jpg'.format(i)
-
-                input = input.view(-1, c, h, w)
-                heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                pred_val, maxval = evaluate.get_max_preds(heat.detach().cpu().numpy())
-                gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
-                gt_label = label[:, :, :, :-1].view(-1, 13, 2)
-                vis = label[:, :, :, -1].view(-1, 13, 1)
+            if i == 0:
+                if self.is_visual:
+                    heat_file_name = 'result/heats/{}_batch_update.jpg'.format(i)
+                    coor_file_name = 'result/coords/gt_pred_batch_{}_update.jpg'.format(i)
+                    j_file = 'result/joint/pred_{].jpg'.format(i)
+                    input = input.view(-1, c, h, w)
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                    pred_val, maxval = evaluate.get_max_preds(heat.detach().cpu().numpy())
+                    gt_val, gt_max = evaluate.get_max_preds(heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1]).detach().cpu().numpy()) 
+                    gt_label = label[:, :, :, :-1].view(-1, 13, 2)
+                    vis = label[:, :, :, -1].view(-1, 13, 1)
+                    save_batch_image_with_joints('pose_data',heat,pred_val,gt_val,vis,j_file)
 
             input = input.view(b, t, c, h, w)
             heat = heat.view(b, t, 13, heat.shape[-2], heat.shape[-1])
 
-            for j in range(heat.size(0)): #self.frame_memory):
+            for j in range(heat.size(0)): #self.frame_memory): 
                 acc, acc_PCK, acc_PCKh, cnt, pred, visible = evaluate.accuracy(heat[j].detach().cpu().numpy(),\
                                             heatmap_var[j].detach().cpu().numpy(), 0.2, 0.5, self.dataset, bbox[j], normTorso=True)
                 preds.append(pred)
