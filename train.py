@@ -177,7 +177,7 @@ class Trainer(object):
             jfh = normalize_2d(jfh)
             if 2 > kpts.min():
                 pdb.set_trace()
-            kpts = normalize_2d(kpts)
+            #kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             preds = self.model_pos_train(kpts,align_to_root=True)
             # Batch, 16,2          
