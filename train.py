@@ -30,7 +30,6 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
-pdb.set_trace()
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -58,12 +57,11 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,spine],dim = 1)
     jfh = torch.cat([jfh,neck],dim = 1)
     jfh = torch.cat([jfh,top],dim = 1)
-    ind = torch.tensor([9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]).cuda()
+    ind = torch.tensor([13,7,9,11,8,10,12,14,15,0,16,2,4,6,1,3,5]).cuda()
     #[9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     #[9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]
     #[10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     #[9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-    pdb.set_trace()
     jfh = torch.index_select(jfh, dim=1, index=ind)
     return jfh
 
