@@ -30,6 +30,7 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
+pdb.set_trace()
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
