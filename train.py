@@ -26,7 +26,7 @@ from tqdm import tqdm
 import time
 import random
 import numpy as np
-from ITES.common.visualization import draw_3d_pose , draw_3d_pose1
+from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pose
 from ITES.common.h36m_dataset import Human36mDataset
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
@@ -205,7 +205,7 @@ class Trainer(object):
             if self.is_visual == True and i == 0:
                 if epoch % 1 == 0 :
                     b, t, c, h, w = input.shape
-                    file_name = 'result/heats/train/{}_batch.jpg'.format(epoch)
+                    file_name = 'result/heats/train/{}_epoch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     if self.ground:
@@ -220,14 +220,15 @@ class Trainer(object):
                 # np.save('3dpred.npy',vis_joint.numpy())
                 if epoch % 1 == 0 :
                     if i  == 0:
-                        for j in range(10):
+                        for j in range(3):
                             sub_path = f'exp/img/train/{epoch}_{j}.jpg'
                             image = input[j].mul(255)\
                         .clamp(0, 255)\
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(kpts[i],dataset.skeleton(),'visualization_custom/' + '2dtrain/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
@@ -255,6 +256,7 @@ class Trainer(object):
 
         idx = []
         cnt = 0
+        vt_loss = 0
         preds = []
         with torch.no_grad():
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
@@ -298,30 +300,32 @@ class Trainer(object):
                 losses = self.criterion_jre(heat, heatmap_var)
                # loss  += losses.item() #+ 0.5 * relation_loss.item()
                 val_loss = loss_total + losses
+                vt_loss += loss_total
                 #[8,5,3,256,256]?
                 b, t, c, h, w = input.shape
             
                 #if self.is_visual:
-                file_name = 'result/heats/val/{}_batch.jpg'.format(i)
+                file_name = 'result/heats/val/{}_epoch.jpg'.format(epoch)
                 path = f'exp/val/skeleton2d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
                 if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
-                self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
                 if epoch % 1 == 0 :
                     vis_joint = preds['shape_camera_coord']
                     vis_joint = vis_joint.cpu()
                     if i == 0:
-                        for j in range(10):
+                        for j in range(1):
                             sub_path = f'exp/img/test/{epoch}_{j}.jpg'
                             image = input[j].mul(255)\
                         .clamp(0, 255)\
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(kpts[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+            self.writer.add_scalar('val_loss', (vt_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
