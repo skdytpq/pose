@@ -81,15 +81,15 @@ config.TRAIN.OPTIMIZER = 'rms'
 config.TRAIN.LR_FACTOR = 0.1
 config.TRAIN.LR_STEP = [15, 25]
 config.TRAIN.LR = 0.001 # 0.0005
-config.TRAIN.SEQ = 5
-config.TRAIN.BATCH_SIZE = 8
+config.TRAIN.SEQ = 8
+config.TRAIN.BATCH_SIZE = 16
 config.TRAIN.RESUME = True
 config.TRAIN.SHUFFLE = True
 config.TRAIN.ROT_FACTOR = 40
 config.TRAIN.FLIP_CONTROL = 0.5
 
 config.TRAIN.BEGIN_EPOCH = 0
-config.TRAIN.END_EPOCH = 140
+config.TRAIN.END_EPOCH = 200
 
 config.LOSS = edict()
 config.LOSS.USE_TARGET_WEIGHT = True
