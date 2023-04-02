@@ -265,7 +265,7 @@ class Trainer(object):
             self.bestPCK = mPCK
             self.best_epoch = epoch
 
-        print("Best epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%%" % (self.best_epoch, self.bestPCK*100,self.bestPCKh*100))
+        print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%%" % (epoch, mPCK*100,mPCKh*100))
 
 
 if __name__ == '__main__':
