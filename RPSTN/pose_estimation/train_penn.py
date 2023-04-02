@@ -54,7 +54,7 @@ class Trainer(object):
         self.val_dir = args.val_dir
         self.model_arch = args.model_arch
         self.dataset = args.dataset
-        self.frame_memory = 8#args.frame_memory   
+        self.frame_memory = args.frame_memory   
         self.writer = SummaryWriter('exp/tensor/2d')
         self.gpus = [int(i) for i in config.GPUS.split(',')]
         self.is_train = is_train
@@ -291,7 +291,7 @@ if __name__ == '__main__':
     is_train = args.is_train
     is_visual = args.visual
     args.dataset  = 'pose_data'
-    args.frame_memory = 8
+    args.frame_memory = 5
     if args.dataset == 'pose_data':
         args.train_dir  = '../data/pose_data/itedata'
         args.val_dir    = '../data/pose_data/itedata'
