@@ -259,13 +259,13 @@ class Trainer(object):
                 np.save('RPSTN/experiments/best_index', start_index)
                 save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+times, 'exp/checkpoints/penn_train')
 
-        if mPCKh > self.bestPCKh:
+        if mPCKh >= self.bestPCKh:
             self.bestPCKh = mPCKh
-        if mPCK > self.bestPCK:
+        if mPCK >= self.bestPCK:
             self.bestPCK = mPCK
             self.best_epoch = epoch
 
-        print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%%" % (epoch, mPCK*100,mPCKh*100))
+        print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%% ; Best PCK& epoch : %2.2f%% ; %d" % (epoch, mPCK*100,mPCKh*100,self.bestPCKh,self.best_epoch))
 
 
 if __name__ == '__main__':
