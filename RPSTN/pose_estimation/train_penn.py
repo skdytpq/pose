@@ -63,7 +63,7 @@ class Trainer(object):
         self.workers = 8
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 6
+        self.batch_size = 16
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -258,7 +258,7 @@ class Trainer(object):
             if self.is_train is True:
                 shutil.copy2('RPSTN/lib/models/dkd_net.py', source_model_save_path)
                 np.save('RPSTN/experiments/best_index', start_index)
-                save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+times, self.args.model_save_path)
+                save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+times, 'exp/checkpoints/penn_train')
 
         if mPCKh > self.bestPCKh:
             self.bestPCKh = mPCKh
@@ -276,7 +276,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_dir', default=None,type=str, dest='train_dir')
     parser.add_argument('--val_dir', type=str, dest='val_dir', default=None)
     parser.add_argument('--model_name', default='', type=str)
-    parser.add_argument('--model_save_path', default='exp/checkpoints')
+    parser.add_argument('--model_save_path', default='exp/checkpoints/penn_checkpoint')
     parser.add_argument('--source_model_save_path', default='exp/source-model/')
     parser.add_argument('--model_arch', default=None, type=str)
     parser.add_argument('--writer', default=None)
