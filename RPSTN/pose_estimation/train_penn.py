@@ -129,7 +129,6 @@ class Trainer(object):
             heatmap_var = heatmap.cuda()
             kpts = kpts[:13] # joint
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
-
             losses = {}
             loss = 0
             start_model = time.time()

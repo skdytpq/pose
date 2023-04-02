@@ -62,7 +62,7 @@ class Penn_Action(data.Dataset):
         self.is_train = is_train
         self.sigma = sigma
         self.parts_num = 13 # joint 개수 
-        self.seqTrain = 8#frame_memory  # 5 로 지정
+        self.seqTrain = frame_memory  # 5 로 지정
         self.min_scale = 0.8
         self.max_scale = 1.4
         self.max_degree = 40
