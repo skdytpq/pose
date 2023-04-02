@@ -287,17 +287,17 @@ if __name__ == '__main__':
     
     RANDSEED = 2021
     starter_epoch = 0
-    epochs =  100
+    epochs =  200
     is_train = args.is_train
     is_visual = args.visual
     args.dataset  = 'pose_data'
-    args.frame_memory = 5
+    args.frame_memory = 8
     if args.dataset == 'pose_data':
         args.train_dir  = '../data/pose_data/itedata'
         args.val_dir    = '../data/pose_data/itedata'
         tb_log_dir = 'run/penn/'
-    args.train_dir  = '../data/pose_data'
-    args.val_dir    = '../data/pose_data' 
+    args.train_dir  = '../data/pose_data/itedata'
+    args.val_dir    = '../data/pose_data/itedata' 
   #  tb_log_dir = 'run/penn/'
 #    writer = SummaryWriter(log_dir= '', comment='weight_decay')
 #    args.writer = writer
