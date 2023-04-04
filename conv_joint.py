@@ -73,7 +73,8 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-    heatconv(heat)
+    in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
+    heatconv(in_heat)
     pdb.set_trace()
     return joints
 
