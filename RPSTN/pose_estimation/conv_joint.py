@@ -16,10 +16,10 @@ class heatconv(nn.Module):
         self.num_joints =13 # num_joints
 
         self.fe_net = nn.Sequential(
-            *self.make_trunk(dim_in=self.num_joints*1 ,
+            self.make_trunk(dim_in=self.num_joints*1 ,
                              n_fully_connected=self.n_fully_connected,
                              n_layers=self.n_layers,),) # Convolution Batchnormailization fully connected layer
-    
+        self.avg = nn.AdaptiveAvgPool2d()
     def make_trunk(self,
                    n_fully_connected=None,
                    dim_in=None,
@@ -41,6 +41,8 @@ class heatconv(nn.Module):
         confidence = self.fe_net(heatmap)
         pdb.set_trace()
         conf = confidence.reshape(ba,-1)
+
+
 
 
 
