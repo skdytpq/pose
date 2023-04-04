@@ -14,7 +14,8 @@ import math
 import pdb
 import shutil
 import random
-from joint_heatmap import *
+from conv_joint import *
+#from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
 from utils.utils import printAccuracies as printAccuracies

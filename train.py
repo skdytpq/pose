@@ -17,7 +17,7 @@ from ITES.common.utils import deterministic_random
 #os.environ["KMP_DUPLICATE_LIB_OK"] = True
 from ITES import train_t
 from RPSTN.pose_estimation import train_penn
-from joint_heatmap import generate_2d_integral_preds_tensor
+from conv_joint import generate_2d_integral_preds_tensor
 from RPSTN.lib.utils import evaluate as evaluate
 from tensorboardX import SummaryWriter
 import argparse
