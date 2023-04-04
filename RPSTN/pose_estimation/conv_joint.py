@@ -73,7 +73,6 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
     sub_model = heatconv()
-    sub_model = torch.nn.DataParallel(sub_model, device_ids="cuda:0").cuda()
     pred = sub_model(in_heat)
     pdb.set_trace()
     return joints
