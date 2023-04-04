@@ -5,11 +5,9 @@ import pdb
 import torch.nn as nn
 
 
-
-
 class heatconv(nn.Module):
     def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
-        super().__init__()
+        #super().__init__()
         self.heatmap_size = heatmap_size
         self.n_fully_connected = 1024#n_fully_connected
         self.n_layers = 4#n_layers
@@ -74,7 +72,9 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
-    heatconv(in_heat)
+    sub_model = heatconv()
+    sub_model = torch.nn.DataParallel(sub_model, device_ids="cuda:0").cuda()
+    pred = sub_model(in_heat)
     pdb.set_trace()
     return joints
 
@@ -91,7 +91,7 @@ def conv3x3(in_planes, out_planes, std=0.01):
 class ResLayer(nn.Module):
     def __init__(self, inplanes, planes, expansion=4):
         super(ResLayer, self).__init__()
-        self.expansion = expansion
+        self.expansion = expansion  
         self.conv1 = conv3x3(inplanes, planes)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = conv3x3(planes, planes)
