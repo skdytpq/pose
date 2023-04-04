@@ -92,7 +92,7 @@ class ResLayer(nn.Module):
     def __init__(self, inplanes, planes, expansion=4):
         super(ResLayer, self).__init__()
         self.expansion = expansion
-
+        pdb.set_trace()
         self.conv1 = conv3x3(inplanes, planes)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = conv3x3(planes, planes)
