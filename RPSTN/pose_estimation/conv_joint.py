@@ -157,6 +157,6 @@ def soft_ar(heatmap):
     )
     output = [approx_x, approx_y] #if self.return_xy else [approx_y, approx_x]
     output = torch.cat(output, 2)
-    return output
+    return output 
 
     
