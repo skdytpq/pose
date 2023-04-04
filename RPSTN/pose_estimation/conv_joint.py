@@ -41,6 +41,7 @@ class heatconv(nn.Module):
         confidence = self.fe_net(heatmap)
         pdb.set_trace()
         conf = confidence.reshape(ba,-1)
+        return conf
 
 
 
@@ -86,6 +87,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     heatconv(heat)
+    pdb.set_trace()
     return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):
