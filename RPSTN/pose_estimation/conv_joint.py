@@ -16,7 +16,7 @@ class heatconv(nn.Module):
         self.num_joints =13 # num_joints
 
         self.fe_net = nn.Sequential(
-            *self.make_trunk(dim_in=self.num_joints ,
+            *self.make_trunk(dim_in=self.num_joints*1 ,
                              n_fully_connected=self.n_fully_connected,
                              n_layers=self.n_layers,),) # Convolution Batchnormailization fully connected layer
     
