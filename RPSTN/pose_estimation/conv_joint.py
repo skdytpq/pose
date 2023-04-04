@@ -8,13 +8,14 @@ import torch.nn as nn
 
 
 class heatconv(nn.Module):
-    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=6 ):
+    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=2 ,num_joints = 13):
         super().__init__()
         self.heatmap_size = heatmap_size
         self.n_fully_connected = n_fully_connected
         self.n_layers = n_layers
+        self.num_joints = num_joints
         self.fe_net = nn.Sequential(
-                *self.make_trunk(dim_in=self.heatmap_size,
+                *self.make_trunk(dim_in=self.num_joints,
                                 n_fully_connected=self.n_fully_connected,
                                 n_layers=self.n_layers)) # Convolution Batchnormailization fully connected layer
     def make_trunk(self,
@@ -30,7 +31,7 @@ class heatconv(nn.Module):
 
         for l in range(n_layers):
             layers.append(ResLayer(n_fully_connected,
-                                   int(n_fully_connected/4)))
+                                   int(n_fully_connected/8)))
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         pdb.set_trace()
@@ -68,8 +69,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
-    heatmaps_ = heatmaps
-    heatconv(heatmaps)
+    heatmaps_ = heatmaps # b 13 64 64
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
         heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
@@ -79,6 +79,8 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2)
+    heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    heatconv(heat)
     return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):
