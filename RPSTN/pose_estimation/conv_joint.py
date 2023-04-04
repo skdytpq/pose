@@ -4,27 +4,7 @@ import numpy as np
 import pdb
 import torch.nn as nn
 
-def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
-    assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
-    #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-    device = torch.device("cuda:0")
-    ba = heatmaps.shape[0]
-    seq = heatmaps.shape[1]
-    heatmaps_ = heatmaps # b 13 64 64
-    joints = torch.zeros([ba,seq,num_joints,2]).to(device)
-    for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
-        heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-        output = soft_ar(heatmaps_)
-        j_x = output[:,:,1]
-        j_y = output[:,:,0]
-        joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
-        joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
-    joints = joints.reshape(-1,num_joints,2)
-    heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-    heat = heat.cuda()
-    heatconv(heat)
-    pdb.set_trace()
-    return joints
+
 
 
 class heatconv(nn.Module):
@@ -76,10 +56,31 @@ class ConvBNLayer(nn.Module):
         return out
         
 
+def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
+    assert isinstance(heatmaps, torch.Tensor) # b,Seq,h,w,k 
+    #heatmaps = heatmaps.view(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    device = torch.device("cuda:0")
+    ba = heatmaps.shape[0]
+    seq = heatmaps.shape[1]
+    heatmaps_ = heatmaps # b 13 64 64
+    joints = torch.zeros([ba,seq,num_joints,2]).to(device)
+    for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
+        heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+        output = soft_ar(heatmaps_)
+        j_x = output[:,:,1]
+        j_y = output[:,:,0]
+        joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
+        joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
+    joints = joints.reshape(-1,num_joints,2)
+    heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
+    heatconv(in_heat)
+    pdb.set_trace()
+    return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):
     """1x1 convolution"""
-    cnv = nn.Conv2d(in_planes, out_planes, bias=True, kernel_size=3,padding =  1)
+    cnv = nn.Conv2d(in_planes, out_planes, bias=True, kernel_size=3,padding = 1,stride=1)
 
     cnv.weight.data.normal_(0., std)
     if cnv.bias is not None:
@@ -91,7 +92,7 @@ class ResLayer(nn.Module):
     def __init__(self, inplanes, planes, expansion=4):
         super(ResLayer, self).__init__()
         self.expansion = expansion
-
+        pdb.set_trace()
         self.conv1 = conv3x3(inplanes, planes)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = conv3x3(planes, planes)
