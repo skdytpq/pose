@@ -79,7 +79,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
 
 def conv3x3(in_planes, out_planes, std=0.01):
     """1x1 convolution"""
-    cnv = nn.Conv2d(in_planes, out_planes, bias=True, kernel_size=3,padding = 1)
+    cnv = nn.Conv2d(in_planes, out_planes, bias=True, kernel_size=3,padding = 1,stride=1)
 
     cnv.weight.data.normal_(0., std)
     if cnv.bias is not None:
