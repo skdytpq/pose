@@ -7,7 +7,7 @@ import torch.nn as nn
 
 class heatconv(nn.Module):
     def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
-        #super().__init__()
+        super(heatconv,self).__init__()
         self.heatmap_size = heatmap_size
         self.n_fully_connected = 1024#n_fully_connected
         self.n_layers = 4#n_layers
@@ -73,6 +73,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
     sub_model = heatconv()
+    sub_model = sub_model.cuda()
     pred = sub_model(in_heat)
     pdb.set_trace()
     return joints
