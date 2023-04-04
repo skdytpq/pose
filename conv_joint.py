@@ -11,13 +11,15 @@ class heatconv(nn.Module):
     def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
         super().__init__()
         self.heatmap_size = heatmap_size
-        self.n_fully_connected = n_fully_connected
-        self.n_layers = n_layers
-        self.num_joints = num_joints
+        self.n_fully_connected = 1024#n_fully_connected
+        self.n_layers = 4#n_layers
+        self.num_joints =13 # num_joints
+
         self.fe_net = nn.Sequential(
-                *self.make_trunk(dim_in=self.num_joints * 1,
-                                n_fully_connected=self.n_fully_connected,
-                                n_layers=self.n_layers)) # Convolution Batchnormailization fully connected layer
+            *self.make_trunk(dim_in=self.num_joints*1 ,
+                             n_fully_connected=self.n_fully_connected,
+                             n_layers=self.n_layers,),) # Convolution Batchnormailization fully connected layer
+    
     def make_trunk(self,
                    n_fully_connected=None,
                    dim_in=None,
