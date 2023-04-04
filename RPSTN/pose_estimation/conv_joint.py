@@ -8,7 +8,7 @@ import torch.nn as nn
 
 
 class heatconv(nn.Module):
-    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=2 ,num_joints = 13):
+    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
         super().__init__()
         self.heatmap_size = heatmap_size
         self.n_fully_connected = n_fully_connected
@@ -31,7 +31,8 @@ class heatconv(nn.Module):
 
         for l in range(n_layers):
             layers.append(ResLayer(n_fully_connected,
-                                   int(n_fully_connected/8)))
+                                   int(n_fully_connected/4)))
+                                   
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         pdb.set_trace()
