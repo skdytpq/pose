@@ -17,9 +17,9 @@ class heatconv(nn.Module):
 
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
-         ResLayer(self.n_fully_connected , self.n_fully_connected/4)
-         ,ResLayer(self.n_fully_connected /4 ,self.n_fully_connected/16)) # Convolution Batchnormailization fully connected layer
-        self.avg = nn.AdaptiveAvgPool2d(self.n_fully_connected/16)
+         ResLayer(self.n_fully_connected , int(self.n_fully_connected/4))
+         ,ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/16))) # Convolution Batchnormailization fully connected layer
+        self.avg = nn.AdaptiveAvgPool2d(int(self.n_fully_connected/16))
                                    
     def forward(self,heatmap):
         ba = heatmap.shape[0]
@@ -92,7 +92,6 @@ class ResLayer(nn.Module):
     def __init__(self, inplanes, planes, expansion=4):
         super(ResLayer, self).__init__()
         self.expansion = expansion
-        pdb.set_trace()
         self.conv1 = conv3x3(inplanes, planes)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = conv3x3(planes, planes)
