@@ -16,31 +16,21 @@ class heatconv(nn.Module):
         self.num_joints =13 # num_joints
 
         self.fe_net = nn.Sequential(
-            *self.make_trunk(dim_in=self.num_joints*1 ,
-                             n_fully_connected=self.n_fully_connected,
-                             n_layers=self.n_layers,),) # Convolution Batchnormailization fully connected layer
-    
-    def make_trunk(self,
-                   n_fully_connected=None,
-                   dim_in=None,
-                   n_layers=None,
-                   use_bn=True):
-
-        layer1 = ConvBNLayer(dim_in, # joint 의 개수를 1024의 channel 축으로 늘림 
-                             n_fully_connected,
-                             use_bn=use_bn)
-        layers = [layer1]
-
-        for l in range(n_layers):
-            layers.append(ResLayer(n_fully_connected,
-                                   int(n_fully_connected/4)))
+         ConvBNLayer(self.num_joints,self.n_fully_connected,True),
+         ResLayer(self.n_fully_connected , self.n_fully_connected/4)
+         ,ResLayer(self.n_fully_connected /4 ,self.n_fully_connected/16)) # Convolution Batchnormailization fully connected layer
+        self.avg = nn.AdaptiveAvgPool2d(self.n_fully_connected/16)
                                    
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         pdb.set_trace()
         confidence = self.fe_net(heatmap)
         pdb.set_trace()
+        confidence = self.avg(confidence)
         conf = confidence.reshape(ba,-1)
+        return conf
+
+
 
 
 
@@ -84,6 +74,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
     heatconv(heat)
+    pdb.set_trace()
     return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):
