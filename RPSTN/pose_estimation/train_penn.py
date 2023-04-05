@@ -85,11 +85,11 @@ class Trainer(object):
         
         model = models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
+        self.sub_model = heatconv().cuda()
         self.criterion = MSESequenceLoss().cuda()
         self.joint_criterion = nn.MSELoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         self.joint_optimizer = torch.optim.Adam(self.sub_model.parameters(),lr = self.lr)
-        self.sub_model = heatconv().cuda()
         #self.sub_model = self.sub_model.cuda()
 
         self.iters = 0
