@@ -21,11 +21,10 @@ class heatconv(nn.Module):
                                    
     def forward(self,heatmap):
         ba = heatmap.shape[0]
-        pdb.set_trace()
-        confidence = self.fe_net(heatmap)
-        pdb.set_trace()
+        confidence = self.fe_net(heatmap) # batch X 64 X 64
         confidence = self.avg(confidence)
-        conf = confidence.reshape(ba,-1)
+        conf = confidence.reshape(ba,-1) # batch X 64 X 64
+        pdb.set_trace()
         return conf
 
 
@@ -60,7 +59,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
-    heatmaps_ = heatmaps # b 13 64 64
+    heatmaps_ = heatmaps # b seq n13 64 64
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
         heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
@@ -71,6 +70,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+    pdb.set_trace()
     in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
     sub_model = heatconv()
     sub_model = sub_model.cuda()
