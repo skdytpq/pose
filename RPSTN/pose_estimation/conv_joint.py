@@ -13,7 +13,8 @@ class heatconv(nn.Module):
         self.n_layers = 4#n_layers
         self.num_joints =13 # num_joints
         self.pool = nn.MaxPool2d(3, stride=2)
-        self.ne = nn.Linear(64,2)
+        self.ne_x = nn.Linear(64,13)
+        self.ne_y = nn.Linear(64,13)
         self.sig = nn.Sigmoid()
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
@@ -25,11 +26,14 @@ class heatconv(nn.Module):
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         confidence = self.fe_net(heatmap) # batch X 64 X 64 X 64
-        confidence = self.avg(confidence)
+        confidence = self.avg(confidence) # Batch X 64 X 1 X 1
         conf = confidence.reshape(ba,-1) # batch X 64 X 64
-        conf = self.ne(conf) # Batch  X 2
-        conf = self.sig(conf) 
-        return conf
+        conf_x = self.ne(conf) # Batch  X 2
+        conf_x = self.sig(conf_x)
+        conf_y = self.ne(conf)
+        conf_y = self.sig(conf_y)
+        output = torch.stack([conf_x , conf_y],dim = 2)
+        return output
 
 
 
