@@ -16,14 +16,14 @@ class heatconv(nn.Module):
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
          ResLayer(self.n_fully_connected , int(self.n_fully_connected/4)),
-         nn.MaxPool2d(4)
-         ,ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/16)),
-         nn.MaxPool2d(4)) # Convolution Batchnormailization fully connected layer
+         ResLayer(int(self.n_fully_connected) ,int(self.n_fully_connected/4),expansion= 1),
+         ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/16),expansion=1))# Convolution Batchnormailization fully connected layer
         self.avg = nn.AdaptiveAvgPool2d(int(self.n_fully_connected/16))
                                    
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         confidence = self.fe_net(heatmap) # batch X 64 X 64
+        pdb.set_trace()
         confidence = self.avg(confidence)
         conf = confidence.reshape(ba,-1) # batch X 64 X 64
         pdb.set_trace()
