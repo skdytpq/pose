@@ -86,7 +86,9 @@ class Trainer(object):
         model = models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
         self.criterion = MSESequenceLoss().cuda()
+        self.joint_criterion = nn.MSELoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
+        self.joint_optimizer = torch.optim.Adam(self.sub_model.parameters(),lr = self.lr)
         self.sub_model = heatconv().cuda()
         #self.sub_model = self.sub_model.cuda()
 
@@ -118,7 +120,9 @@ class Trainer(object):
     def training(self, epoch):
         print('Start Training....')
         train_loss = 0.0
+        loss_joint_total = 0.0
         self.model.train()
+        self.sub_model.train()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
@@ -137,17 +141,23 @@ class Trainer(object):
             start_model = time.time()
             heat = self.model(input_var)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint_ground = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
             joint_train = self.sub_model(heat_joint)
-            pdb.set_trace()
+            result_joint = joint * joint_train
+            loss_joint = self.joint_criterion(result_joint,joint_ground)
             losses = self.criterion(heat, heatmap_var)
 
 
-            loss += losses #+ 0.5 * relation_loss)
+            loss += losses # + 0.5 * relation_loss)
+            loss += loss_joint
             train_loss += loss.item()
+            loss_joint_total += loss_joint
             self.optimizer.zero_grad()
+            self.joint_optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+            self.joint_optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
@@ -168,13 +178,15 @@ class Trainer(object):
                     save_batch_heatmaps(path,input,heat,file_name,joint)
                     save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
         self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
-
+        self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
 
     def validation(self, epoch):
         print('Start Testing....')
         self.model.eval()
+        self.sub_model.eval()
         tbar = tqdm(self.val_loader, desc='\r')
         val_loss = 0.0
+        loss_joint_total = 0.0
         
         AP = np.zeros(self.numClasses)
         PCK = np.zeros(self.numClasses)
@@ -210,7 +222,13 @@ class Trainer(object):
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             #[8,5,3,256,256]?
             b, t, c, h, w = input.shape
+            ### joint Loss Function
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint_ground = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
+            heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
+            joint_train = self.sub_model(heat_joint)
+            result_joint = joint * joint_train
+            loss_joint = self.joint_criterion(result_joint,joint_ground)
             #if self.is_visual:
             file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
             input_ = input.view(-1, c, h, w)
@@ -237,11 +255,12 @@ class Trainer(object):
             mAP = AP[:].sum()/(self.numClasses)
             mPCK = PCK[:].sum()/(self.numClasses)
             mPCKh = PCKh[:].sum()/(self.numClasses)
-
-
-        val_loss += loss
-
+        #### joint 함수 모델 저장
+            loss_joint_total += loss_joint
+            val_loss += loss
+        torch.save(self.sub_model,f'exp/submodel/{epoch}.pt')
         self.writer.add_scalar('val_loss', (val_loss / self.batch_size), epoch)
+        self.writer.add_scalar('joint_loss' , (loss_joint_total/self.batch_size),epoch)
         tbar.set_postfix(valoss='%.6f' % (val_loss / self.batch_size), mPCK=mPCK)
 
         printAccuracies(mAP, AP, mPCKh, PCKh, mPCK, PCK, self.dataset)
