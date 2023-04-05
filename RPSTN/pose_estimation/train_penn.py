@@ -137,6 +137,7 @@ class Trainer(object):
             start_model = time.time()
             heat = self.model(input_var)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
             joint_train = self.sub_model(heat)
             pdb.set_trace()
             losses = self.criterion(heat, heatmap_var)
