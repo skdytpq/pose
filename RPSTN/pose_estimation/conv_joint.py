@@ -13,6 +13,8 @@ class heatconv(nn.Module):
         self.n_layers = 4#n_layers
         self.num_joints =13 # num_joints
         self.pool = nn.MaxPool2d(3, stride=2)
+        self.ne = nn.Linear(64,2)
+        self.sig = nn.Sigmoid()
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
          ResLayer(self.n_fully_connected , int(self.n_fully_connected/4)),
@@ -23,10 +25,10 @@ class heatconv(nn.Module):
     def forward(self,heatmap):
         ba = heatmap.shape[0]
         confidence = self.fe_net(heatmap) # batch X 64 X 64 X 64
-        pdb.set_trace()
         confidence = self.avg(confidence)
         conf = confidence.reshape(ba,-1) # batch X 64 X 64
-        pdb.set_trace()
+        conf = self.ne(conf) # Batch  X 2
+        conf = self.sig(conf) 
         return conf
 
 
@@ -73,10 +75,6 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     joints = joints.reshape(-1,num_joints,2)
     heat = heatmaps.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
    #in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
-    sub_model = heatconv()
-    sub_model = sub_model.cuda()
-    pred = sub_model(heat)
-    pdb.set_trace()
     return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):

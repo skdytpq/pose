@@ -87,6 +87,8 @@ class Trainer(object):
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
         self.criterion = MSESequenceLoss().cuda()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
+        self.sub_model = heatconv().cuda()
+        #self.sub_model = self.sub_model.cuda()
 
         self.iters = 0
 
@@ -134,6 +136,9 @@ class Trainer(object):
             loss = 0
             start_model = time.time()
             heat = self.model(input_var)
+            joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+            joint_train = self.sub_model(heat)
+            pdb.set_trace()
             losses = self.criterion(heat, heatmap_var)
 
 
