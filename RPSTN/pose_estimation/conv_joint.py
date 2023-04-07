@@ -29,15 +29,11 @@ class heatconv(nn.Module):
         confidence = self.avg(confidence) # Batch X 64 X 1 X 1
         conf = confidence.reshape(ba,-1) # batch X 64 X 64
         conf_x = self.ne_x(conf) # Batch  X 2
-        conf_x = self.sig(conf_x)
+        conf_x = self.sig(conf_x) * 2
         conf_y = self.ne_y(conf)
-        conf_y = self.sig(conf_y)
+        conf_y = self.sig(conf_y) * 2
         output = torch.stack([conf_x , conf_y],dim = 2)
         return output
-
-
-
-
 
 
 class ConvBNLayer(nn.Module):

@@ -138,6 +138,7 @@ class Trainer(object):
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             losses = {}
             loss = 0
+            loss_joint = 0
             start_model = time.time()
             heat = self.model(input_var)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
@@ -153,10 +154,11 @@ class Trainer(object):
             loss += loss_joint
             train_loss += loss.item()
             loss_joint_total += loss_joint
-            self.optimizer.zero_grad()
+            #self.optimizer.zero_grad()
             self.joint_optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            #loss.backward()
+            loss_joint.backward()
+            #self.optimizer.step()
             self.joint_optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
