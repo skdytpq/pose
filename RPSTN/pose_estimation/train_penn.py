@@ -154,11 +154,11 @@ class Trainer(object):
             loss += loss_joint
             train_loss += loss.item()
             loss_joint_total += loss_joint
-            self.optimizer.zero_grad()
+            #self.optimizer.zero_grad()
             self.joint_optimizer.zero_grad()
-            loss.backward()
+            #loss.backward()
             loss_joint.backward()
-            self.optimizer.step()
+            #self.optimizer.step()
             self.joint_optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
