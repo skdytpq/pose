@@ -293,7 +293,7 @@ class Trainer(object):
         print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%% ; Best PCK& epoch : %2.2f%% ; %d" % (epoch, mPCK*100,mPCKh*100,self.bestPCKh,self.best_epoch))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
     parser = argparse.ArgumentParser()
     parser.add_argument('--pretrained', default=None, type=str, dest='pretrained')
     parser.add_argument('--dataset', type=str, dest='dataset', default='Penn_Action')
