@@ -154,11 +154,11 @@ class Trainer(object):
             loss += loss_joint
             train_loss += loss.item()
             loss_joint_total += loss_joint
-            #self.optimizer.zero_grad()
+            self.optimizer.zero_grad()
             self.joint_optimizer.zero_grad()
-            #loss.backward()
+            loss.backward()
             loss_joint.backward()
-            #self.optimizer.step()
+            self.optimizer.step()
             self.joint_optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
@@ -220,7 +220,7 @@ class Trainer(object):
             start_model = time.time()
             heat = self.model(input_var)
             
-            losses = self.criterion(heat, heatmap_var)
+            #losses = self.criterion(heat, heatmap_var)
             loss  += losses.item() #+ 0.5 * relation_loss.item()
             #[8,5,3,256,256]?
             b, t, c, h, w = input.shape
