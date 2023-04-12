@@ -20,7 +20,7 @@ class heatconv(nn.Module):
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
          ResLayer(self.n_fully_connected , int(self.n_fully_connected/4),expansion = 1),
          #ResLayer(int(self.n_fully_connected) ,int(self.n_fully_connected/4),expansion= 1),
-         ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/16),expansion=1))# Convolution Batchnormailization fully connected layer
+         ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/8),expansion=1))# Convolution Batchnormailization fully connected layer
         self.avg = nn.AdaptiveAvgPool2d(1)
                                    
     def forward(self,heatmap):
