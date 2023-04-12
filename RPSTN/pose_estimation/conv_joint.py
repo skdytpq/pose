@@ -6,10 +6,10 @@ import torch.nn as nn
 
 
 class heatconv(nn.Module):
-    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
+    def __init__(self, heatmap_size = 64, n_fully_connected=512, n_layers=4 ,num_joints = 13):
         super(heatconv,self).__init__()
         self.heatmap_size = heatmap_size
-        self.n_fully_connected = 1024#n_fully_connected
+        self.n_fully_connected = 512#n_fully_connected
         self.n_layers = 4#n_layers
         self.num_joints =13 # num_joints
         self.pool = nn.MaxPool2d(3, stride=2)
