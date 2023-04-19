@@ -201,7 +201,6 @@ class Trainer(object):
         idx = []
         cnt = 0
         preds = []
-
         for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
             cnt += 1
             idx.append(start_index)
@@ -289,7 +288,7 @@ class Trainer(object):
         if mPCK >= self.bestPCK:
             self.bestPCK = mPCK
             self.best_epoch = epoch
-
+        del heat,heat_joint,heat_
         print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%% ; Best PCK& epoch : %2.2f%% ; %d" % (epoch, mPCK*100,mPCKh*100,self.bestPCKh,self.best_epoch))
 
 
