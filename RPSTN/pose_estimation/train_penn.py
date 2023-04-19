@@ -15,6 +15,8 @@ import pdb
 import shutil
 import random
 from conv_joint import *
+import  gc
+torch.cuda.empty_cache()
 #from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
@@ -123,6 +125,7 @@ class Trainer(object):
         loss_joint_total = 0.0
         self.model.train()
         self.sub_model.train()
+        gc.collect()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
@@ -181,6 +184,9 @@ class Trainer(object):
                     save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
         self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
         self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
+        del heat,heat_joint
+        torch.cuda.empty_cache()
+        gc.collect()
 
     def validation(self, epoch):
         print('Start Testing....')
@@ -189,7 +195,7 @@ class Trainer(object):
         tbar = tqdm(self.val_loader, desc='\r')
         val_loss = 0.0
         loss_joint_total = 0.0
-        
+        gc.collect()
         AP = np.zeros(self.numClasses)
         PCK = np.zeros(self.numClasses)
         PCKh = np.zeros(self.numClasses) 
@@ -289,6 +295,8 @@ class Trainer(object):
             self.bestPCK = mPCK
             self.best_epoch = epoch
         del heat,heat_joint,heat_
+        torch.cuda.empty_cache()
+        gc.collect()
         print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%% ; Best PCK& epoch : %2.2f%% ; %d" % (epoch, mPCK*100,mPCKh*100,self.bestPCKh,self.best_epoch))
 
 
