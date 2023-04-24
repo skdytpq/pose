@@ -1,5 +1,6 @@
 # python train.py --is_train True
 import sys
+sys.path.append("./")
 sys.path.append("ITES")
 sys.path.append("ITES/common")
 sys.path.append("ITES/data")
@@ -28,8 +29,23 @@ import random
 import numpy as np
 from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pose
 from ITES.common.h36m_dataset import Human36mDataset
+from ITES.common.function import *
+from reconstruct_joint import Student_net
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
+pdb.set_trace()
+def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
+    m = torch.full(joint.shape,mlm_probability)
+    if pair:
+        masked_indices = torch.bernoulli(m[:-1]).bool() # batch , joint 40,16
+        cp = torch.repeat(joint.shape[0],masked_indices[-1])
+        masked_indices = torch.stack([masked_indices,cp],dim = 2)
+    else:
+        masked_indices = torch.bernoulli(m).bool()
+    m[masked_indices] = 1e-9
+    m_joint = joint * m 
+    return m_joint # masking 된 joint 값 출력
+
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -100,7 +116,7 @@ class Trainer(object):
         self.basis = 12
         self.init_std = 0.01
 
-
+        adj = adj_mx_from_skeleton(dataset.skeleton())
         if self.dataset ==  "pose_data":
             self.numClasses = 13
             self.test_dir = None
@@ -115,6 +131,8 @@ class Trainer(object):
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
+        self.submodel = Student_net(adj, args.hid_dim, num_layers=args.n_blocks, p_dropout=0.0,
+                       nodes_group=dataset.skeleton().joints_group())
         if args.pretrained:
             self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
             checkpoint = torch.load('ITES/checkpoint/teacher/ckpt_teacher.bin')#, map_location=lambda storage, loc: storage)
@@ -187,7 +205,12 @@ class Trainer(object):
             jfh = normalize_2d(jfh)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
-            preds = self.model_pos_train(jfh,align_to_root=True)
+            
+            if args.submodule:
+                preds = 0
+            else:
+
+                preds = self.model_pos_train(jfh,align_to_root=True)
             #pdb.set_trace()
             # Batch, 16,2          
             loss_reprojection = preds['l_reprojection'] 
