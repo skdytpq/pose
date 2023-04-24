@@ -9,7 +9,7 @@ class heatconv(nn.Module):
     def __init__(self, heatmap_size = 64, n_fully_connected=512, n_layers=4 ,num_joints = 13):
         super(heatconv,self).__init__()
         self.heatmap_size = heatmap_size
-        self.n_fully_connected = 512#n_fully_connected
+        self.n_fully_connected = 256#n_fully_connected
         self.n_layers = 4#n_layers
         self.num_joints =13 # num_joints
         self.pool = nn.MaxPool2d(3, stride=2)
@@ -18,9 +18,9 @@ class heatconv(nn.Module):
         self.sig = nn.Sigmoid()
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
-         ResLayer(self.n_fully_connected , int(self.n_fully_connected/4),expansion = 1),
+         ResLayer(self.n_fully_connected , int(self.n_fully_connected/2),expansion = 1),
          #ResLayer(int(self.n_fully_connected) ,int(self.n_fully_connected/4),expansion= 1),
-         ResLayer(int(self.n_fully_connected/4) ,int(self.n_fully_connected/8),expansion=1))# Convolution Batchnormailization fully connected layer
+         ResLayer(int(self.n_fully_connected/2) ,int(self.n_fully_connected/5),expansion=1))# Convolution Batchnormailization fully connected layer
         self.avg = nn.AdaptiveAvgPool2d(1)
                                    
     def forward(self,heatmap):

@@ -6,18 +6,12 @@ import math
 import torch
 import torch.nn.functional as F
 from functools import reduce
-from common.function import so3_exponential_map
-from common.camera import *
-from common.function import *
-from common.loss import *
+from ITES.common.function import so3_exponential_map
+from ITES.common.camera import *
+from ITES.common.function import *
+from ITES.common.loss import *
 
 
-def mask_joint(joint,mlm_probability=0.2): # ba, joint , 2
-    ba = joint[0]
-    m = torch.full(joint.shape,mlm_probability)
-    masked_indices = torch.bernoulli(m).bool()
-    m[masked_indices] = 1e-9
-    return m
 
 
 
@@ -199,7 +193,7 @@ class SemGraphConv(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 class _NonLocalBlock(nn.Module):
-    def __init__(self, in_channels, inter_channels=None, dimension=3, sub_sample=1, bn_layer=True):
+    def __init__(self, in_channels, inter_channels=None, dimension=2, sub_sample=1, bn_layer=True):
         super(_NonLocalBlock, self).__init__()
 
         assert dimension in [1, 2, 3]
