@@ -136,7 +136,7 @@ class Trainer(object):
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
-                       nodes_group=dataset.skeleton().joints_group())
+                       nodes_group=dataset.skeleton().joints_group()).cuda()
         if args.pretrained:
             self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
             checkpoint = torch.load('ITES/checkpoint/teacher/ckpt_teacher.bin')#, map_location=lambda storage, loc: storage)
