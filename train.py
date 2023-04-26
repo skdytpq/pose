@@ -43,6 +43,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
         masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
     else:
         masked_indices = torch.bernoulli(m).bool()
+    pdb.set_trace()
     m[masked_indices] = 1e-9
     m_joint = joint * m 
     return m_joint # masking 된 joint 값 출력
