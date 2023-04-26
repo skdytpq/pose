@@ -36,11 +36,11 @@ from reconstruct_joint import Student_net
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
 def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
-    m = torch.full(joint.shape,mlm_probability)
-    if pair:
-        masked_indices = torch.bernoulli(m[:-1]).bool() # batch , joint 40,16
-        cp = torch.repeat(joint.shape[0],masked_indices[-1])
-        masked_indices = torch.stack([masked_indices,cp],dim = 2)
+    m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
+    if pair: 
+        masked_indices = torch.bernoulli(m[:-1]).bool() # batch , joint 40,16  , 1
+        # cp = torch.repeat(joint.shape[0],masked_indices[-1]) # 40 , 16 
+        masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
     else:
         masked_indices = torch.bernoulli(m).bool()
     m[masked_indices] = 1e-9
@@ -128,7 +128,7 @@ class Trainer(object):
                                                                 self.batch_size)
         #loader output = images, label_map, label, img_paths, person_box, start_index,kpts
         model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, self.is_visual, is_train=True if self.is_train else False)
-    
+
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
