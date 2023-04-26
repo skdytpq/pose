@@ -53,7 +53,7 @@ class _Simple_GraphConv(nn.Module):
             self.dropout = None
 
     def forward(self, x):
-        x = self.gconv(x).transpose(1, 2)
+        x = self.gconv(x).transpose(1, 2) 
         x = self.bn(x).transpose(1, 2)
         if self.dropout is not None:
             x = self.dropout(self.relu(x))
@@ -87,7 +87,7 @@ class _GraphNonLocal(nn.Module):
         out = out[:, self.restored_order, :]
         return out
 
-class Student_net(nn.Module):
+class Student_net(nn.Module): # 2D input 과의 차이 계산 하기 위해 사용 N , 17 , 3  ㅑ
     def __init__(self, adj, hid_dim, coords_dim=(2, 1), num_layers=4, nodes_group=None, p_dropout=None):
         super(Student_net, self).__init__()
         group_size = len(nodes_group[0])
@@ -101,6 +101,7 @@ class Student_net(nn.Module):
                     restored_order[i] = j
                     break
         _gconv_input = [_Simple_GraphConv(adj, coords_dim[0], hid_dim, grouped_order, restored_order, group_size, p_dropout=p_dropout)]
+        # output = 17X2 Joint matrix
         _gconv_layers = []
         for i in range(num_layers):
             _gconv_layers.append(_ResGraphConv(adj, hid_dim, hid_dim, hid_dim, grouped_order, restored_order, group_size,p_dropout))
@@ -110,7 +111,7 @@ class Student_net(nn.Module):
 
         self.gconv_input = nn.Sequential(*_gconv_input)
         self.gconv_layers = nn.Sequential(*_gconv_layers)
-        self.gconv_output = SemGraphConv(hid_dim, coords_dim[1], adj)
+        self.gconv_output = SemGraphConv(hid_dim, coords_dim[0], adj)
 
     def predict(self, x):
         out = self.gconv_input(x)
@@ -125,22 +126,7 @@ class Student_net(nn.Module):
         preds['keypoints_2d'] = input_2d
         input_flatten = input_2d
         depth = self.predict(input_flatten)
-        preds['depth'] = depth
-        shape_3d = torch.cat((input_2d * torch.clamp(depth+5,min=1),depth),dim=2)
-        preds['shape_3d'] = shape_3d
-        n_sample = 4
-        # rotate the 3D point
-        # generate random rotation around all axes
-        R_rand = rand_rot(ba * n_sample,
-                dtype=dtype,
-                max_rot_angle=3.1415926*2,
-                axes=(0, 1, 0))
-        rotated_3d = torch.matmul(shape_3d.repeat(n_sample,1,1),R_rand)
-        # depth_gt = rotated_3d[:,:,2:3]
-        rotated_2d = rotated_3d[:,:,:2] / torch.clamp(5+rotated_3d[:,:,2:3],min=1)
-        repred_3d = self.reconstruct(rotated_2d)
-        l_reconstruct = mpjpe(repred_3d,rotated_3d)
-        preds['l_reconstruct'] = l_reconstruct
+        preds['reconsturct'] = depth # 3차원 공간이 나옴
         return preds
     
     def reconstruct(self,input_2d):
@@ -158,12 +144,12 @@ class SemGraphConv(nn.Module):
         self.in_features = in_features
         self.out_features = out_features
 
-        self.W = nn.Parameter(torch.zeros(size=(2, in_features, out_features), dtype=torch.float))
+        self.W = nn.Parameter(torch.zeros(size=(2, in_features, out_features), dtype=torch.float)) # 2 X 2 X 128
         nn.init.xavier_uniform_(self.W.data, gain=1.414)
 
-        self.adj = adj
+        self.adj = adj # joint 노드에 대한 adj matrix
         self.m = (self.adj > 0)
-        self.e = nn.Parameter(torch.zeros(1, len(self.m.nonzero()), dtype=torch.float))
+        self.e = nn.Parameter(torch.zeros(1, len(self.m.nonzero()), dtype=torch.float)) # zero가 아닌 update parameter
         nn.init.constant_(self.e.data, 1)
 
         if bias:
@@ -174,16 +160,16 @@ class SemGraphConv(nn.Module):
             self.register_parameter('bias', None)
 
     def forward(self, input):
-        h0 = torch.matmul(input, self.W[0])
-        h1 = torch.matmul(input, self.W[1])
+        h0 = torch.matmul(input, self.W[0]) # 17 X 2 , 2 X 2
+        h1 = torch.matmul(input, self.W[1]) # 17 X 2 , 2 X 2
 
-        adj = -9e15 * torch.ones_like(self.adj).to(input.device)
-        adj[self.m] = self.e
-        adj = F.softmax(adj, dim=1)
+        adj = -9e15 * torch.ones_like(self.adj).to(input.device) # numjoint  X numjoint
+        adj[self.m] = self.e # 0보다 큰 adj index를 1로 채움 
+        adj = F.softmax(adj, dim=1) # 확률 값으로 변환
 
-        M = torch.eye(adj.size(0), dtype=torch.float).to(input.device)
-        output = torch.matmul(adj * M, h0) + torch.matmul(adj * (1 - M), h1)
-
+        M = torch.eye(adj.size(0), dtype=torch.float).to(input.device) # 17 size 의 대각행렬
+        output = torch.matmul(adj * M, h0) + torch.matmul(adj * (1 - M), h1) # 각 노드 자신에 대한 값을 한번 곱한 후 나머지 연결 값과도 곱함
+        # 17 X 17 * 17 X 17 , 17 X 2  -> 17 X 2 + 17 X 17 * (17 X 17) * 17 X 2  -> 17 X 2 
         if self.bias is not None:
             return output + self.bias.view(1, 1, -1)
         else:
@@ -194,8 +180,8 @@ class SemGraphConv(nn.Module):
 
 class _NonLocalBlock(nn.Module):
     def __init__(self, in_channels, inter_channels=None, dimension=2, sub_sample=1, bn_layer=True):
-        super(_NonLocalBlock, self).__init__()
-
+        super(_NonLocalBlock, self).__init__() 
+        # input = 17X2
         assert dimension in [1, 2, 3]
 
         self.dimension = dimension
@@ -225,7 +211,7 @@ class _NonLocalBlock(nn.Module):
             raise Exception('Error feature dimension.')
 
         self.g = conv_nd(in_channels=self.in_channels, out_channels=self.inter_channels,
-                         kernel_size=1, stride=1, padding=0)
+                         kernel_size=1, stride=1, padding=0) # Convolution layer 를 거친다.
         self.theta = conv_nd(in_channels=self.in_channels, out_channels=self.inter_channels,
                              kernel_size=1, stride=1, padding=0)
         self.phi = conv_nd(in_channels=self.in_channels, out_channels=self.inter_channels,
@@ -265,36 +251,36 @@ class _NonLocalBlock(nn.Module):
             self.phi = nn.Sequential(self.phi, max_pool(kernel_size=sub_sample))
 
     def forward(self, x):
-        batch_size = x.size(0)  # x: (b, c, t, h, w)
+        batch_size = x.size(0)  # x: (b, c, t, h, w)  ?
 
         g_x = self.g(x).view(batch_size, self.inter_channels, -1)
         g_x = g_x.permute(0, 2, 1)
 
-        # (b, c, N, 1)
+        # (b, c, N, 1) N  : joint 
         theta_x = self.theta(x).view(batch_size, self.inter_channels, -1, 1)
         # (b, c, 1, N)
         phi_x = self.phi(x).view(batch_size, self.inter_channels, 1, -1)
 
-        h = theta_x.size(2)
-        w = phi_x.size(3)
-        theta_x = theta_x.expand(-1, -1, -1, w)
-        phi_x = phi_x.expand(-1, -1, h, -1)
+        h = theta_x.size(2) # N
+        w = phi_x.size(3) # N
+        theta_x = theta_x.expand(-1, -1, -1, w) # 마지막 차원의 size 를 joint_size 로 맞춤 -> joint 만큼의 값 복사 
+        phi_x = phi_x.expand(-1, -1, h, -1) # 3번째 차원 사이즈를 joint_size 로 맞춤
 
         concat_feature = torch.cat([theta_x, phi_x], dim=1)
         f = self.concat_project(concat_feature)
         b, _, h, w = f.size()
-        f = f.view(b, h, w)
+        f = f.view(b, h, w) # b , 17 , 17
 
         N = f.size(-1)
         f_div_C = f / N
 
-        y = torch.matmul(f_div_C, g_x)
+        y = torch.matmul(f_div_C, g_x) # b X 17 X 17 , b X c X 17
         y = y.permute(0, 2, 1).contiguous()
         y = y.view(batch_size, self.inter_channels, *x.size()[2:])
         W_y = self.W(y)
         z = W_y + x
 
-        return z
+        return z # batch X 17 X 2
 
 class GraphNonLocal(_NonLocalBlock):
     def __init__(self, in_channels, inter_channels=None, sub_sample=1, bn_layer=True):

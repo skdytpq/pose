@@ -31,6 +31,8 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 from ITES.common.function import *
 from reconstruct_joint import Student_net
+
+
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
 pdb.set_trace()
@@ -115,7 +117,8 @@ class Trainer(object):
         self.n_layers = 6
         self.basis = 12
         self.init_std = 0.01
-
+        self.hid_dim = 128
+        self.n_blocks = 4
         adj = adj_mx_from_skeleton(dataset.skeleton())
         if self.dataset ==  "pose_data":
             self.numClasses = 13
@@ -131,7 +134,7 @@ class Trainer(object):
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
-        self.submodel = Student_net(adj, args.hid_dim, num_layers=args.n_blocks, p_dropout=0.0,
+        self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
         if args.pretrained:
             self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
@@ -143,6 +146,11 @@ class Trainer(object):
         else:
             self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
         self.optimizer = torch.optim.SGD( self.model_pos_train.parameters(), lr=0.001,
+                            momentum=0.9,
+                            weight_decay=0.0005)
+        if args.submodule:
+            self.param = list(self.submodel.parameters())
+            self.sub_optimizer = torch.optim.AdamW(self.submodel.parameters(), lr=0.001,
                             momentum=0.9,
                             weight_decay=0.0005)
         #self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
@@ -167,6 +175,9 @@ class Trainer(object):
         self.model_pos_train.train()
         optimizer = self.optimizer
         args = self.args
+        if args.submodule:
+            sub_optim = self.sub_optimizer
+            self.submodel.train()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         t_loss =0
@@ -186,44 +197,42 @@ class Trainer(object):
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             #jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
             #jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-            kpts = kpts[:13] # joint
-            kpts = kpts.reshape(-1,13,2)
-            a = input_var.detach().cpu().numpy()
             #np.save('test.npy',a)
             losses = {}
             loss = 0
-            start_model = time.time()
             losses = self.criterion_jre(heat, heatmap_var)
             loss += losses
-            jfh_copy = jfh
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             jfh = make_joint(jfh)
-            kpts = kpts.cuda()
             jfh = jfh.cuda()
-            kpts = make_joint(kpts)
             jfh = normalize_2d(jfh)
-            kpts = normalize_2d(kpts)
-            kpts = kpts.type(torch.float).cuda()
-            
-            if args.submodule:
-                preds = 0
-            else:
 
+            if args.submodule:
+                sub_optim.zero_grad()
+                jfh_mask = mask_joint(jfh)
+                preds = self.submodel(jfh_mask)
+                reconstruct = preds['recontruct']
+                train_loss = self.criterion_jre(jfh,reconstruct)
+            else:
                 preds = self.model_pos_train(jfh,align_to_root=True)
-            #pdb.set_trace()
-            # Batch, 16,2          
-            loss_reprojection = preds['l_reprojection'] 
-            loss_consistancy = preds['l_cycle_consistent']
-            loss_total =  loss_reprojection + loss_consistancy
-            #if args.pretrained:
-            train_loss = loss_total
-            #else:
-            #    train_loss = loss_total + jre_loss
+                #pdb.set_trace()
+                # Batch, 16,2          
+                loss_reprojection = preds['l_reprojection'] 
+                loss_consistancy = preds['l_cycle_consistent']
+                loss_total =  loss_reprojection + loss_consistancy
+                #if args.pretrained:
+                train_loss = loss_total # + jre_loss
+                #else:
+                #    train_loss = loss_total + jre_loss
             
             train_loss.backward()
             t_loss += train_loss
-            optimizer.step()
+            if args.submodule:
+                sub_optim.step()
+            else:
+                optimizer.step()
+
             self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
@@ -233,10 +242,7 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_epoch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    if self.ground:
-                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_ground)
-                    else:
-                        train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
             with torch.no_grad():
                 vis_joint = preds['shape_camera_coord']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
@@ -283,6 +289,8 @@ class Trainer(object):
         cnt = 0
         vt_loss = 0
         preds = []
+        if args.submodule:
+            self.submodel.eval()
         with torch.no_grad():
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
                 cnt += 1
@@ -312,21 +320,23 @@ class Trainer(object):
                 jfh = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-                preds = self.model_pos_train(jfh,align_to_root=True)
-                # Batch, 13,2
-                
-                loss_reprojection = preds['l_reprojection'] 
-                loss_consistancy = preds['l_cycle_consistent']
-                loss_total =  loss_reprojection + loss_consistancy
-                
-
-                start_model = time.time()
-                heat = model_jre(input_var)
-                losses = self.criterion_jre(heat, heatmap_var)
-               # loss  += losses.item() #+ 0.5 * relation_loss.item()
-                val_loss = loss_total + losses
-                vt_loss += loss_total
-                #[8,5,3,256,256]?
+                if args.submodule:
+                    sub_optim.zero_grad()
+                    jfh_mask = mask_joint(jfh)
+                    preds = self.submodel(jfh_mask)
+                    reconstruct = preds['recontruct']
+                    val_loss += self.criterion_jre(jfh,reconstruct)
+                else:
+                    preds = self.model_pos_train(jfh,align_to_root=True)
+                    # Batch, 13,2
+                    loss_reprojection = preds['l_reprojection'] 
+                    loss_consistancy = preds['l_cycle_consistent']
+                    loss_total =  loss_reprojection + loss_consistancy
+                    heat = model_jre(input_var)
+                    losses = self.criterion_jre(heat, heatmap_var)
+                # loss  += losses.item() #+ 0.5 * relation_loss.item()
+                    val_loss = loss_total + losses
+                    #[8,5,3,256,256]?
                 b, t, c, h, w = input.shape
             
                 #if self.is_visual:
@@ -350,7 +360,7 @@ class Trainer(object):
                         .cpu().numpy()
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
                             draw_2d_pose(jfh[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-            self.writer.add_scalar('val_loss', (vt_loss/ self.batch_size), epoch)
+            self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
@@ -378,6 +388,7 @@ if __name__ == '__main__':
     parser.add_argument('--dir' , default = 'run',type=str)
     parser.add_argument('--ground' , default = False,type=bool)
     parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
+    parser.add_argument('--submodule' , default = False,type=bool)
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
