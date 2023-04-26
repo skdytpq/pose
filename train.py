@@ -204,13 +204,16 @@ class Trainer(object):
             jfh = make_joint(jfh)
             jfh = jfh.cuda()
             jfh = normalize_2d(jfh)
-
+            kpts = kpts.cuda()
+            kpts = make_joint(kpts)
+            kpts = normalize_2d(kpts)
+            kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 sub_optim.zero_grad()
-                jfh_mask = mask_joint(jfh)
-                preds = self.submodel(jfh_mask)
+                kpts_mask = mask_joint(kpts)
+                preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
-                train_loss = self.criterion_jre(jfh,reconstruct)
+                train_loss = self.criterion_jre(kpts,reconstruct)
             else:
                 preds = self.model_pos_train(jfh,align_to_root=True)
                 #pdb.set_trace()
@@ -321,10 +324,10 @@ class Trainer(object):
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
-                    jfh_mask = mask_joint(jfh)
-                    preds = self.submodel(jfh_mask)
+                    kpts_mask = mask_joint(kpts)
+                    preds = self.submodel(kpts_mask)
                     reconstruct = preds['reconstruct']
-                    val_loss += self.criterion_jre(jfh,reconstruct)
+                    val_loss += self.criterion_jre(kpts,reconstruct)
                 else:
                     preds = self.model_pos_train(jfh,align_to_root=True)
                     # Batch, 13,2
@@ -362,7 +365,7 @@ class Trainer(object):
                         .cpu().numpy()
                            # draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
                             draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-            self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
+        self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
