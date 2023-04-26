@@ -35,7 +35,6 @@ from reconstruct_joint import Student_net
 
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
-pdb.set_trace()
 def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
     m = torch.full(joint.shape,mlm_probability)
     if pair:
@@ -195,9 +194,6 @@ class Trainer(object):
             #[8, 5, 16, 64, 64]
             
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
-            #jfh_ground  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-            #jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-            #np.save('test.npy',a)
             losses = {}
             loss = 0
             losses = self.criterion_jre(heat, heatmap_var)
