@@ -38,7 +38,7 @@ dataset = Human36mDataset(dataset_path)
 def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
     m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
     if pair: 
-        masked_indices = torch.bernoulli(m[:-1]).bool() # batch , joint 40,16  , 1
+        masked_indices = torch.bernoulli(m[:,:,0]).bool() # batch , 17
         # cp = torch.repeat(joint.shape[0],masked_indices[-1]) # 40 , 16 
         masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
     else:
