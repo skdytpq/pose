@@ -241,7 +241,10 @@ class Trainer(object):
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
             with torch.no_grad():
-                vis_joint = preds['shape_camera_coord']
+                if args.submodule:
+                    vis_joint = preds['reconstruct']
+                else:
+                    vis_joint = preds['shape_camera_coord']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
                 # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
@@ -345,7 +348,10 @@ class Trainer(object):
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
                 if epoch % 1 == 0 :
-                    vis_joint = preds['shape_camera_coord']
+                    if args.submodule:
+                        vis_joint = preds['reconstruct']
+                    else:
+                        vis_joint = preds['shape_camera_coord']
                     vis_joint = vis_joint.cpu()
                     if i == 0:
                         for j in range(1):
