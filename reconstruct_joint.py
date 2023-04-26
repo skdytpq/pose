@@ -126,7 +126,7 @@ class Student_net(nn.Module): # 2D input 과의 차이 계산 하기 위해 사�
         preds['keypoints_2d'] = input_2d
         input_flatten = input_2d
         depth = self.predict(input_flatten)
-        preds['reconsturct'] = depth # 3차원 공간이 나옴
+        preds['reconstruct'] = depth # 3차원 공간이 나옴
         return preds
     
     def reconstruct(self,input_2d):

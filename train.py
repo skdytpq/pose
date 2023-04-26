@@ -209,7 +209,7 @@ class Trainer(object):
                 sub_optim.zero_grad()
                 jfh_mask = mask_joint(jfh)
                 preds = self.submodel(jfh_mask)
-                reconstruct = preds['recontruct']
+                reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(jfh,reconstruct)
             else:
                 preds = self.model_pos_train(jfh,align_to_root=True)
