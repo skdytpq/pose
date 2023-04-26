@@ -321,7 +321,6 @@ class Trainer(object):
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
-                    sub_optim.zero_grad()
                     jfh_mask = mask_joint(jfh)
                     preds = self.submodel(jfh_mask)
                     reconstruct = preds['recontruct']
