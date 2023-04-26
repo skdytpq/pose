@@ -150,7 +150,6 @@ class Trainer(object):
         if args.submodule:
             self.param = list(self.submodel.parameters())
             self.sub_optimizer = torch.optim.AdamW(self.submodel.parameters(), lr=0.001,
-                            momentum=0.9,
                             weight_decay=0.0005)
         #self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
 
