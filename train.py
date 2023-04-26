@@ -361,8 +361,8 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(jfh[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                           # draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
             self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
