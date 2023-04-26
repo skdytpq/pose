@@ -5,34 +5,35 @@ import pdb
 import torch.nn as nn
 
 
-
-
 class heatconv(nn.Module):
-    def __init__(self, heatmap_size = 64, n_fully_connected=1024, n_layers=4 ,num_joints = 13):
-        super().__init__()
+    def __init__(self, heatmap_size = 64, n_fully_connected=512, n_layers=4 ,num_joints = 13):
+        super(heatconv,self).__init__()
         self.heatmap_size = heatmap_size
-        self.n_fully_connected = 1024#n_fully_connected
+        self.n_fully_connected = 256#n_fully_connected
         self.n_layers = 4#n_layers
         self.num_joints =13 # num_joints
-
+        self.pool = nn.MaxPool2d(3, stride=2)
+        self.ne_x = nn.Linear(64,13)
+        self.ne_y = nn.Linear(64,13)
+        self.sig = nn.Sigmoid()
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
-         ResLayer(self.n_fully_connected , self.n_fully_connected/4)
-         ,ResLayer(self.n_fully_connected /4 ,self.n_fully_connected/16)) # Convolution Batchnormailization fully connected layer
-        self.avg = nn.AdaptiveAvgPool2d(self.n_fully_connected/16)
+         ResLayer(self.n_fully_connected , int(self.n_fully_connected/2),expansion = 1),
+         #ResLayer(int(self.n_fully_connected) ,int(self.n_fully_connected/4),expansion= 1),
+         ResLayer(int(self.n_fully_connected/2) ,int(self.n_fully_connected/4),expansion=1))# Convolution Batchnormailization fully connected layer
+        self.avg = nn.AdaptiveAvgPool2d(1)
                                    
     def forward(self,heatmap):
         ba = heatmap.shape[0]
-        pdb.set_trace()
-        confidence = self.fe_net(heatmap)
-        pdb.set_trace()
-        confidence = self.avg(confidence)
-        conf = confidence.reshape(ba,-1)
-        return conf
-
-
-
-
+        confidence = self.fe_net(heatmap) # batch X 64 X 64 X 64
+        confidence = self.avg(confidence) # Batch X 64 X 1 X 1
+        conf = confidence.reshape(ba,-1) # batch X 64 X 64
+        conf_x = self.ne_x(conf) # Batch  X 2
+        conf_x = self.sig(conf_x) * 2
+        conf_y = self.ne_y(conf)
+        conf_y = self.sig(conf_y) * 2
+        output = torch.stack([conf_x , conf_y],dim = 2)
+        return output
 
 
 class ConvBNLayer(nn.Module):
@@ -62,7 +63,7 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
     device = torch.device("cuda:0")
     ba = heatmaps.shape[0]
     seq = heatmaps.shape[1]
-    heatmaps_ = heatmaps # b 13 64 64
+    heatmaps_ = heatmaps # b seq n13 64 64
     joints = torch.zeros([ba,seq,num_joints,2]).to(device)
     for i in range(seq): # seq 끼리 계산하여 tensor 차원 맞추기
         heatmaps_ = heatmaps[:,i,:,:,:].reshape(ba,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
@@ -72,10 +73,8 @@ def generate_2d_integral_preds_tensor(heatmaps, num_joints, x_dim, y_dim,):
         joints[:,i,:,0] = j_x[:,:].reshape(ba,num_joints)
         joints[:,i,:,1] = j_y[:,:].reshape(ba,num_joints)
     joints = joints.reshape(-1,num_joints,2)
-    heat = heatmaps_.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
-    in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
-    heatconv(in_heat)
-    pdb.set_trace()
+    heat = heatmaps.reshape(-1,num_joints,heatmaps.shape[-2],heatmaps.shape[-1])
+   #in_heat = heat.reshape(-1,heatmaps.shape[-2],heatmaps.shape[-1])
     return joints
 
 def conv3x3(in_planes, out_planes, std=0.01):
@@ -91,8 +90,7 @@ def conv3x3(in_planes, out_planes, std=0.01):
 class ResLayer(nn.Module):
     def __init__(self, inplanes, planes, expansion=4):
         super(ResLayer, self).__init__()
-        self.expansion = expansion
-        pdb.set_trace()
+        self.expansion = expansion  
         self.conv1 = conv3x3(inplanes, planes)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = conv3x3(planes, planes)

@@ -128,7 +128,7 @@ class Trainer(object):
                                                                 self.batch_size)
         #loader output = images, label_map, label, img_paths, person_box, start_index,kpts
         model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, self.is_visual, is_train=True if self.is_train else False)
-
+    
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
