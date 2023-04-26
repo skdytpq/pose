@@ -258,8 +258,8 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(jfh[i],dataset.skeleton(),'visualization_custom/' + '2dtrain/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            #draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
