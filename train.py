@@ -187,6 +187,7 @@ class Trainer(object):
             optimizer.zero_grad()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)
+            kpts = kpts[:13]
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
@@ -300,7 +301,6 @@ class Trainer(object):
                 idx.append(start_index)
                 input_var = input.cuda()
                 heatmap_var = heatmap.cuda()
-                pdb.set_trace()
                 kpts = kpts[:13]
                 self.optimizer.zero_grad()
 
