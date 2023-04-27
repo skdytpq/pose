@@ -186,7 +186,8 @@ class Trainer(object):
                                                  gamma=self.gamma, step_size=self.step_size)
             optimizer.zero_grad()
             vis = label[:, :, :, -1]
-            vis = vis.view(-1, self.numClasses, 1)
+            vis = vis.view(-1, self.numClasses, 1)  
+            pdb.set_trace()
             kpts = kpts[:13]
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
