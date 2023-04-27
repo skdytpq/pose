@@ -300,6 +300,7 @@ class Trainer(object):
                 idx.append(start_index)
                 input_var = input.cuda()
                 heatmap_var = heatmap.cuda()
+                pdb.set_trace()
                 kpts = kpts[:13]
                 self.optimizer.zero_grad()
 
