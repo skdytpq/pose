@@ -193,7 +193,7 @@ class Trainer(object):
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
-            
+            kpts = kpts[:13]
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             losses = {}
             loss = 0
@@ -300,7 +300,7 @@ class Trainer(object):
                 idx.append(start_index)
                 input_var = input.cuda()
                 heatmap_var = heatmap.cuda()
-
+                kpts = kpts[:13]
                 self.optimizer.zero_grad()
 
                 heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
