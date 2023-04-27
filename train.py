@@ -187,8 +187,6 @@ class Trainer(object):
             optimizer.zero_grad()
             vis = label[:, :, :, -1]
             vis = vis.view(-1, self.numClasses, 1)  
-            pdb.set_trace()
-            kpts = kpts[:13]
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
@@ -196,6 +194,7 @@ class Trainer(object):
             # self.iters += 1
             #[8, 5, 16, 64, 64]
             kpts = kpts[:13]
+            kpts = kpts.reshape(-1,13,2)
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             losses = {}
             loss = 0
@@ -311,7 +310,6 @@ class Trainer(object):
                 heat = model_jre(input_var)
                 losses = {}
                 loss = 0
-                start_model = time.time()
                 kpts = kpts[:13]
                 kpts = kpts.reshape(-1,13,2)
                 # joint from heatmap K , 64 , 64 
