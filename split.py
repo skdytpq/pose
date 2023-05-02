@@ -11,7 +11,7 @@ def move_visible(files,i,path):
     for fil in name:
         if i =='train':
             shutil.move(f'../data/pose_data/{i}/{fil}',f'../data/pose_data/itedata/{i}/{fil}')
-        if i =='val':
+        if i =='test':
             shutil.move(f'../data/pose_data/{i}/{fil}',f'../data/pose_data/itedata/{i}/{fil}')
 
 for i in ['train','test']:
