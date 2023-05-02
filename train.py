@@ -212,7 +212,6 @@ class Trainer(object):
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
-                pdb.set_trace()
                 sub_optim.zero_grad()
                 kpts_mask = mask_joint(kpts)
                 preds = self.submodel(kpts_mask)
@@ -237,7 +236,7 @@ class Trainer(object):
             else:
                 optimizer.step()
 
-            self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
+            #self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
             path = f'exp/train/skeleton2d/{epoch}.jpg'
             if self.is_visual == True and i == 0:
