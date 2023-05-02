@@ -212,6 +212,7 @@ class Trainer(object):
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
+                pdb.set_trace()
                 sub_optim.zero_grad()
                 kpts_mask = mask_joint(kpts)
                 preds = self.submodel(kpts_mask)
