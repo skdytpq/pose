@@ -6,8 +6,7 @@ def move_visible(files,i,path):
     name = []
     if 'npy' in files:
         file = np.load(path,allow_pickle = True).copy() # 
-        if  0 in file[0]['x'] or 0 in file[0]['x']:
-            pdb.set_trace()
+        if  file[0]['x'].min() >= 3 or  file[0]['x'].min() >=3:
             name.append(files)
     for fil in name:
         if i =='train':
