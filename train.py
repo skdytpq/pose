@@ -191,7 +191,6 @@ class Trainer(object):
             vis = vis.view(-1, self.numClasses, 1)  
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
-            pdb.set_trace()
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             heat = self.model_jre(input_var)
             # self.iters += 1
