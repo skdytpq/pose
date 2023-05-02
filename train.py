@@ -142,6 +142,8 @@ class Trainer(object):
             checkpoint = torch.load('ITES/checkpoint/teacher/ckpt_teacher.bin')#, map_location=lambda storage, loc: storage)
             self.model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
+        if args.sub_trained:
+            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_70.bin')['state_dict'])
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
         else:
@@ -394,6 +396,7 @@ if __name__ == '__main__':
     parser.add_argument('--ground' , default = False,type=bool)
     parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
     parser.add_argument('--submodule' , default = False,type=bool)
+    parser.add_argument('--sub_trained',default = False , type = str  )
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
