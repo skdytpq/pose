@@ -19,6 +19,6 @@ for i in ['train','test']:
     for file in os.listdir(lis):
         path = os.path.join(lis,file)
         move_visible(file,i,path)
-
+ 
 
            
