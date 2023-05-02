@@ -1,12 +1,13 @@
 import numpy as np
 import os
 import shutil
-
+import pdb
 def move_visible(files,i,path):
     name = []
     if 'npy' in files:
         file = np.load(path,allow_pickle = True).copy() # 
-        if  0 not in file[0]['x'] or 0 not in file[0]['x']:
+        if  0 in file[0]['x'] or 0 in file[0]['x']:
+            pdb.set_trace()
             name.append(files)
     for fil in name:
         if i =='train':
