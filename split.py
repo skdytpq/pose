@@ -10,9 +10,9 @@ def move_visible(files,i,path):
             name.append(files)
     for fil in name:
         if i =='train':
-            shutil.move(f'data/pose/data/{i}/{fil}',f'data/pose/itedata/{i}/{fil}')
+            shutil.move(f'data/pose_data/{i}/{fil}',f'data/pose_data/itedata/{i}/{fil}')
         if i =='val':
-            shutil.move(f'data/pose/data/{i}/{fil}',f'data/pose/itedata/{i}/{fil}')
+            shutil.move(f'data/pose_data/{i}/{fil}',f'data/pose_data/itedata/{i}/{fil}')
 
 for i in ['train','test']:
     lis = os.path.join(f'data/pose/data/{i}')

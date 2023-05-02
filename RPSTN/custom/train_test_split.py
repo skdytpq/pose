@@ -10,7 +10,6 @@ base_test = '../data/pose_data/test'
 test = '../data/pose_data/train'
 # 993개의 데이터 셋
 def split(base):
-    dat = os.listdir(base)
     category = []
     for i in os.listdir(base):
         file = np.load(os.path.join(base,i),allow_pickle = True)
