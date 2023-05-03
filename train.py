@@ -204,6 +204,7 @@ class Trainer(object):
             loss += losses
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
+            jfh_copy = jfh
             jfh = make_joint(jfh)
             jfh = jfh.cuda()
             jfh = normalize_2d(jfh)
@@ -245,7 +246,7 @@ class Trainer(object):
                     file_name = 'result/heats/train/{}_epoch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
             with torch.no_grad():
                 if args.submodule:
                     vis_joint = preds['reconstruct']
