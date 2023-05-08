@@ -144,7 +144,7 @@ class Trainer(object):
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         if args.sub_trained:
             pdb.set_trace()
-            self.submodel.load_state_dict(torch.load('exp/submodel/best_submodule.bin')['model_pos'],strict = False)
+            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_70.bin')['model_pos'],strict = False)
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
         else:
@@ -217,7 +217,6 @@ class Trainer(object):
                 sub_optim.zero_grad()
                 kpts_mask = mask_joint(kpts)
                 preds = self.submodel(kpts_mask)
-                pdb.set_trace()
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
             else:
@@ -332,6 +331,7 @@ class Trainer(object):
                     kpts_mask = mask_joint(kpts)
                     preds = self.submodel(kpts_mask)
                     reconstruct = preds['reconstruct']
+                    pdb.set_trace()
                     val_loss += self.criterion_jre(kpts,reconstruct)
                 else:
                     preds = self.model_pos_train(jfh,align_to_root=True)
