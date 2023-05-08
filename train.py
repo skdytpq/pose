@@ -374,12 +374,20 @@ class Trainer(object):
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
-            torch.save({
+            if args.submodel:
+                  torch.save({
                 'epoch': epoch,
                 'lr': self.lr,
-                'optimizer': self.optimizer.state_dict(),
+                'optimizer': self.sub_optimizer.state_dict(),
                 'model_pos':self.model_pos_train.state_dict(),
             }, chk_path)
+            else:
+                torch.save({
+                    'epoch': epoch,
+                    'lr': self.lr,
+                    'optimizer': self.optimizer.state_dict(),
+                    'model_pos':self.submodel.state_dict(),
+                }, chk_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
