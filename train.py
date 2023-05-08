@@ -372,7 +372,7 @@ class Trainer(object):
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
-            if args.submodel:
+            if args.submodule:
                   torch.save({
                 'epoch': epoch,
                 'lr': self.lr,
