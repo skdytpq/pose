@@ -379,14 +379,14 @@ class Trainer(object):
                 'epoch': epoch,
                 'lr': self.lr,
                 'optimizer': self.sub_optimizer.state_dict(),
-                'model_pos':self.model_pos_train.state_dict(),
+                'model_pos':self.submodel.state_dict(),
             }, chk_path)
             else:
                 torch.save({
                     'epoch': epoch,
                     'lr': self.lr,
                     'optimizer': self.optimizer.state_dict(),
-                    'model_pos':self.submodel.state_dict(),
+                    'model_pos':self.model_pos_train.state_dict(),
                 }, chk_path)
 
 if __name__ == '__main__':
