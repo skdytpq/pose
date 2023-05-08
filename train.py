@@ -144,7 +144,7 @@ class Trainer(object):
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         if args.sub_trained:
             pdb.set_trace()
-            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_70.bin')['model_pos'],strict = False)
+            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_83.bin')['model_pos'],strict = False)
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
         else:
