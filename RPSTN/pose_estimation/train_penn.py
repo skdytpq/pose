@@ -288,6 +288,7 @@ class Trainer(object):
                 shutil.copy2('RPSTN/lib/models/dkd_net.py', source_model_save_path)
                 np.save('RPSTN/experiments/best_index', start_index)
                 save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+times, 'exp/checkpoints/penn_train')
+                save_checkpoint({'state_dict': self.sub_model.state_dict()}, self.isBest, self.args.model_name+'_'+times, 'exp/checkpoints/heatconv')
 
         if mPCKh >= self.bestPCKh:
             self.bestPCKh = mPCKh
