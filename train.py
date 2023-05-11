@@ -255,6 +255,7 @@ class Trainer(object):
                     vis_joint = preds['reconstruct']
                 else:
                     vis_joint = preds['shape_camera_coord']
+                    vis_joint2 = preds_1['reconstruct']
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
                 # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
@@ -270,6 +271,8 @@ class Trainer(object):
                         .cpu().numpy()
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
                             draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
@@ -363,6 +366,7 @@ class Trainer(object):
                         vis_joint = preds['reconstruct']
                     else:
                         vis_joint = preds['shape_camera_coord']
+                        vis_joint2 = preds['reconstruct']
                     vis_joint = vis_joint.cpu()
                     if i == 0:
                         for j in range(1):
@@ -373,7 +377,8 @@ class Trainer(object):
                         .permute(1, 2, 0)\
                         .cpu().numpy()
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_not_sub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
