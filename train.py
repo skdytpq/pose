@@ -219,8 +219,8 @@ class Trainer(object):
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
             else:
-                jfh_mask = mask_joint(jfh)
-                preds_1 = self.submodel(jfh_mask)
+                #jfh_mask = mask_joint(jfh)
+                preds_1 = self.submodel(jfh)
                 joint = preds_1['reconstruct']
                 preds = self.model_pos_train(joint,align_to_root=True)
                 #pdb.set_trace()
@@ -338,8 +338,8 @@ class Trainer(object):
                     reconstruct = preds['reconstruct']
                     val_loss += self.criterion_jre(kpts,reconstruct)
                 else:
-                    jfh_mask = mask_joint(jfh)
-                    preds_1 = self.submodel(jfh_mask)
+                    #jfh_mask = mask_joint(jfh)
+                    preds_1 = self.submodel(jfh)
                     joint = preds_1['reconstruct']
                     preds = self.model_pos_train(joint,align_to_root=True)
                     # Batch, 13,2
