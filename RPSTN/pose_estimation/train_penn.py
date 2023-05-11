@@ -237,12 +237,12 @@ class Trainer(object):
             result_joint = joint * joint_train
             loss_joint = self.joint_criterion(result_joint,joint_ground)
             #if self.is_visual:
-            file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
-            input_ = input.view(-1, c, h, w)
-            heat_ = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-            path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
-            if i == 0:
-                save_batch_heatmaps(path,input_,heat_,file_name,joint)
+            #file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
+            #input_ = input.view(-1, c, h, w)
+            #heat_ = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+            #path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
+            #if i == 0:
+            #    save_batch_heatmaps(path,input_,heat_,file_name,joint)
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 13, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
@@ -255,6 +255,8 @@ class Trainer(object):
                         PCK[k] = (PCK[k] * count[k] + acc_PCK[k]) / (count[k]+1)
                         PCKh[k] = (PCKh[k]* count[k] + acc_PCKh[k]) / (count[k]+1)
                         count[k] += 1
+            torch.cuda.empty_cache()
+            gc.collect()           
                         
             mAP = AP[:].sum()/(self.numClasses)
             mPCK = PCK[:].sum()/(self.numClasses)
@@ -277,7 +279,7 @@ class Trainer(object):
         PCKAvg  =  PCK.sum()/(self.numClasses)
         times = time.strftime('%Y%m%d', time.localtime())
         # if epoch % 10 == 0:
-        save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+f'{epoch}'+'_'+times, self.args.model_save_path)
+        #save_checkpoint({'state_dict': self.model.state_dict()}, self.isBest, self.args.model_name+'_'+f'{epoch}'+'_'+times, self.args.model_save_path)
 
         if mPCK >= self.isBest:
             self.isBest = mPCK
