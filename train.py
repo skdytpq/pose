@@ -143,7 +143,7 @@ class Trainer(object):
             self.model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         if args.sub_trained:
-            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_83.bin')['model_pos'],strict = False)
+            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_82.bin')['model_pos'],strict = False)
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
         else:
@@ -219,7 +219,10 @@ class Trainer(object):
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
             else:
-                preds = self.model_pos_train(jfh,align_to_root=True)
+                jfh_mask = mask_joint(jfh)
+                preds_1 = self.submodel(jfh_mask)
+                joint = preds_1['reconstruct']
+                preds = self.model_pos_train(joint,align_to_root=True)
                 #pdb.set_trace()
                 # Batch, 16,2          
                 loss_reprojection = preds['l_reprojection'] 
@@ -265,8 +268,8 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            #draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
@@ -332,7 +335,10 @@ class Trainer(object):
                     reconstruct = preds['reconstruct']
                     val_loss += self.criterion_jre(kpts,reconstruct)
                 else:
-                    preds = self.model_pos_train(jfh,align_to_root=True)
+                    jfh_mask = mask_joint(jfh)
+                    preds_1 = self.submodel(jfh_mask)
+                    joint = preds_1['reconstruct']
+                    preds = self.model_pos_train(joint,align_to_root=True)
                     # Batch, 13,2
                     loss_reprojection = preds['l_reprojection'] 
                     loss_consistancy = preds['l_cycle_consistent']
@@ -366,8 +372,8 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                           # draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_not_sub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
