@@ -366,7 +366,7 @@ class Trainer(object):
                         vis_joint = preds['reconstruct']
                     else:
                         vis_joint = preds['shape_camera_coord']
-                        vis_joint2 = preds['reconstruct']
+                        vis_joint2 = preds_1['reconstruct']
                     vis_joint = vis_joint.cpu()
                     if i == 0:
                         for j in range(1):
