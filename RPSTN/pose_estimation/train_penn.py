@@ -90,8 +90,9 @@ class Trainer(object):
         self.sub_model = heatconv().cuda()
         self.criterion = MSESequenceLoss().cuda()
         self.joint_criterion = nn.MSELoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
-        self.joint_optimizer = torch.optim.Adam(self.sub_model.parameters(),lr = self.lr)
+        #self.joint_optimizer = torch.optim.Adam(self.sub_model.parameters(),lr = self.lr)
+        self.param = list(self.model.parameters()) + list(self.sub_model.parameters())
+        self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
         #self.sub_model = self.sub_model.cuda()
 
         self.iters = 0
@@ -154,21 +155,21 @@ class Trainer(object):
 
 
             loss += losses # + 0.5 * relation_loss)
-            loss += loss_joint
             train_loss += loss.item()
+            train_loss += loss_joint
             loss_joint_total += loss_joint
-            #self.optimizer.zero_grad()
-            self.joint_optimizer.zero_grad()
-            #loss.backward()
-            loss_joint.backward()
-            #self.optimizer.step()
-            self.joint_optimizer.step()
+            self.optimizer.zero_grad() # optimizer 에 submodel 까지 추가
+            #self.joint_optimizer.zero_grad()
+            loss.backward()
+            #loss_joint.backward()
+            self.optimizer.step()
+            #self.joint_optimizer.step()
 
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(loss / self.batch_size), acc='%.2f'%(train_acc * 100))
             #self.iters += 1
-            #self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/train/skeleton2d/{epoch}_input.jpg'
             if self.is_visual == True:  
@@ -221,12 +222,12 @@ class Trainer(object):
 
             losses = {}
             loss   = 0
-
+            loss_joint = 0 
             start_model = time.time()
             heat = self.model(input_var)
             
-            #losses = self.criterion(heat, heatmap_var)
-            #loss  += losses.item() #+ 0.5 * relation_loss.item()
+            losses = self.criterion(heat, heatmap_var)
+            loss  += losses.item() #+ 0.5 * relation_loss.item()
             #[8,5,3,256,256]?
             b, t, c, h, w = input.shape
             ### joint Loss Function
@@ -236,6 +237,7 @@ class Trainer(object):
             joint_train = self.sub_model(heat_joint)
             result_joint = joint * joint_train
             loss_joint = self.joint_criterion(result_joint,joint_ground)
+            loss += loss_joint
             #if self.is_visual:
             #file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
             #input_ = input.view(-1, c, h, w)
