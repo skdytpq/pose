@@ -17,7 +17,7 @@ import random
 from conv_joint import *
 import  gc
 torch.cuda.empty_cache()
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1024"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1000"
 #from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
