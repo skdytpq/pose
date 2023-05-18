@@ -18,9 +18,9 @@ class heatconv(nn.Module):
         self.sig = nn.Sigmoid()
         self.fe_net = nn.Sequential(
          ConvBNLayer(self.num_joints,self.n_fully_connected,True),
-         ResLayer(self.n_fully_connected , int(self.n_fully_connected/2),expansion = 1),
+         ResLayer(self.n_fully_connected , int(self.n_fully_connected/4),expansion = 1))
          #ResLayer(int(self.n_fully_connected) ,int(self.n_fully_connected/4),expansion= 1),
-         ResLayer(int(self.n_fully_connected/2) ,int(self.n_fully_connected/4),expansion=1))# Convolution Batchnormailization fully connected layer
+         #ResLayer(int(self.n_fully_connected/2) ,int(self.n_fully_connected/4),expansion=1))# Convolution Batchnormailization fully connected layer
         self.avg = nn.AdaptiveAvgPool2d(1)
                                    
     def forward(self,heatmap):

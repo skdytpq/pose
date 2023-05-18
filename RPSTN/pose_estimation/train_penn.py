@@ -17,7 +17,7 @@ import random
 from conv_joint import *
 import  gc
 torch.cuda.empty_cache()
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1000"
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:900"
 #from joint_heatmap import *
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
@@ -177,14 +177,14 @@ class Trainer(object):
             if self.is_visual == True:  
                 if  i == 0:
                     b, t, c, h, w = input.shape
-                    joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                    #joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
                     file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
                     file_name_2 = 'result/heats/2d/train/{}_input_batch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     heatmap_var = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    save_batch_heatmaps(path,input,heat,file_name,joint)
-                    save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
+                    save_batch_heatmaps(path,input,heat,file_name,result_joint)
+                    save_batch_heatmaps(path2,input,heatmap_var,file_name_2,result_joint)
         self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
         self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
         del heat,heat_joint
