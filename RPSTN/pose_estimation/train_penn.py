@@ -144,6 +144,7 @@ class Trainer(object):
             losses = {}
             loss = 0
             loss_joint = 0
+            result_joint = 0
             start_model = time.time()
             heat = self.model(input_var)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
@@ -170,7 +171,7 @@ class Trainer(object):
 
             tbar.set_postfix(loss='%.4f'%(loss / self.batch_size), acc='%.2f'%(train_acc * 100))
             #self.iters += 1
-            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            #self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/train/skeleton2d/{epoch}_input.jpg'
             if self.is_visual == True:  
@@ -224,6 +225,7 @@ class Trainer(object):
             losses = {}
             loss   = 0
             loss_joint = 0 
+            result_joint = 0
             start_model = time.time()
             heat = self.model(input_var)
             
