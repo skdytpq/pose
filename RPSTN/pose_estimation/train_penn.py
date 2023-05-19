@@ -145,6 +145,7 @@ class Trainer(object):
             loss = 0
             loss_joint = 0
             result_joint = 0
+            t_loss = 0
             start_model = time.time()
             heat = self.model(input_var)
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
@@ -158,11 +159,12 @@ class Trainer(object):
 
             loss += losses # + 0.5 * relation_loss)
             train_loss += loss.item()
-            train_loss += loss_joint
             loss_joint_total += loss_joint
             self.optimizer.zero_grad() # optimizer 에 submodel 까지 추가
+            t_loss += loss.item()
+            t_loss += loss_joint
             #self.joint_optimizer.zero_grad()
-            loss.backward()
+            t_loss.backward()
             #loss_joint.backward()
             self.optimizer.step()
             #self.joint_optimizer.step()
@@ -185,7 +187,7 @@ class Trainer(object):
                     heatmap_var = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     save_batch_heatmaps(path,input,heat,file_name,result_joint)
                     save_batch_heatmaps(path2,input,heatmap_var,file_name_2,result_joint)
-        self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+        self.writer.add_scalar('JRE_loss', (train_loss / self.batch_size), epoch)
         self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
         del heat,heat_joint
         torch.cuda.empty_cache()
@@ -240,7 +242,6 @@ class Trainer(object):
             joint_train = self.sub_model(heat_joint)
             result_joint = joint * joint_train
             loss_joint = self.joint_criterion(result_joint,joint_ground)
-            loss += loss_joint
             #if self.is_visual:
             #file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
             #input_ = input.view(-1, c, h, w)
