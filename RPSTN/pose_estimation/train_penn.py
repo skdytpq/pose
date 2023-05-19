@@ -326,7 +326,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     RANDSEED = 2021
-    starter_epoch = 0
+    starter_epoch = 0 
     epochs =  200
     is_train = args.is_train
     is_visual = args.visual
