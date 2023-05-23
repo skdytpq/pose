@@ -213,7 +213,7 @@ class Trainer(object):
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 sub_optim.zero_grad()
-                kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
+                kpts_mask = jfh #mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
