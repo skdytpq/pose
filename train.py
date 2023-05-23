@@ -148,8 +148,7 @@ class Trainer(object):
             self.param = list(self.model_pos_train.parameters())
         else:
             self.param = list(self.model_jre.parameters()) + list(self.model_pos_train.parameters())
-        self.optimizer = torch.optim.SGD( self.model_pos_train.parameters(), lr=0.001,
-                            momentum=0.9,
+        self.optimizer = torch.optim.AdamW( self.model_pos_train.parameters(), lr=0.001,
                             weight_decay=0.0005)
         if args.submodule:
             self.param = list(self.submodel.parameters())
@@ -214,7 +213,7 @@ class Trainer(object):
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 sub_optim.zero_grad()
-                kpts_mask = mask_joint(kpts)
+                kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
@@ -269,9 +268,9 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            #draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub0523/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            #draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
 
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
@@ -333,7 +332,7 @@ class Trainer(object):
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
-                    kpts_mask = mask_joint(kpts)
+                    kpts_mask = mask_joint(jfh) # 한번더 학습시키기
                     preds = self.submodel(kpts_mask)
                     reconstruct = preds['reconstruct']
                     val_loss += self.criterion_jre(kpts,reconstruct)
@@ -376,9 +375,9 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                           # draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0523/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                           # draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
