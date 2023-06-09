@@ -118,7 +118,7 @@ class Teacher_net(nn.Module):
     def cycle_consistent_loss(self, preds, class_mask=None):
         # 재사영 후 
         shape_invariant = preds['shape_invariant'] # hat y
-        if preds['align']:   
+        if preds['align']:    
             shape_invariant_root = shape_invariant - shape_invariant[:,0:1,:]
             # root => head
         else: 
