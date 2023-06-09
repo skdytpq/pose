@@ -318,7 +318,7 @@ class Trainer(object):
                 heat = model_jre(input_var)
                 losses = {}
                 loss = 0
-                kpts = kpts[:13]
+                kpts = kpts[:13]   
                 kpts = kpts.reshape(-1,13,2)
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
