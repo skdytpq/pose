@@ -121,7 +121,7 @@ class Teacher_net(nn.Module):
         if preds['align']:    
             shape_invariant_root = shape_invariant - shape_invariant[:,0:1,:]
             # root => head
-        else: 
+        else:  
             shape_invariant_root = shape_invariant
         dtype = shape_invariant.type()
         ba = shape_invariant.shape[0]
