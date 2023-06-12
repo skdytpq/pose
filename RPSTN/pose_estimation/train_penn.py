@@ -172,8 +172,8 @@ class Trainer(object):
             train_acc = evaluate.cal_train_acc(heat, heatmap_var)      
 
             tbar.set_postfix(loss='%.4f'%(loss / self.batch_size), acc='%.2f'%(train_acc * 100))
-            #self.iters += 1
-            #self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
+            self.iters += 1
+            self.writer.add_scalar('train_loss', (train_loss / self.batch_size), epoch)
             path = f'exp/2d/train/skeleton2d/{epoch}.jpg'
             path2 = f'exp/2d/train/skeleton2d/{epoch}_input.jpg'
             if self.is_visual == True:  
@@ -242,13 +242,13 @@ class Trainer(object):
             joint_train = self.sub_model(heat_joint)
             result_joint = joint * joint_train
             loss_joint = self.joint_criterion(result_joint,joint_ground)
-            #if self.is_visual:
-            #file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
-            #input_ = input.view(-1, c, h, w)
-            #heat_ = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
-            #path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
-            #if i == 0:
-            #    save_batch_heatmaps(path,input_,heat_,file_name,joint)
+            if self.is_visual:
+                file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
+                input_ = input.view(-1, c, h, w)
+                heat_ = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                path = f'exp/2d/val/skeleton2d/{epoch}.jpg'
+            if i == 0:
+                save_batch_heatmaps(path,input_,heat_,file_name,joint)
             input, heat = input.view(b, t, c, h, w).contiguous(), heat.view(b, t, 13, heat.shape[-2], heat.shape[-1]).contiguous()
 
             for j in range(heat.size(0)): #self.frame_memory):
