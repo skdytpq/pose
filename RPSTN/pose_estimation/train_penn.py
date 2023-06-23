@@ -333,8 +333,8 @@ if __name__ == '__main__':
     args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
-        args.train_dir  = '../data/pose_data/train'
-        args.val_dir    = '../data/pose_data/test'
+        args.train_dir  = '../data/pose_data'
+        args.val_dir    = '../data/pose_data'
         tb_log_dir = 'run/penn/'
     args.train_dir  = '../data/pose_data/train'
     args.val_dir    = '../data/pose_data/test' 
