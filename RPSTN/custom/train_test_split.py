@@ -100,12 +100,12 @@ if '__main__':
     prepare = int(input('0 : stratify , 1 : joint'))
     if prepare :
         split(base)
-        base = '../data/pose_data/npy_labels'
+        base = '../../data/pose_data/npy_labels'
         train,test = stratify()
         moving(train,test)
         split(test)
     
     else:
-        joint_in('../data/pose_data/train')
-        joint_in('../data/pose_data/test')
+        joint_in('../../data/pose_data/train')
+        joint_in('../../data/pose_data/test')
     print('=====================Ratio of data & Ratio of train======================')
