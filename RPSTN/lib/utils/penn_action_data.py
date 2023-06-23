@@ -14,6 +14,7 @@ import math
 import utils.Mytransforms_penn as Mytransforms
 from torchvision import transforms
 from PIL import Image
+import pdb
 
 
 def set_seed(seed):
@@ -55,7 +56,7 @@ def guassian_kernel(size_w, size_h, center_x, center_y, sigma):
 
 class Penn_Action(data.Dataset):
     def __init__(self, root_dir, sigma, frame_memory, is_train, transform=None):
-        self.base = '../data/pose_data'
+        self.base = 'data/pose_data'
         self.width = 256
         self.height = 256
         self.transform = transform
@@ -71,7 +72,7 @@ class Penn_Action(data.Dataset):
 
         self.root_dir = root_dir
         self.label_dir = root_dir + 'labels'
-        self.frame_dir = '../data/pose_data/frames' #os.path.join(self.base,'frames')#root_dir + 'frames' 
+        self.frame_dir = 'data/pose_data/frames' #os.path.join(self.base,'frames')#root_dir + 'frames' 
         self.train_dir = os.path.join(root_dir,'train')
         self.val_dir = os.path.join(root_dir,'test') 
 
