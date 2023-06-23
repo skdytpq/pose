@@ -161,10 +161,9 @@ class Trainer(object):
             train_loss += loss.item()
             #loss_joint_total += loss_joint
             self.optimizer.zero_grad() # optimizer 에 submodel 까지 추가
-            t_loss += loss.item()
            # t_loss += loss_joint
             #self.joint_optimizer.zero_grad()
-            t_loss.backward()
+            loss.backward()
             #loss_joint.backward()
             self.optimizer.step()
             #self.joint_optimizer.step()
@@ -188,7 +187,7 @@ class Trainer(object):
                     save_batch_heatmaps(path,input,heat,file_name,result_joint)
                     save_batch_heatmaps(path2,input,heatmap_var,file_name_2,result_joint)
         self.writer.add_scalar('JRE_loss', (train_loss / self.batch_size), epoch)
-        self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
+        #self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
         del heat,heat_joint
         torch.cuda.empty_cache()
         gc.collect()
