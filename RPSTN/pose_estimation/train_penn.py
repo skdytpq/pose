@@ -184,8 +184,8 @@ class Trainer(object):
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     heatmap_var = heatmap_var.view(-1, 13, heat.shape[-2], heat.shape[-1])
-                    save_batch_heatmaps(path,input,heat,file_name,result_joint)
-                    save_batch_heatmaps(path2,input,heatmap_var,file_name_2,result_joint)
+                    save_batch_heatmaps(path,input,heat,file_name,joint)
+                    save_batch_heatmaps(path2,input,heatmap_var,file_name_2,joint)
         self.writer.add_scalar('JRE_loss', (train_loss / self.batch_size), epoch)
         #self.writer.add_scalar('joint_loss',(loss_joint_total/ self.batch_size),epoch)
         del heat,heat_joint
@@ -238,9 +238,9 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             joint_ground = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
-            joint_train = self.sub_model(heat_joint)
-            result_joint = joint * joint_train
-            loss_joint = self.joint_criterion(result_joint,joint_ground)
+            #joint_train = self.sub_model(heat_joint)
+            #result_joint = joint * joint_train
+            #loss_joint = self.joint_criterion(result_joint,joint_ground)
             if self.is_visual:
                 file_name = 'result/heats/2d/val/{}_batch.jpg'.format(epoch)
                 input_ = input.view(-1, c, h, w)
@@ -267,11 +267,11 @@ class Trainer(object):
             mPCK = PCK[:].sum()/(self.numClasses)
             mPCKh = PCKh[:].sum()/(self.numClasses)
         #### joint 함수 모델 저장
-            loss_joint_total += loss_joint
+            #loss_joint_total += loss_joint
             val_loss += loss
         torch.save(self.sub_model,f'exp/submodel/{epoch}.pt')
         self.writer.add_scalar('val_loss', (val_loss / self.batch_size), epoch)
-        self.writer.add_scalar('joint_loss' , (loss_joint_total/self.batch_size),epoch)
+        #self.writer.add_scalar('joint_loss' , (loss_joint_total/self.batch_size),epoch)
         tbar.set_postfix(valoss='%.6f' % (val_loss / self.batch_size), mPCK=mPCK)
 
         printAccuracies(mAP, AP, mPCKh, PCKh, mPCK, PCK, self.dataset)
