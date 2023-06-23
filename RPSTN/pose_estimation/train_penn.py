@@ -92,7 +92,7 @@ class Trainer(object):
         self.criterion = MSESequenceLoss().cuda()
         self.joint_criterion = nn.MSELoss()
         #self.joint_optimizer = torch.optim.Adam(self.sub_model.parameters(),lr = self.lr)
-        self.param = list(self.model.parameters()) + list(self.sub_model.parameters())
+        self.param = list(self.model.parameters())# + list(self.sub_model.parameters())
         self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
         #self.sub_model = self.sub_model.cuda()
 
@@ -152,17 +152,17 @@ class Trainer(object):
             joint_ground = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
             joint_train = self.sub_model(heat_joint)
-            result_joint = joint * joint_train
-            loss_joint = self.joint_criterion(result_joint,joint_ground)
+            #result_joint = joint * joint_train
+            #loss_joint = self.joint_criterion(result_joint,joint_ground)
             losses = self.criterion(heat, heatmap_var)
 
 
             loss += losses # + 0.5 * relation_loss)
             train_loss += loss.item()
-            loss_joint_total += loss_joint
+            #loss_joint_total += loss_joint
             self.optimizer.zero_grad() # optimizer 에 submodel 까지 추가
             t_loss += loss.item()
-            t_loss += loss_joint
+           # t_loss += loss_joint
             #self.joint_optimizer.zero_grad()
             t_loss.backward()
             #loss_joint.backward()
