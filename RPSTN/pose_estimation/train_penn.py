@@ -151,7 +151,7 @@ class Trainer(object):
             joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             joint_ground = generate_2d_integral_preds_tensor(heatmap_var , self.num_joints, self.heatmap_size,self.heatmap_size)
             heat_joint = heat.reshape(-1,self.num_joints,heat.shape[-2],heat.shape[-1])
-            joint_train = self.sub_model(heat_joint)
+            #joint_train = self.sub_model(heat_joint)
             #result_joint = joint * joint_train
             #loss_joint = self.joint_criterion(result_joint,joint_ground)
             losses = self.criterion(heat, heatmap_var)
