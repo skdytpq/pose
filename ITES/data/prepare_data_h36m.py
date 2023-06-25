@@ -97,7 +97,7 @@ if __name__ == '__main__':
             for action in action_list:
                 position_list = []
                 for idx,carema_id in enumerate(id_order):
-                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions_mono/'+action+'.'+carema_id+'.cdf' # .mat 삭제
+                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions_mono/'+action+'.'+carema_id+'.cdf.mat' # .mat 삭제
                     # if subject == 'S11' and action == 'Directions':
                     # continue # Discard corrupted video
 
