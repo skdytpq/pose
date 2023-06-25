@@ -51,7 +51,7 @@ if __name__ == '__main__':
         output = {}
         for subject in subjects:
             output[subject] = {}
-            file_list = glob(subject + '/MyPoseFeatures/3D_positions/*.h5')
+            file_list = glob('h36m/' + subject + '/MyPoses/3D_positions/*.h5')
             assert len(file_list) == 30, "Expected 30 files for subject " + subject + ", got " + str(len(file_list))
             for f in file_list:
                 action = os.path.splitext(os.path.basename(f))[0]
@@ -84,7 +84,7 @@ if __name__ == '__main__':
             camera_info = h36m_cameras_extrinsic_params[subject]
             output[subject] = {}
 
-            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf')# _mono삭제
+            file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf.mat')# _mono삭제
             assert len(file_list) == 30, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
             action_list = []
             for f in file_list:
@@ -97,7 +97,7 @@ if __name__ == '__main__':
             for action in action_list:
                 position_list = []
                 for idx,carema_id in enumerate(id_order):
-                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions_mono/'+action+'.'+carema_id+'.cdf.mat' # .mat 삭제
+                    f = args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/'+action+'.'+carema_id+'.cdf.mat' # .mat 삭제
                     # if subject == 'S11' and action == 'Directions':
                     # continue # Discard corrupted video
 
