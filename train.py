@@ -213,7 +213,7 @@ class Trainer(object):
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 sub_optim.zero_grad()
-                kpts_mask = jfh #mask_joint(jfh) # 한번더 학습 시키기
+                kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
@@ -426,8 +426,8 @@ if __name__ == '__main__':
     args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
-        args.train_dir  = 'data/pose_data/itedata'
-        args.val_dir    = 'data/pose_data/itedata'
+        args.train_dir  = 'data/pose_data'
+        args.val_dir    = 'data/pose_data'
         tb_log_dir = 'run/'
     else:
         args.train_dir  = 'data/pose_data'
