@@ -43,15 +43,15 @@ if __name__ == '__main__':
     #     exit(0)
         
     if args.from_archive:
-        print('Extracting Human3.6M dataset from', args.from_archive)
-        with zipfile.ZipFile(args.from_archive, 'r') as archive:
-            archive.extractall()
+        #print('Extracting Human3.6M dataset from', args.from_archive)
+        #with zipfile.ZipFile(args.from_archive, 'r') as archive:
+        #    archive.extractall()
         
         print('Converting...')
         output = {}
         for subject in subjects:
             output[subject] = {}
-            file_list = glob('h36m/' + subject + '/MyPoses/3D_positions/*.h5')
+            file_list = glob('h36m/' + subject + '/MyPoses/3D_positions/cdf.mat')
             assert len(file_list) == 30, "Expected 30 files for subject " + subject + ", got " + str(len(file_list))
             for f in file_list:
                 action = os.path.splitext(os.path.basename(f))[0]
