@@ -34,7 +34,7 @@ from reconstruct_joint import Student_net
 
 
 dataset_path = 'data/data_3d_' + 'h36m'+ '.npz'
-dataset = Human36mDataset(dataset_path)
+#dataset = Human36mDataset(dataset_path)
 def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
     m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
     if pair: 
