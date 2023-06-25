@@ -51,7 +51,7 @@ if __name__ == '__main__':
         output = {}
         for subject in subjects:
             output[subject] = {}
-            file_list = glob('../../data/cdf/' + subject + '/MyPoseFeatures/D3_Positions/*.mat')
+            file_list = glob('../../data/cdf/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf')
             assert len(file_list) == 30, "Expected 30 files for subject " + subject + ", got " + str(len(file_list))
             for f in file_list:
                 action = os.path.splitext(os.path.basename(f))[0]
