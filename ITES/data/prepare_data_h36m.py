@@ -85,7 +85,7 @@ if __name__ == '__main__':
             output[subject] = {}
 
             file_list = glob(args.from_source + '/' + subject + '/MyPoseFeatures/D3_Positions/*.cdf')# _mono삭제
-            assert len(file_list) == 120, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
+            assert len(file_list) == 30, "Expected 120 files for subject " + subject + ", got " + str(len(file_list))
             action_list = []
             for f in file_list:
                 action = os.path.splitext(os.path.splitext(os.path.basename(f))[0])[0]
