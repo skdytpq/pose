@@ -175,7 +175,7 @@ class Trainer(object):
             sub_optim = self.sub_optimizer
             self.submodel.train()
         if args.sub_trained:
-            self.submodel.eva()
+            self.submodel.eval()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         t_loss =0
@@ -301,7 +301,7 @@ class Trainer(object):
         if args.submodule:
             self.submodel.eval()
         if args.sub_trained:
-            self.sumodel.eval()
+            self.submodel.eval()
         with torch.no_grad():
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
                 cnt += 1
