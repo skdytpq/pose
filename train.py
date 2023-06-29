@@ -252,6 +252,7 @@ class Trainer(object):
                 else:
                     vis_joint = preds['shape_camera_coord']
                     vis_joint2 = preds_1['reconstruct']
+                pdb.set_trace()
                 # preds['shape_camera_coord'] <- 2차원 projection 좌표계
                 # 2차원 사진 가져오기
                 vis_joint = vis_joint.cpu()
