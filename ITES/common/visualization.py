@@ -104,7 +104,6 @@ def draw_3d_pose1(poses, skeleton, path):
     ax.patch.set_facecolor("white")  
     ax.dist = 7.5
     parents = skeleton.parents()
-    pdb.set_trace()
     for j, j_parent in enumerate(parents):
         if j_parent == -1:
             continue

@@ -160,7 +160,7 @@ class Trainer(object):
 
         self.isBest = 0
         self.bestPCK  = 0
-        self.bestPCKh = 0
+        self.bestPCKh = 0   
         self.best_epoch = 0
 
 
