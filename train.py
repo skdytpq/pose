@@ -143,7 +143,7 @@ class Trainer(object):
             self.model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
         if args.sub_trained:
-            self.submodel.load_state_dict(torch.load('exp/submodel/tea_model_epoch_82.bin')['model_pos'],strict = False)
+            self.submodel.load_state_dict(torch.load('exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
         if args.pretrained:
             self.param = list(self.model_pos_train.parameters())
         else:
@@ -154,11 +154,6 @@ class Trainer(object):
             self.param = list(self.submodel.parameters())
             self.sub_optimizer = torch.optim.AdamW(self.submodel.parameters(), lr=0.001,
                             weight_decay=0.0005)
-        #self.optimizer = torch.optim.Adam(self.param, lr=self.lr)
-
-  #      self.optimizer_ite = torch.optim.SGD(self.model_pos_train.parameters(), lr=self.lr,
-  #                          momentum=args.momentum,
-  #                          weight_decay=args.weight_decay)
 
         self.iters = 0
         pretrained_jre = None
@@ -179,6 +174,8 @@ class Trainer(object):
         if args.submodule:
             sub_optim = self.sub_optimizer
             self.submodel.train()
+        if args.subtrain:
+            self.submodel.eva()
         print("Epoch " + str(epoch) + ':') 
         tbar = tqdm(self.train_loader)
         t_loss =0
@@ -241,11 +238,11 @@ class Trainer(object):
 
             #self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
-            path = f'exp/train/skeleton2d/{epoch}.jpg'
+            path = f'exp/train/skeleton3d/{epoch}.jpg'
             if self.is_visual == True and i == 0:
                 if epoch % 1 == 0 :
                     b, t, c, h, w = input.shape
-                    file_name = 'result/heats/train/{}_epoch.jpg'.format(epoch)
+                    file_name = 'result/heats/3dtrain/{}_epoch.jpg'.format(epoch)
                     input = input.view(-1, c, h, w)
                     heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
                     train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
@@ -268,9 +265,9 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                            #draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub0523/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            #draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/' + 'train/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
 
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
@@ -303,6 +300,8 @@ class Trainer(object):
         preds = []
         if args.submodule:
             self.submodel.eval()
+        if args.subtrain:
+            self.sumodel.eval()
         with torch.no_grad():
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
                 cnt += 1
@@ -348,13 +347,13 @@ class Trainer(object):
                     heat = model_jre(input_var)
                     losses = self.criterion_jre(heat, heatmap_var)
                 # loss  += losses.item() #+ 0.5 * relation_loss.item()
-                    val_loss = loss_total + losses
+                    val_loss = loss_total #+ losses
                     #[8,5,3,256,256]?
                 b, t, c, h, w = input.shape
             
                 #if self.is_visual:
-                file_name = 'result/heats/val/{}_epoch.jpg'.format(epoch)
-                path = f'exp/val/skeleton2d/{epoch}.jpg'
+                file_name = 'result/heats/3dtest/{}_epoch.jpg'.format(epoch)
+                path = f'exp/val/skeleton3d/{epoch}.jpg'
                 input = input.view(-1, c, h, w)
                 if epoch % 5 == 0 and i == 0 :
                     joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
@@ -375,15 +374,16 @@ class Trainer(object):
                         .byte()\
                         .permute(1, 2, 0)\
                         .cpu().numpy()
-                           # draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0523/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                           # draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_notsub_submodule/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
             if args.submodule:
-                  torch.save({
+                chk_path= os.path.join(args.checkpoint, 'submodel/submodel_{}.bin'.format(epoch))
+                torch.save({
                 'epoch': epoch,
                 'lr': self.lr,
                 'optimizer': self.sub_optimizer.state_dict(),

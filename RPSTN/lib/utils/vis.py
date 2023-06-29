@@ -200,7 +200,7 @@ def save_batch_heatmaps(path , batch_image, batch_heatmaps, file_name,joints,
             cv2.circle(masked_image,
                         (int(preds[i][j][0]), int(preds[i][j][1])),
                         1, [0, 0, 255], 1)
-            cv2.circle(resized_image,(int(joint[j,0]),int(joint[j,1])),1,(255, 0, 0),1) # plot joint
+            #cv2.circle(resized_image,(int(joint[j,0]),int(joint[j,1])),1,(255, 0, 0),1) # plot joint
             width_begin = heatmap_width * (j+1)
             width_end = heatmap_width * (j+2)
             grid_image[height_begin:height_end, width_begin:width_end, :] = \
