@@ -115,7 +115,8 @@ subjects_test = args.subjects_test.split(',')
 def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     out_poses_3d = []
     out_poses_2d = []
-    out_camera_params = []
+    out_camera_params = []  
+    pdb.set_trace()
     for subject in subjects:
         for action in keypoints[subject].keys():
             if action_filter is not None:
@@ -346,7 +347,7 @@ while epoch < args.epochs:
                 shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
                 shape_camera_coord = calibrate_by_scale(shape_camera_coord,inputs_3d)
                 shape_camera_coord_flip = calibrate_by_scale(shape_camera_coord_flip,inputs_3d)
-        
+
                 shape_camera_coord = shape_camera_coord - shape_camera_coord[:,0:1,:]
                 shape_camera_coord_flip = shape_camera_coord_flip - shape_camera_coord_flip[:,0:1,:]
                 inputs_3d = inputs_3d - inputs_3d[:,0:1,:]
