@@ -44,7 +44,7 @@ except OSError as e:
         raise RuntimeError('Unable to create checkpoint directory:', args.checkpoint)
 
 print('Loading dataset...')
-dataset_path = 'data/data_3d_' + args.dataset + '.npz'
+dataset_path = 'ITES/data/data_3d_' + args.dataset + '.npz'
 if args.dataset == 'h36m':
     from common.h36m_dataset import Human36mDataset
 
