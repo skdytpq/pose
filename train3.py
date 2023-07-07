@@ -254,9 +254,9 @@ while epoch < args.epochs:
         
         optimizer.zero_grad()
         if epoch < 15:
-            preds = model_pos_train(sub_input,align_to_root=True)
+            preds = model_pos_train(inputs_2d,align_to_root=True)
         else:
-            preds = model_pos_train(sub_input,align_to_root=False)
+            preds = model_pos_train(inputs_2d,align_to_root=False)
 
         loss_reprojection = preds['l_reprojection'] 
         loss_consistancy = preds['l_cycle_consistent']
@@ -290,7 +290,7 @@ while epoch < args.epochs:
                     inputs_2d = inputs_2d.cuda() # Batch , joint , 2
                 sub_input = submodel(inputs_2d)
                 sub_input = sub_input['keypoints_2d']
-                preds = model_pos(sub_input)
+                preds = model_pos(inputs_2d)
 
                 shape_camera_coord = preds['shape_camera_coord']
                 depth = shape_camera_coord[:,:,2:3]
@@ -344,7 +344,7 @@ while epoch < args.epochs:
             losses_3d_train_cs[-1] * 1000,
             errors_3d_valid_p1[-1] * 1000,
             errors_3d_valid_p2[-1] * 1000))
-        ft = open('MPJPE/loger.txt','w')
+        ft = open('MPJPE/loger_notsub.txt','w')
         ft.write('errors_3d_valid_p2[-1] * 1000\n')
         ft.close()
     # Decay learning rate exponentially
