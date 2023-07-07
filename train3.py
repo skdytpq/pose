@@ -344,7 +344,9 @@ while epoch < args.epochs:
             losses_3d_train_cs[-1] * 1000,
             errors_3d_valid_p1[-1] * 1000,
             errors_3d_valid_p2[-1] * 1000))
-
+        ft = open('MPJPE/loger.txt','w')
+        ft.write(errors_3d_valid_p2[-1] * 1000,'\n')
+        ft.close()
     # Decay learning rate exponentially
     if (epoch+1) % args.epoch_lr_decay == 0:
         lr *= lr_decay
