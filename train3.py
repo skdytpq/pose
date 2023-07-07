@@ -250,8 +250,9 @@ while epoch < args.epochs:
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
         sub_input = submodel(inputs_2d)
-        sub_input = sub_input.values()
         pdb.set_trace()
+        sub_input = sub_input.values()
+        
         optimizer.zero_grad()
         if epoch < 15:
             preds = model_pos_train(sub_input,align_to_root=True)
