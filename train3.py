@@ -360,9 +360,7 @@ while epoch < args.epochs:
             losses_3d_train_cs[-1] * 1000,
             errors_3d_valid_p1[-1] * 1000,
             errors_3d_valid_p2[-1] * 1000))
-        ft = open('MPJPE/loger_sub_masking1.txt','w')
-        ft.write(f'{errors_3d_valid_p2[-1] * 1000}\n')
-        ft.close()
+
     # Decay learning rate exponentially
     if (epoch+1) % args.epoch_lr_decay == 0:
         lr *= lr_decay
@@ -386,3 +384,8 @@ while epoch < args.epochs:
             'optimizer': optimizer.state_dict(),
             'model_pos': model_pos_train.state_dict(),
         }, chk_path)
+    if epoch == 50:
+        ft = open('MPJPE/loger_sub_masking1.txt','w')
+        for i in range(50):
+            ft.write(f'{errors_3d_valid_p2[i] * 1000}\n')
+            ft.close()
