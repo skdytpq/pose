@@ -144,15 +144,14 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
                 assert len(poses_3d) == len(poses_2d), 'Camera count mismatch'
                 for i in range(len(poses_3d)):  # Iterate across cameras
                     out_poses_3d.append(poses_3d[i])
-    pdb.set_trace()
     if len(out_camera_params) == 0:
         out_camera_params = None
     if len(out_poses_3d) == 0:
         out_poses_3d = None
 
-    stride = args.downsample
+    stride = args.downsample # 1
     if subset < 1:
-        for i in range(len(out_poses_2d)):
+        for i in range(len(out_poses_2d)): # 총 600개
             pdb.set_trace()
             n_frames = int(round(len(out_poses_2d[i]) // stride * subset) * stride)
             start = deterministic_random(0, len(out_poses_2d[i]) - n_frames + 1, str(len(out_poses_2d[i])))
@@ -176,6 +175,7 @@ if action_filter is not None:
     print('Selected actions:', action_filter)
 
 cameras_valid, poses_valid, poses_valid_2d = fetch(subjects_test, action_filter)
+# 해당 카메라는 instric , poses 는 각 head 값을 뺐으나 정규화 되지 않은 pose 들이다.
 
 model_pos_train = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 

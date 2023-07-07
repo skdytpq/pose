@@ -2,7 +2,7 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 import random
-
+import pdb
  
 class PoseGenerator(Dataset):
     def __init__(self, poses_3d, poses_2d, cam):
@@ -18,7 +18,7 @@ class PoseGenerator(Dataset):
 
         self._poses_3d = self._poses_3d - self._poses_3d[:,0:1,:]
         self._scale = np.ones(((len(self._poses_3d),1)))
-
+        pdb.set_trace()
         assert self._poses_3d.shape[0] == self._poses_2d.shape[0]
         print('Generating {} poses...'.format(self._poses_2d.shape[0]))
 
