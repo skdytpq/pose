@@ -81,7 +81,7 @@ keypoints_symmetry = keypoints_metadata['keypoints_symmetry']
 kps_left, kps_right = list(keypoints_symmetry[0]), list(keypoints_symmetry[1])
 joints_left, joints_right = list(dataset.skeleton().joints_left()), list(dataset.skeleton().joints_right())
 keypoints = keypoints['positions_2d'].item()
-pdb.set_trace()
+# 무결성 체크
 for subject in dataset.subjects(): # subject = S1,S2, ...
     assert subject in keypoints, 'Subject {} is missing from the 2D detections dataset'.format(subject)
     for action in dataset[subject].keys():
@@ -92,22 +92,22 @@ for subject in dataset.subjects(): # subject = S1,S2, ...
         if 'positions_3d' not in dataset[subject][action]:
             continue
 
-        for cam_idx in range(len(keypoints[subject][action])):
+        for cam_idx in range(len(keypoints[subject][action])): # 각 카메라 인덱스 총 3
             # We check for >= instead of == because some videos in H3.6M contain extra frames
-            mocap_length = dataset[subject][action]['positions_3d'][cam_idx].shape[0]
+            mocap_length = dataset[subject][action]['positions_3d'][cam_idx].shape[0] # 각 카메라 인덱스에서 포착한 값 (1)
+            # 모션 캡쳐의 값을 강제로 수정함
             assert keypoints[subject][action][cam_idx].shape[0] >= mocap_length
 
             if keypoints[subject][action][cam_idx].shape[0] > mocap_length:
                 keypoints[subject][action][cam_idx] = keypoints[subject][action][cam_idx][:mocap_length]
-
-        assert len(keypoints[subject][action]) == len(dataset[subject][action]['positions_3d'])
+        assert len(keypoints[subject][action]) == len(dataset[subject][action]['positions_3d']) # 카메라 별 이므로 4개
 # dataset[subject].keys() -> 행동들
 for subject in keypoints.keys():
     for action in keypoints[subject]:
         for cam_idx, kps in enumerate(keypoints[subject][action]):
-            cam = dataset.cameras()[subject][cam_idx]
-            kps -= kps[:,:1]
-            keypoints[subject][action][cam_idx] = kps
+            cam = dataset.cameras()[subject][cam_idx] # 카메라 인덱스 속성 값 불러오기 
+            kps -= kps[:,:1] # 정규화 시키기 위해 head 로 정규화 
+            keypoints[subject][action][cam_idx] = kps # 각 값 정규화
 
 subjects_train = args.subjects_train.split(',')
 subjects_test = args.subjects_test.split(',')
@@ -116,7 +116,6 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     out_poses_3d = []
     out_poses_2d = []
     out_camera_params = []  
-    pdb.set_trace()
     for subject in subjects:
         for action in keypoints[subject].keys():
             if action_filter is not None:
@@ -130,14 +129,15 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
             
             poses_2d = keypoints[subject][action]
             for i in range(len(poses_2d)):  # Iterate across cameras
-                out_poses_2d.append(poses_2d[i])
+                out_poses_2d.append(poses_2d[i]) # 각 카메라 별 pose 키포인트 포착
 
             if subject in dataset.cameras():
                 cams = dataset.cameras()[subject]
                 assert len(cams) == len(poses_2d), 'Camera count mismatch'
                 for i,cam in enumerate(cams):
-                    if 'intrinsic' in cam:
-                        out_camera_params.append(np.tile((cam['intrinsic'])[None,:],(len(poses_2d[i]),1)))
+                    if 'intrinsic' in cam: # 모든 캠에 다 존재
+                        pdb.set_trace()
+                        out_camera_params.append(np.tile((cam['intrinsic'])[None,:],(len(poses_2d[i]),1))) # inristic = 9
 
             if parse_3d_poses and 'positions_3d' in dataset[subject][action]:
                 poses_3d = dataset[subject][action]['positions_3d']
