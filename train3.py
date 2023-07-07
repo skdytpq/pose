@@ -252,9 +252,9 @@ while epoch < args.epochs:
         sub_input = submodel(inputs_2d)
         optimizer.zero_grad()
         if epoch < 15:
-            preds = model_pos_train(inputs_2d,align_to_root=True)
+            preds = model_pos_train(sub_input,align_to_root=True)
         else:
-            preds = model_pos_train(inputs_2d,align_to_root=False)
+            preds = model_pos_train(sub_input,align_to_root=False)
 
         loss_reprojection = preds['l_reprojection'] 
         loss_consistancy = preds['l_cycle_consistent']
@@ -286,7 +286,8 @@ while epoch < args.epochs:
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda() # Batch , joint , 2
-                preds = model_pos(inputs_2d)
+                sub_input = submodel(inputs_2d)
+                preds = model_pos(sub_input)
 
                 shape_camera_coord = preds['shape_camera_coord']
                 depth = shape_camera_coord[:,:,2:3]
@@ -356,7 +357,7 @@ while epoch < args.epochs:
 
     # Save checkpoint if necessary
     if epoch >= 1:
-        chk_path= os.path.join('MPJPE', 'tea_model_epoch_{}.bin'.format(epoch))
+        chk_path= os.path.join('MPJPE', 'tea_model_epoch_sub{}.bin'.format(epoch))
         print('Saving checkpoint to', chk_path)
         torch.save({
             'epoch': epoch,
