@@ -239,6 +239,20 @@ if args.resume:
 
     lr = checkpoint['lr']
 print('*** Start training ***')
+def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
+    m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
+    if pair: 
+        masked_indices = torch.bernoulli(m[:,:,0]).bool() # batch , 17
+        # cp = torch.repeat(joint.shape[0],masked_indices[-1]) # 40 , 16 
+        masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
+    else:
+        masked_indices = torch.bernoulli(m).bool()
+    m[masked_indices] = 1e-9
+    m[~masked_indices] = 1
+    m = m.cuda()
+    m_joint = joint * m 
+    return m_joint # masking 된 joint 값 출력
+
 while epoch < args.epochs:
     start_time = time()
     epoch_loss_3d_train_rp = 0
@@ -249,14 +263,15 @@ while epoch < args.epochs:
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
+        inputs_2d = mask_joint(inputs_2d)
         sub_input = submodel(inputs_2d)
         sub_input = sub_input['keypoints_2d']
         
         optimizer.zero_grad()
         if epoch < 15:
-            preds = model_pos_train(inputs_2d,align_to_root=True)
+            preds = model_pos_train(sub_input,align_to_root=True)
         else:
-            preds = model_pos_train(inputs_2d,align_to_root=False)
+            preds = model_pos_train(sub_input,align_to_root=False)
 
         loss_reprojection = preds['l_reprojection'] 
         loss_consistancy = preds['l_cycle_consistent']
@@ -288,9 +303,10 @@ while epoch < args.epochs:
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda() # Batch , joint , 2
+                inputs_2d = mask_joint(inputs_2d)
                 sub_input = submodel(inputs_2d)
                 sub_input = sub_input['keypoints_2d']
-                preds = model_pos(inputs_2d)
+                preds = model_pos(sub_input)
 
                 shape_camera_coord = preds['shape_camera_coord']
                 depth = shape_camera_coord[:,:,2:3]
