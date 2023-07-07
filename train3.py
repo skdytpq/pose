@@ -1,25 +1,39 @@
 import numpy as np
-
-from common.arguments import parse_args
+# python train.py --is_train True
+import sys
+sys.path.append("ITES")
+sys.path.append("ITES/common")
+sys.path.append("ITES/data")
+sys.path.append("ITES/img")
+sys.path.append("ITES/checkpoint")
+sys.path.append('RPSTN/custom')
+sys.path.append('RPSTN/files')
+sys.path.append('RPSTN/lib')
+sys.path.append('RPSTN/pose_estimation')
+sys.path.append('RPSTN/lib/utils')
+from RPSTN.pose_estimation import train_penn
+from ITES.common.arguments import parse_args
 import torch
-
+import pdb
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import os
 import sys
 import errno
-
-from common.camera import *
-from common.model_teacher import *
-from common.loss import *
-from common.generators_pspt import PoseGenerator
-from common.function import *
+from ITES import train_t
+from ITES.common.camera import *
+from ITES.common.model_teacher import *
+from ITES.common.loss import *
+from ITES.common.generators_pspt import PoseGenerator
+from ITES.common.function import *
 from time import time
-from common.utils import deterministic_random
+from ITES.common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
 from torchsummary import summary
+from core.loss import MSESequenceLoss, JointsMSELoss
+from reconstruct_joint import Student_net
 args = parse_args()
 print(args)
 
@@ -50,6 +64,7 @@ else:
 print('Preparing data...')
 # data keys
 # npz 파일만 반영됨
+adj = adj_mx_from_skeleton(dataset.skeleton())
 for subject in dataset.subjects():
     for action in dataset[subject].keys():
         anim = dataset[subject][action]
@@ -70,7 +85,7 @@ keypoints_symmetry = keypoints_metadata['keypoints_symmetry']
 kps_left, kps_right = list(keypoints_symmetry[0]), list(keypoints_symmetry[1])
 joints_left, joints_right = list(dataset.skeleton().joints_left()), list(dataset.skeleton().joints_right())
 keypoints = keypoints['positions_2d'].item()
-pdb.set_trace()
+
 for subject in dataset.subjects(): # subject = S1,S2, ...
     assert subject in keypoints, 'Subject {} is missing from the 2D detections dataset'.format(subject)
     for action in dataset[subject].keys():
@@ -163,13 +178,16 @@ if action_filter is not None:
 
 cameras_valid, poses_valid, poses_valid_2d = fetch(subjects_test, action_filter)
 
-model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
+model_pos_train = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 # 
-model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
+model_pos = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
+submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
+                       nodes_group=dataset.skeleton().joints_group()).cuda()
+submodel.load_state_dict(torch.load('exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
 # num_joint, num_joint out , in_features -> may be
 model_params = 0
 for parameter in model_pos.parameters():
@@ -195,10 +213,9 @@ cameras_train, poses_train, poses_train_2d = fetch(subjects_train, action_filter
 
 lr = args.learning_rate
 
-optimizer = torch.optim.SGD(model_pos_train.parameters(), lr=lr,
-                            momentum=args.momentum,
-                            weight_decay=args.weight_decay)
-# optimizer = optim.Adam(model_pos_train.parameters(), lr=lr, amsgrad=True)
+sub_optimizer = torch.optim.AdamW(submodel.parameters(), lr=0.001,
+                            weight_decay=0.0005)
+optimizer = optim.Adam(model_pos_train.parameters(), lr=lr, amsgrad=True)
 
 lr_decay = args.lr_decay
 
@@ -232,7 +249,7 @@ while epoch < args.epochs:
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
-        pdb.set_trace() # 128 , 17 , 3
+        sub_input = submodel(inputs_2d)
         optimizer.zero_grad()
         if epoch < 15:
             preds = model_pos_train(inputs_2d,align_to_root=True)
@@ -340,7 +357,7 @@ while epoch < args.epochs:
 
     # Save checkpoint if necessary
     if epoch >= 1:
-        chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
+        chk_path= os.path.join('MPJPE', 'tea_model_epoch_{}.bin'.format(epoch))
         print('Saving checkpoint to', chk_path)
         torch.save({
             'epoch': epoch,

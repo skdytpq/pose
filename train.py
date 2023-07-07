@@ -380,7 +380,7 @@ class Trainer(object):
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
         shape_camera_coord = preds['shape_camera_coord']
         depth = shape_camera_coord[:,:,2:3]
-        shape_camera_coord = torch.cat((inputs_2d*(5+depth),depth),dim=2)
+
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
             print('Saving checkpoint to', chk_path)
