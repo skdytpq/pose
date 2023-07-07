@@ -250,8 +250,7 @@ while epoch < args.epochs:
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
         sub_input = submodel(inputs_2d)
-        pdb.set_trace()
-        sub_input = sub_input.values()
+        sub_input = sub_input['keypoints_2d']
         
         optimizer.zero_grad()
         if epoch < 15:
