@@ -11,14 +11,13 @@ class PoseGenerator(Dataset):
         self._poses_3d = np.concatenate(poses_3d)
         self._poses_2d = np.concatenate(poses_2d)
         self._cam = np.concatenate(cam)
-        self.focal_length = self._cam[:,:2]
-        # 초점거리
+        self.focal_length = self._cam[:,:2] # 앞 두개만 사용 초점 거리(pixel)
+        # 초점거리 , Image Plane 으로 사영
         self._poses_2d = self._poses_2d / np.tile(self.focal_length[:,None,:],(1,self._poses_2d.shape[1],1))
         self._poses_2d = self.normalize_2d(self._poses_2d)
 
-        self._poses_3d = self._poses_3d - self._poses_3d[:,0:1,:]
-        self._scale = np.ones(((len(self._poses_3d),1)))
-        pdb.set_trace()
+        self._poses_3d = self._poses_3d - self._poses_3d[:,0:1,:] # head 좌표 빼기
+        self._scale = np.ones(((len(self._poses_3d),1))) # 모두 1
         assert self._poses_3d.shape[0] == self._poses_2d.shape[0]
         print('Generating {} poses...'.format(self._poses_2d.shape[0]))
 

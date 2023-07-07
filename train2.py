@@ -254,7 +254,6 @@ while epoch < args.epochs:
         if torch.cuda.is_available():
             inputs_3d = inputs_3d.cuda()
             inputs_2d = inputs_2d.cuda()
-            pdb.set_trace() # 128 , 17 , 3
             heatmap_var = np.zeros((args.batch_size,64,64,13),dtype=np.float32)
             for i in range(inputs_2d.shape[0]):
                 heatmap = np.zeros((64, 64, 13), dtype=np.float32)
@@ -320,7 +319,6 @@ while epoch < args.epochs:
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda() # Batch , joint , 2
-                pdb.set_trace()
                 heatmap = np.zeros((64, 64, 13), dtype=np.float32)
                 for i in inputs_2d.shape[0]:
                     kpts = inputs_2d[i]
@@ -344,7 +342,7 @@ while epoch < args.epochs:
                 shape_camera_coord = preds['shape_camera_coord']
                 depth = shape_camera_coord[:,:,2:3]
                 shape_camera_coord = torch.cat((inputs_2d*(5+depth),depth),dim=2)
-
+                pdb.set_trace()
                 shape_camera_coord_flip = shape_camera_coord.clone()
                 shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
                 shape_camera_coord = calibrate_by_scale(shape_camera_coord,inputs_3d)
