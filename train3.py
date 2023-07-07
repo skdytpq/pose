@@ -360,7 +360,7 @@ while epoch < args.epochs:
             losses_3d_train_cs[-1] * 1000,
             errors_3d_valid_p1[-1] * 1000,
             errors_3d_valid_p2[-1] * 1000))
-        ft = open('MPJPE/loger_notsub.txt','w')
+        ft = open('MPJPE/loger_sub_masking.txt','w')
         ft.write('errors_3d_valid_p2[-1] * 1000\n')
         ft.close()
     # Decay learning rate exponentially
