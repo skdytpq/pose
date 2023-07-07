@@ -136,11 +136,11 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
                 assert len(cams) == len(poses_2d), 'Camera count mismatch'
                 for i,cam in enumerate(cams):
                     if 'intrinsic' in cam: # 모든 캠에 다 존재
-                        pdb.set_trace()
                         out_camera_params.append(np.tile((cam['intrinsic'])[None,:],(len(poses_2d[i]),1))) # inristic = 9
+                        # (1,9) 각 pose_2d 는 카메라 방향에서의 intristic
 
             if parse_3d_poses and 'positions_3d' in dataset[subject][action]:
-                poses_3d = dataset[subject][action]['positions_3d']
+                poses_3d = dataset[subject][action]['positions_3d'] # 각 카메라 인덱스 값이 나옴
                 assert len(poses_3d) == len(poses_2d), 'Camera count mismatch'
                 for i in range(len(poses_3d)):  # Iterate across cameras
                     out_poses_3d.append(poses_3d[i])
@@ -153,6 +153,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     stride = args.downsample
     if subset < 1:
         for i in range(len(out_poses_2d)):
+            pdb.set_trace()
             n_frames = int(round(len(out_poses_2d[i]) // stride * subset) * stride)
             start = deterministic_random(0, len(out_poses_2d[i]) - n_frames + 1, str(len(out_poses_2d[i])))
             out_poses_2d[i] = out_poses_2d[i][start:start + n_frames:stride]
@@ -161,6 +162,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     elif stride > 1:
         # Downsample as requested
         for i in range(len(out_poses_2d)):
+            pdb.set_trace()
             out_poses_2d[i] = out_poses_2d[i][::stride]
             if out_poses_3d is not None:
                 out_poses_3d[i] = out_poses_3d[i][::stride]
