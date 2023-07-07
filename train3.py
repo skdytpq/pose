@@ -289,6 +289,7 @@ while epoch < args.epochs:
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda() # Batch , joint , 2
                 sub_input = submodel(inputs_2d)
+                sub_input = sub_input['keypoints_2d']
                 preds = model_pos(sub_input)
 
                 shape_camera_coord = preds['shape_camera_coord']
