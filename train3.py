@@ -1,5 +1,6 @@
 import numpy as np
 # python train.py --is_train True
+import pickle
 import sys
 sys.path.append("ITES")
 sys.path.append("ITES/common")
@@ -252,7 +253,8 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
     m = m.cuda()
     m_joint = joint * m 
     return m_joint # masking 된 joint 값 출력
-
+logger  = []
+logger1 = []
 while epoch < args.epochs:
     start_time = time()
     epoch_loss_3d_train_rp = 0
@@ -360,6 +362,8 @@ while epoch < args.epochs:
             losses_3d_train_cs[-1] * 1000,
             errors_3d_valid_p1[-1] * 1000,
             errors_3d_valid_p2[-1] * 1000))
+    logger.append(errors_3d_valid_p1[-1]*1000)
+    logger1.append(errors_3d_valid_p2[-1] * 1000)
 
     # Decay learning rate exponentially
     if (epoch+1) % args.epoch_lr_decay == 0:
@@ -384,8 +388,8 @@ while epoch < args.epochs:
             'optimizer': optimizer.state_dict(),
             'model_pos': model_pos_train.state_dict(),
         }, chk_path)
-    if epoch == 50:
-        ft = open('MPJPE/loger_sub_masking1.txt','w')
-        for i in range(50):
-            ft.write(f'{errors_3d_valid_p2[i] * 1000}\n')
-            ft.close()
+    if epoch == 100:
+        with open('logger.pickle', 'wb') as f:
+            pickle.dump(logger, f, pickle.HIGHEST_PROTOCOL)
+        with open('logger1.pickle', 'wb') as f1:
+            pickle.dump(logger1, f1, pickle.HIGHEST_PROTOCOL)
