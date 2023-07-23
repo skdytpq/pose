@@ -364,6 +364,8 @@ while epoch < args.epochs:
             errors_3d_valid_p2[-1] * 1000))
     logger.append(errors_3d_valid_p1[-1]*1000)
     logger1.append(errors_3d_valid_p2[-1] * 1000)
+    print(np.mean(logger),'MPJPE-MEAN')
+    print(np.mean(logger1),'P-MPJPE-MEAN')
 
     # Decay learning rate exponentially
     if (epoch+1) % args.epoch_lr_decay == 0:
