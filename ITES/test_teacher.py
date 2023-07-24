@@ -232,7 +232,7 @@ if args.evaluate:
                 inputs_2d = inputs_2d.cuda()
             pdb.set_trace()
             inputs_2d = mask_joint(inputs_2d)
-            inputs_2d = submodel(inputs_2d)
+            inputs_2d = submodel(inputs_2d)['keypoints_2d']
             preds = model_pos(inputs_2d)
 
             shape_camera_coord = preds['shape_camera_coord']
