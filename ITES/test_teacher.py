@@ -2,7 +2,7 @@ import numpy as np
 
 from common.arguments import parse_args
 import torch
-
+sys.path.append("..")
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -20,7 +20,7 @@ import time
 from common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
-
+from reconstruct_joint import Student_net
 args = parse_args()
 print(args)
 
@@ -161,7 +161,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
 
     return out_camera_params, out_poses_3d, out_poses_2d
 
-
+adj = adj_mx_from_skeleton(dataset.skeleton())
 action_filter = None if args.actions == '*' else args.actions.split(',')
 if action_filter is not None:
     print('Selected actions:', action_filter)
@@ -175,7 +175,9 @@ model_pos_train = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num
 model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joints(),poses_valid_2d[0].shape[-1],
                             n_fully_connected=args.n_fully_connected, n_layers=args.n_layers, 
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
-
+submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
+                       nodes_group=dataset.skeleton().joints_group()).cuda()
+submodel.load_state_dict(torch.load('../exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
 model_params = 0
 for parameter in model_pos.parameters():
     model_params += parameter.numel()
@@ -217,7 +219,7 @@ if args.evaluate:
     with torch.no_grad():
         model_pos.load_state_dict(model_pos_train.state_dict())
         model_pos.eval()
-
+        submodel.eval()
         epoch_error_p1 = 0
         epoch_error_p2 = 0
         N = 0
@@ -228,6 +230,7 @@ if args.evaluate:
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
             inputs_2d = mask_joint(inputs_2d)
+            inputs_2d = submodel(inputs_2d)
             preds = model_pos(inputs_2d)
 
             shape_camera_coord = preds['shape_camera_coord']
