@@ -188,7 +188,7 @@ model_pos = train_t.Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().n
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group()).cuda()
-#submodel.load_state_dict(torch.load('exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
+submodel.load_state_dict(torch.load('exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
 # num_joint, num_joint out , in_features -> may be
 model_params = 0
 for parameter in model_pos.parameters():

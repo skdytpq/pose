@@ -23,7 +23,7 @@ from common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
 from reconstruct_joint import Student_net
-
+from tqdm import tqdm
 
 args = parse_args()
 print(args)
@@ -166,6 +166,7 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     return out_camera_params, out_poses_3d, out_poses_2d
 
 adj = adj_mx_from_skeleton(dataset.skeleton())
+pdb.set_trace()
 action_filter = None if args.actions == '*' else args.actions.split(',')
 if action_filter is not None:
     print('Selected actions:', action_filter)
@@ -228,13 +229,13 @@ if args.evaluate:
         N = 0
 
         # Evaluate on test set
-        for e in range(100):
+        for e in tqdm(range(100)):
             for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(valid_loader):
                 if torch.cuda.is_available():
                     inputs_3d = inputs_3d.cuda()
                     inputs_2d = inputs_2d.cuda()
                 inputs_2d_ = mask_joint(inputs_2d)
-                #inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
+                inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
                 preds = model_pos(inputs_2d_)
 
                 shape_camera_coord = preds['shape_camera_coord']
@@ -267,7 +268,7 @@ if args.evaluate:
                 epoch_error_p1 += inputs_3d.shape[0] * loss_3d_p1
                 epoch_error_p2 += inputs_3d.shape[0] * loss_3d_p2
                 N += inputs_3d.shape[0]
-            print('################################')
+        print('################################')
         print('MPJPE:',epoch_error_p1 / N * 100000)
         print('P-MPJPE:',epoch_error_p2 / N * 100000)
 
