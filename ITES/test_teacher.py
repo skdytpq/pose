@@ -2,7 +2,8 @@ import numpy as np
 
 from common.arguments import parse_args
 import torch
-sys.path.append("../")
+import sys
+sys.path.append("..")
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
