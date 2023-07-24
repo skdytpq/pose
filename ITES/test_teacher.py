@@ -23,10 +23,7 @@ from common.utils import deterministic_random
 import math
 from torch.utils.data import DataLoader
 from reconstruct_joint import Student_net
-torch.manual_seed(0)
-torch.cuda.manual_seed(0)
-torch.cuda.manual_seed_all(0)
-np.random.seed(0)
+
 
 args = parse_args()
 print(args)
