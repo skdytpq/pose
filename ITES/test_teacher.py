@@ -237,7 +237,7 @@ if args.evaluate:
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
             inputs_2d_ = mask_joint(inputs_2d)
-            #inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
+            inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
             preds = model_pos(inputs_2d_)
 
             shape_camera_coord = preds['shape_camera_coord']
