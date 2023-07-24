@@ -214,7 +214,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
     m = m.cuda()
     m_joint = joint * m 
     return m_joint # masking 된 joint 값 출력
-
+pdb.set_trace()
 if args.evaluate:
     print('*** Start evaluation ***')
     with torch.no_grad():
@@ -231,12 +231,12 @@ if args.evaluate:
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
             inputs_2d_ = mask_joint(inputs_2d)
-           # inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
+            inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
             preds = model_pos(inputs_2d_)
 
             shape_camera_coord = preds['shape_camera_coord']
             depth = shape_camera_coord[:,:,2:3]
-            shape_camera_coord = torch.cat((inputs_2d*(5+depth),depth),dim=2)
+            shape_camera_coord = torch.cat((inputs_2d_*(5+depth),depth),dim=2)
 
             shape_camera_coord_flip = shape_camera_coord.clone()
             shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]

@@ -312,7 +312,7 @@ while epoch < args.epochs:
 
                 shape_camera_coord = preds['shape_camera_coord']
                 depth = shape_camera_coord[:,:,2:3]
-                shape_camera_coord = torch.cat((inputs_2d*(5+depth),depth),dim=2)
+                shape_camera_coord = torch.cat((sub_input*(5+depth),depth),dim=2)
 
                 shape_camera_coord_flip = shape_camera_coord.clone()
                 shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
