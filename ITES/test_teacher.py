@@ -37,7 +37,7 @@ except OSError as e:
 # bone_pairs = [(7, 11, 7, 14), (11, 12, 14, 15), (12, 13, 15, 16), (0, 4, 0, 1), (4, 5, 1, 2), (5, 6, 2, 3)]
 
 print('Loading dataset...')
-dataset_path = 'data/data_3d_' + args.dataset + '.npz'
+dataset_path = '../data/data_3d_' + args.dataset + '.npz'
 if args.dataset == 'h36m':
     from common.h36m_dataset import Human36mDataset
 
@@ -49,7 +49,7 @@ elif args.dataset.startswith('humaneva'):
 elif args.dataset.startswith('custom'):
     from common.custom_dataset import CustomDataset
 
-    dataset = CustomDataset('data/data_2d_' + args.dataset + '_' + args.keypoints + '.npz')
+    dataset = CustomDataset('../data/data_2d_' + args.dataset + '_' + args.keypoints + '.npz')
 else:
     raise KeyError('Invalid dataset')
 
@@ -198,6 +198,19 @@ losses_3d_valid = []
 losses_3d_valid_ori = []
 
 epoch = 0
+def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
+    m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
+    if pair: 
+        masked_indices = torch.bernoulli(m[:,:,0]).bool() # batch , 17
+        # cp = torch.repeat(joint.shape[0],masked_indices[-1]) # 40 , 16 
+        masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
+    else:
+        masked_indices = torch.bernoulli(m).bool()
+    m[masked_indices] = 1e-9
+    m[~masked_indices] = 1
+    m = m.cuda()
+    m_joint = joint * m 
+    return m_joint # masking 된 joint 값 출력
 
 if args.evaluate:
     print('*** Start evaluation ***')
@@ -214,7 +227,7 @@ if args.evaluate:
             if torch.cuda.is_available():
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
-
+            inputs_2d_ = mask_joint(inputs_2d)
             preds = model_pos(inputs_2d)
 
             shape_camera_coord = preds['shape_camera_coord']
@@ -268,6 +281,6 @@ if args.vis:
             shape_camera_coord = preds['shape_camera_coord']
             for i in range(len(shape_camera_coord)):
                 shape_camera_coord[i],_ = calibrate_by_procrustes(shape_camera_coord[i],None,inputs_3d[i])
-                draw_3d_pose1(shape_camera_coord[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_teacher_result.jpg')
-                draw_2d_pose(inputs_2d[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_input.jpg')
+                #draw_3d_pose1(shape_camera_coord[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_teacher_result.jpg')
+                #draw_2d_pose(inputs_2d[i],dataset.skeleton(),'visualization/'+str(batch_num)+'_input.jpg')
 
