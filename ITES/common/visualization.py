@@ -109,6 +109,7 @@ def draw_3d_pose1(poses, skeleton, path):
             continue
         col = 'gray' if j in skeleton.joints_right() else 'orange'
         pos = poses
+        pdb.set_trace()
         ax.plot([pos[j, 0], pos[j_parent, 0]],[pos[j, 2], pos[j_parent, 2]],[pos[j, 1], pos[j_parent, 1]],linewidth=9,alpha=1,zdir='z', c=col)
     xs = poses[:,0]
     zs = poses[:,1]
