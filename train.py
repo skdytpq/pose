@@ -383,8 +383,8 @@ class Trainer(object):
                             draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
                             draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('val_loss', (val_loss/ self.batch_size), epoch)
-        shape_camera_coord = preds['shape_camera_coord']
-        depth = shape_camera_coord[:,:,2:3]
+        #shape_camera_coord = preds['shape_camera_coord']
+        #depth = shape_camera_coord[:,:,2:3]
 
         if epoch >= 1:
             chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
