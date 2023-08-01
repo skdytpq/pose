@@ -165,7 +165,7 @@ class Trainer(object):
 
 
     def training(self, epoch):
-        print('Start Training....')
+        print('Start Training....0801')
         train_loss = 0.0
         self.model_jre.train()
         self.model_pos_train.train()
@@ -332,6 +332,7 @@ class Trainer(object):
                 kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
                 jfh = normalize_2d(jfh)
+                jfh2 = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
@@ -424,8 +425,8 @@ if __name__ == '__main__':
     parser.add_argument('--dir' , default = 'run',type=str)
     parser.add_argument('--ground' , default = False,type=bool)
     parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
-    parser.add_argument('--submodule' , default = False,type=bool)
-    parser.add_argument('--sub_trained',default = False , type = str  )
+    parser.add_argument('--submodule' , default = True,type=bool)
+    parser.add_argument('--sub_trained',default = False , type = bool  )
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
