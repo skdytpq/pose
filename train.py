@@ -216,6 +216,7 @@ class Trainer(object):
                 train_loss = self.criterion_jre(kpts,reconstruct)
                 pdb.set_trace
             else:
+                pdb.set_trace()
                 #jfh_mask = mask_joint(jfh)
                 preds_1 = self.submodel(jfh)
                 joint = preds_1['reconstruct']
