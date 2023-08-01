@@ -103,7 +103,7 @@ class Trainer(object):
         self.workers = 3
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 16
+        self.batch_size = 4
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -184,6 +184,7 @@ class Trainer(object):
                                                  gamma=self.gamma, step_size=self.step_size)
             optimizer.zero_grad()
             vis = label[:, :, :, -1]
+            pdb.set_trace()
             vis = vis.view(-1, self.numClasses, 1)  
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
