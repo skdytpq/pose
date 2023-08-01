@@ -43,7 +43,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
         masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
     else:
         masked_indices = torch.bernoulli(m).bool()
-    m[masked_indices] = 1e-9
+    m[masked_indices] = 1e-8
     m[~masked_indices] = 1
     m = m.cuda()
     m_joint = joint * m 
@@ -100,10 +100,10 @@ class Trainer(object):
         ## JRE
         self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
-        self.workers = 1
+        self.workers = 3
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 4
+        self.batch_size = 16
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -208,16 +208,14 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
-            pdb.set_trace()
             if args.submodule:
                 sub_optim.zero_grad()
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
-                pdb.set_trace
+
             else:
-                pdb.set_trace()
                 #jfh_mask = mask_joint(jfh)
                 preds_1 = self.submodel(jfh)
                 joint = preds_1['reconstruct']
@@ -333,7 +331,6 @@ class Trainer(object):
                 kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
                 jfh = normalize_2d(jfh)
-                jfh2 = normalize_2d(jfh)
                 kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
