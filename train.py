@@ -184,7 +184,7 @@ class Trainer(object):
                                                  gamma=self.gamma, step_size=self.step_size)
             optimizer.zero_grad()
             vis = label[:, :, :, -1]
-            pdb.set_trace()
+
             vis = vis.view(-1, self.numClasses, 1)  
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
@@ -214,7 +214,6 @@ class Trainer(object):
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
-                pdb.set_trace()
                 train_loss = self.criterion_jre(kpts,reconstruct)
 
             else:
