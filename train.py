@@ -208,6 +208,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
+            pdb.set_trace()
             if args.submodule:
                 sub_optim.zero_grad()
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
@@ -268,11 +269,11 @@ class Trainer(object):
                         .permute(1, 2, 0)\
                         .cpu().numpy()
                         if args.submodule:
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
                         else:
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
@@ -380,7 +381,7 @@ class Trainer(object):
                         .permute(1, 2, 0)\
                         .cpu().numpy()
                         if args.submodule:
-                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0801'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
                         else:
                             draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
                             draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
@@ -426,7 +427,7 @@ if __name__ == '__main__':
     parser.add_argument('--ground' , default = False,type=bool)
     parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
     parser.add_argument('--submodule' , default = True,type=bool)
-    parser.add_argument('--sub_trained',default = False , type = bool  )
+    parser.add_argument('--sub_trained',default = False , type = bool )
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
