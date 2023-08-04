@@ -174,6 +174,8 @@ class Trainer(object):
         if args.submodule:
             sub_optim = self.sub_optimizer
             self.submodel.train()
+            self.model_jre.eval()
+            self.model_pos_train.eval()
         if args.sub_trained:
             self.submodel.eval()
         print("Epoch " + str(epoch) + ':') 
@@ -183,6 +185,7 @@ class Trainer(object):
             learning_rate = train_penn.adjust_learning_rate(self.optimizer, epoch, self.lr, weight_decay=self.weight_decay, policy='multi_step',
                                                  gamma=self.gamma, step_size=self.step_size)
             optimizer.zero_grad()
+            sub_optim.zero_grad()
             vis = label[:, :, :, -1]
 
             vis = vis.view(-1, self.numClasses, 1)  
@@ -210,7 +213,7 @@ class Trainer(object):
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).cuda()
             if args.submodule:
-                sub_optim.zero_grad()
+                
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
@@ -313,6 +316,7 @@ class Trainer(object):
                 input_var = input.cuda()
                 heatmap_var = heatmap.cuda()
                 kpts = kpts[:13]
+                pdb.set_trace()
                 self.optimizer.zero_grad()
 
                 heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
