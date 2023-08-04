@@ -187,7 +187,7 @@ class Trainer(object):
             optimizer.zero_grad()
             sub_optim.zero_grad()
             vis = label[:, :, :, -1]
-
+            
             vis = vis.view(-1, self.numClasses, 1)  
             input_var = input.cuda()
             heatmap_var = heatmap.cuda()
@@ -211,7 +211,7 @@ class Trainer(object):
             kpts = kpts.cuda()
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
-            kpts = kpts.type(torch.float).cuda()
+           # kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
@@ -293,6 +293,7 @@ class Trainer(object):
         val_loss = 0.0
         model_jre.eval()
         model_ite.eval()
+        self.submodel.eval()
         AP = np.zeros(self.numClasses)
         PCK = np.zeros(self.numClasses)
         PCKh = np.zeros(self.numClasses)
@@ -305,10 +306,6 @@ class Trainer(object):
         cnt = 0
         vt_loss = 0
         preds = []
-        if args.submodule:
-            self.submodel.eval()
-        if args.sub_trained:
-            self.submodel.eval()
         with torch.no_grad():
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
                 cnt += 1
@@ -316,7 +313,6 @@ class Trainer(object):
                 input_var = input.cuda()
                 heatmap_var = heatmap.cuda()
                 kpts = kpts[:13]
-                pdb.set_trace()
                 self.optimizer.zero_grad()
 
                 heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
@@ -336,7 +332,7 @@ class Trainer(object):
                 kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
                 jfh = normalize_2d(jfh)
-                kpts = kpts.type(torch.float).cuda()
+              $  kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
                     kpts_mask = mask_joint(jfh) # 한번더 학습시키기
