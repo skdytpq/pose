@@ -99,7 +99,7 @@ class Trainer(object):
         ## JRE
         self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
-        self.workers = 12
+        self.workers = 4
         self.weight_decay = 0.1
         self.momentum = 0.9
         self.batch_size = args.batch
