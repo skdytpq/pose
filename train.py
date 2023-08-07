@@ -43,7 +43,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
         masked_indices = torch.stack([masked_indices,masked_indices],dim = 2)
     else:
         masked_indices = torch.bernoulli(m).bool()
-    m[masked_indices] = 1e-8
+    m[masked_indices] = 1e-5
     m[~masked_indices] = 1
     m = m.cuda()
     m_joint = joint * m 
@@ -61,7 +61,7 @@ def normalize_2d(pose):
     # pose:(N,J,2)
     mean_bone = torch.mean(torch.linalg.norm(pose[:,0:1,:]-pose[:,10:11,:],axis=2,ord=2)) #hip to head
     c = 5
-    scale = (1/c) / mean_bone
+    scale = (1/c) / (mean_bone + 1e-8)
     pose = pose * scale
     return pose 
 # 만약 전체가 나오지 않는다면?
@@ -78,10 +78,6 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,neck],dim = 1)
     jfh = torch.cat([jfh,top],dim = 1)
     ind = torch.tensor([13,7,9,11,8,10,12,14,15,0,16,2,4,6,1,3,5]).cuda()
-    #[9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-    #[9,14,11,15,12,16,13,1,4,2,5,6,3,0,7,8,10]
-    #[10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
-    #[9,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
     jfh = torch.index_select(jfh, dim=1, index=ind)
     return jfh
 
@@ -103,7 +99,7 @@ class Trainer(object):
         self.workers = 3
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 8
+        self.batch_size = 4
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
