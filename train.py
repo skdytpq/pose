@@ -63,7 +63,6 @@ def normalize_2d(pose):
     c = 5
     scale = (1/c) / (mean_bone + 1e-8)
     pose = pose * scale
-    pdb.set_trace()
     return pose 
 # 만약 전체가 나오지 않는다면?
 def make_joint(jfh):
@@ -195,6 +194,7 @@ class Trainer(object):
             kpts = kpts[:13]
             kpts = kpts.reshape(-1,13,2)
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
+            pdb.set_trace()
             losses = {}
             loss = 0
             losses = self.criterion_jre(heat, heatmap_var)
@@ -208,7 +208,6 @@ class Trainer(object):
             kpts = kpts.cuda()
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
-            pdb.set_trace()
            # kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 
