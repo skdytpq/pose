@@ -84,6 +84,7 @@ def make_joint(jfh):
 
 class Trainer(object):
     def __init__(self, args, is_train, is_visual):
+        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.args = args
         self.train_dir = args.train_dir
         self.val_dir = args.val_dir
@@ -130,11 +131,12 @@ class Trainer(object):
 
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
-                            dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
-        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
+                            dict_basis_size=self.basis, weight_init_std = self.init_std)
+        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).to(device)
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
-                       nodes_group=dataset.skeleton().joints_group()).cuda()
+                       nodes_group=dataset.skeleton().joints_group())
+        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus).to(device)
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
