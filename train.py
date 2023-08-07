@@ -207,6 +207,7 @@ class Trainer(object):
             kpts = kpts.cuda()
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
+            pdb.set_trace()
            # kpts = kpts.type(torch.float).cuda()
             if args.submodule:
                 
