@@ -102,7 +102,7 @@ class Trainer(object):
         self.workers = 12
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 32
+        self.batch_size = args.batch
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -429,6 +429,7 @@ if __name__ == '__main__':
     parser.add_argument('--checkpoint' , default = 'exp/3d_ckpt',type=str)
     parser.add_argument('--submodule' , default = True,type=bool)
     parser.add_argument('--sub_trained',default = False , type = bool )
+    parser.add_argument('--batch',default = 8 , type = int )
    # parser.add_argument('--pretrained_jre', default=None, type=str)
     RANDSEED = 2021
     starter_epoch = 0
