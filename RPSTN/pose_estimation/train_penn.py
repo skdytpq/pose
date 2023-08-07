@@ -88,6 +88,7 @@ class Trainer(object):
         
         model = models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
+        pdb.set_trace()
         model.load_state_dict(torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict'])
         self.sub_model = heatconv().cuda()
         self.criterion = MSESequenceLoss().cuda()
