@@ -14,6 +14,7 @@ sys.path.append('RPSTN/lib/utils')
 # ITES, RPSTN 상대경로 지정 python RPSTN/pose_estimation/train_penn.py
 import os
 import pdb
+from collections import OrderedDict
 from ITES.common.utils import deterministic_random
 #os.environ["KMP_DUPLICATE_LIB_OK"] = True
 from ITES import train_t
@@ -131,10 +132,16 @@ class Trainer(object):
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std).cuda()
         self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
+        loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
+        new_state_dict = OrderedDict()
+        for n, v in loaded_state_dict.items():
+            name = n.replace("module.","") # .module이 중간에 포함된 형태라면 (".module","")로 치환
+            new_state_dict[name] = v
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group()).cuda()
+        self.model_jre.load_state_dict(new_state_dict)
         if args.pretrained:
-            self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
+            #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
             checkpoint = torch.load('ITES/checkpoint/teacher/ckpt_teacher.bin')#, map_location=lambda storage, loc: storage)
             self.model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
         self.criterion_jre = train_penn.MSESequenceLoss().cuda()
@@ -209,6 +216,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
            # kpts = kpts.type(torch.float).cuda()
+            pdb.set_trace()
             if args.submodule:
                 
                 kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
