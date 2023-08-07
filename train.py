@@ -85,7 +85,7 @@ def make_joint(jfh):
 
 class Trainer(object):
     def __init__(self, args, is_train, is_visual):
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1, 2, 3'
         self.args = args
         self.train_dir = args.train_dir
         self.val_dir = args.val_dir
@@ -138,7 +138,7 @@ class Trainer(object):
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus,output_device=1).to('cuda')
+        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus).to('cuda')
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
