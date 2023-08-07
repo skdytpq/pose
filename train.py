@@ -215,7 +215,7 @@ class Trainer(object):
             pdb.set_trace()
             if args.submodule:
                 
-                kpts_mask = mask_joint(jfh) # 한번더 학습 시키기
+                kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 train_loss = self.criterion_jre(kpts,reconstruct)
