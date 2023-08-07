@@ -221,6 +221,7 @@ class Trainer(object):
                 kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
+                reconstruct = reconstruct.to('cuda')
                 train_loss = self.criterion_jre(kpts,reconstruct)
 
             else:
@@ -341,6 +342,7 @@ class Trainer(object):
                     kpts_mask = mask_joint(jfh) # 한번더 학습시키기
                     preds = self.submodel(kpts_mask)
                     reconstruct = preds['reconstruct']
+                    reconstruct = reconstruct.to('cuda')
                     val_loss += self.criterion_jre(kpts,reconstruct)
                 else:
                     #jfh_mask = mask_joint(jfh)
