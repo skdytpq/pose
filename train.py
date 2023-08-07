@@ -47,7 +47,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
         masked_indices = torch.bernoulli(m).bool()
     m[masked_indices] = 1e-5
     m[~masked_indices] = 1
-    m = m.cuda()
+    m = m.to('cuda')
     m_joint = joint * m 
     return m_joint # masking 된 joint 값 출력
 
@@ -79,7 +79,7 @@ def make_joint(jfh):
     jfh = torch.cat([jfh,spine],dim = 1)
     jfh = torch.cat([jfh,neck],dim = 1)
     jfh = torch.cat([jfh,top],dim = 1)
-    ind = torch.tensor([13,7,9,11,8,10,12,14,15,0,16,2,4,6,1,3,5]).cuda()
+    ind = torch.tensor([13,7,9,11,8,10,12,14,15,0,16,2,4,6,1,3,5]).to('cuda')
     jfh = torch.index_select(jfh, dim=1, index=ind)
     return jfh
 
@@ -134,17 +134,17 @@ class Trainer(object):
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
-        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
+        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).to('cuda')
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus,output_device=1).cuda()
+        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus,output_device=1).to('cuda')
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
             checkpoint = torch.load('ITES/checkpoint/teacher/ckpt_teacher.bin')#, map_location=lambda storage, loc: storage)
             self.model_pos_train.load_state_dict(checkpoint['model_pos'], strict=False)
-        self.criterion_jre = train_penn.MSESequenceLoss().cuda()
+        self.criterion_jre = train_penn.MSESequenceLoss().to('cuda')
         if args.sub_trained:
             self.submodel.load_state_dict(torch.load('exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
         if args.pretrained:
@@ -192,9 +192,9 @@ class Trainer(object):
             vis = label[:, :, :, -1]
             
             vis = vis.view(-1, self.numClasses, 1)  
-            input_var = input.cuda()
-            heatmap_var = heatmap.cuda()
-            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
+            input_var = input.to('cuda')
+            heatmap_var = heatmap.to('cuda')
+            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
@@ -209,12 +209,12 @@ class Trainer(object):
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             jfh_copy = jfh
             jfh = make_joint(jfh)
-            jfh = jfh.cuda()
+            jfh = jfh.to('cuda')
             jfh = normalize_2d(jfh)
-            kpts = kpts.cuda()
+            kpts = kpts.to('cuda')
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
-            kpts = kpts.type(torch.float).cuda()
+            kpts = kpts.type(torch.float).to('cuda')
 
             if args.submodule:
                 
@@ -314,11 +314,11 @@ class Trainer(object):
             for i, (input, heatmap, label, img_path, bbox, start_index,kpts) in enumerate(tbar):
                 cnt += 1
                 idx.append(start_index)
-                input_var = input.cuda()
-                heatmap_var = heatmap.cuda()
+                input_var = input.to('cuda')
+                heatmap_var = heatmap.to('cuda')
                 kpts = kpts[:13]
 
-                heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
+                heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
                 vis = label[:, :, :, -1]
                 vis = vis.view(-1, self.numClasses, 1)
                 heat = model_jre(input_var)
@@ -329,8 +329,8 @@ class Trainer(object):
                 # joint from heatmap K , 64 , 64 
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
-                jfh = jfh.cuda()
-                kpts = kpts.cuda()
+                jfh = jfh.to('cuda')
+                kpts = kpts.to('cuda')
                 kpts = make_joint(kpts)
                 kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
