@@ -32,8 +32,10 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 from ITES.common.function import *
 from reconstruct_joint import Student_net
+from apex.parallel import DistributedDataParallel as DDP
+import torch.distributed as dist
 
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 dataset_path = 'ITES/data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
 def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
@@ -101,7 +103,7 @@ class Trainer(object):
         self.workers = 12
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 2
+        self.batch_size = 32
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -119,24 +121,25 @@ class Trainer(object):
         self.hid_dim = 128
         self.n_blocks = 4
         adj = adj_mx_from_skeleton(dataset.skeleton())
+        os.environ["CUDA_VISIBLE_DEVICES"] = '0, 1, 2, 3'
         if self.dataset ==  "pose_data":
             self.numClasses = 13
             self.test_dir = None
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
                                                                 self.workers, self.frame_memory, \
-                                                                self.batch_size)
+                                                                self.batch_size,pin_memory = True)
         #loader output = images, label_map, label, img_paths, person_box, start_index,kpts
         model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, self.is_visual, is_train=True if self.is_train else False)
 
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
-        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).to(device)
+        self.model_jre = DDP(model_jre, device_ids=self.gpus).to(device)
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus).to(device)
+        self.submodel = DDP(self.submodel, device_ids=self.gpus,output_device=1).to(device)
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
@@ -190,9 +193,9 @@ class Trainer(object):
             vis = label[:, :, :, -1]
             
             vis = vis.view(-1, self.numClasses, 1)  
-            input_var = input.cuda()
-            heatmap_var = heatmap.cuda()
-            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
+            input_var = input.to(device)
+            heatmap_var = heatmap.to(device)
+            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to(device)
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
@@ -212,7 +215,7 @@ class Trainer(object):
             kpts = kpts.cuda()
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
-            kpts = kpts.type(torch.float).cuda()
+            kpts = kpts.type(torch.float).to(device)
 
             if args.submodule:
                 
@@ -428,12 +431,19 @@ if __name__ == '__main__':
     parser.add_argument('--submodule' , default = True,type=bool)
     parser.add_argument('--sub_trained',default = False , type = bool )
    # parser.add_argument('--pretrained_jre', default=None, type=str)
+    parser.add_argument("--local_rank", default=0, type=int)
     RANDSEED = 2021
     starter_epoch = 0
     epochs =  100
     args = parser.parse_args()
-    is_train = args.is_train
-    is_visual = args.visual
+    args.distributed = False
+    args.gpu = 0
+    args.world_size = 1
+    args.gpu = args.local_rank
+    torch.cuda.set_device(args.gpu)
+    torch.distributed.init_process_group(backend='nccl',
+                                         init_method='env://')
+    args.world_size = torch.distributed.get_world_size()
     args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
