@@ -44,7 +44,7 @@ class MSESequenceLoss(nn.Module):
         T = inputs.shape[1]
         if targets.shape[1] != T:
             f_0 = torch.unsqueeze(targets[:, 0, :, :, :], 1)
-            targets = torch.cat([f_0, targets], dim=1)
+            targets = torch.cat([f_0, targets], dim=1).to('cuda')
         #pdb.set_trace()
         return torch.mean(inputs.sub(targets) ** 2)
 
