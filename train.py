@@ -127,7 +127,7 @@ class Trainer(object):
         self.train_loader, self.val_loader, self.test_loader = train_penn.getDataloader(self.dataset, self.train_dir, \
                                                                 self.val_dir, self.test_dir, self.sigma, self.stride, \
                                                                 self.workers, self.frame_memory, \
-                                                                self.batch_size,pin_memory = True)
+                                                                self.batch_size)
         #loader output = images, label_map, label, img_paths, person_box, start_index,kpts
         model_jre = train_penn.models.dkd_net.get_dkd_net(train_penn.config, self.is_visual, is_train=True if self.is_train else False)
 
