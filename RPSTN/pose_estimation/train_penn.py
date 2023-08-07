@@ -64,10 +64,10 @@ class Trainer(object):
         self.is_train = is_train
         self.is_visual = is_visual
         self.num_joints = 13
-        self.workers = 8
+        self.workers = 3
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 32
+        self.batch_size = 8
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -305,6 +305,8 @@ class Trainer(object):
         del heat,heat_joint,heat_
         torch.cuda.empty_cache()
         gc.collect()
+        lis.append(mPCK*100)
+        lis2.append(mPCKh*100)
         print("epoch: %d; PCK = %2.2f%%; PCKh = %2.2f%% ; Best PCK& epoch : %2.2f%% ; %d" % (epoch, mPCK*100,mPCKh*100,self.bestPCKh,self.best_epoch))
 
 
@@ -343,9 +345,21 @@ if __name__ == '__main__':
     set_seed(RANDSEED)
     if is_train == True:
         trainer = Trainer(args, is_train=True, is_visual=True) # 원래 False
+        lis = []
+        lis2= []
         for epoch in range(starter_epoch, epochs):
             trainer.training(epoch)
             trainer.validation(epoch)
+        f = open("result_2d.txt", 'a')
+        for i in range(len(lis)):
+            data = f"{lis[i]} PCK {i}번째 \n" 
+            f.write(data)
+        f.close()
+        f = open('result_2dh.txt','a')
+        for i in range(len(lis2)):
+            data = f"{lis2[i]} PCK {i}번째 \n" 
+            f.write(data)
+        f.close
     else:
         trainer = Trainer(args, is_train=False, is_visual=True)
         trainer.validation(0)
