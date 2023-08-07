@@ -19,7 +19,7 @@ import  gc
 torch.cuda.empty_cache()
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
 #from joint_heatmap import *
-from train_penn import train_penn
+
 from utils.utils import adjust_learning_rate as adjust_learning_rate
 from utils.utils import save_checkpoint as save_checkpoint
 from utils.utils import printAccuracies as printAccuracies
@@ -87,9 +87,15 @@ class Trainer(object):
                                                                 self.workers, self.frame_memory, \
                                                                 self.batch_size)
         
-        model = train_penn.models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
+        model = models.dkd_net.get_dkd_net(config, self.is_visual, is_train=True if self.is_train else False)
         self.model = torch.nn.DataParallel(model, device_ids=self.gpus).cuda()
-        model.load_state_dict(torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict'])
+        loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
+        new_state_dict = OrderedDict()
+        for n, v in loaded_state_dict.items():
+            name = n.replace("module.","") # .module이 중간에 포함된 형태라면 (".module","")로 치환
+            new_state_dict[name] = v
+
+        model.load_state_dict(new_state_dict)
         self.sub_model = heatconv().cuda()
         self.criterion = MSESequenceLoss().cuda()
         self.joint_criterion = nn.MSELoss()
