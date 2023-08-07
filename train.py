@@ -134,11 +134,11 @@ class Trainer(object):
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
-        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).to(device)
+        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).cuda()
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus,output_device=1).to(device)
+        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=self.gpus,output_device=1).cuda()
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
@@ -192,9 +192,9 @@ class Trainer(object):
             vis = label[:, :, :, -1]
             
             vis = vis.view(-1, self.numClasses, 1)  
-            input_var = input.to(device)
-            heatmap_var = heatmap.to(device)
-            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to(device)
+            input_var = input.cuda()
+            heatmap_var = heatmap.cuda()
+            heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).cuda()
             heat = self.model_jre(input_var)
             # self.iters += 1
             #[8, 5, 16, 64, 64]
@@ -214,7 +214,7 @@ class Trainer(object):
             kpts = kpts.cuda()
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
-            kpts = kpts.type(torch.float).to(device)
+            kpts = kpts.type(torch.float).cuda()
 
             if args.submodule:
                 
