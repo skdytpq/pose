@@ -395,3 +395,77 @@ while epoch < args.epochs:
             pickle.dump(logger, f, pickle.HIGHEST_PROTOCOL)
         with open('logger1.pickle', 'wb') as f1:
             pickle.dump(logger1, f1, pickle.HIGHEST_PROTOCOL)
+
+
+
+251 ~ 
+            path = f'exp/train/skeleton3d/{epoch}.jpg'
+            if self.is_visual == True and i == 0:
+                if epoch % 1 == 0 :
+                    b, t, c, h, w = input.shape
+                    file_name = 'result/heats/3dtrain/{}_epoch.jpg'.format(epoch)
+                    input = input.view(-1, c, h, w)
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
+            with torch.no_grad():
+                if args.submodule:
+                    vis_joint = preds['reconstruct']
+                else:
+                    vis_joint = preds['shape_camera_coord']
+                    vis_joint2 = preds_1['reconstruct']
+                # preds['shape_camera_coord'] <- 2차원 projection 좌표계
+                # 2차원 사진 가져오기
+                vis_joint = vis_joint.cpu()
+                # np.save('3dpred.npy',vis_joint.numpy())
+                if epoch % 1 == 0 :
+                    if i  == 0:
+                        for j in range(3):
+                            sub_path = f'exp/img/train/{epoch}_{j}.jpg'
+                            image = input[j].mul(255)\
+                        .clamp(0, 255)\
+                        .byte()\
+                        .permute(1, 2, 0)\
+                        .cpu().numpy()
+                        if args.submodule:
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0801/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                        else:
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+
+
+
+
+
+
+330~ 
+            
+                #if self.is_visual:
+                file_name = 'result/heats/3dtest/{}_epoch.jpg'.format(epoch)
+                path = f'exp/val/skeleton3d/{epoch}.jpg'
+                input = input.view(-1, c, h, w)
+                if epoch % 5 == 0 and i == 0 :
+                    joint = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
+                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh)
+                if epoch % 1 == 0 :
+                    if args.submodule:
+                        vis_joint = preds['reconstruct']
+                    else:
+                        vis_joint = preds['shape_camera_coord']
+                        vis_joint2 = preds_1['reconstruct']
+                    vis_joint = vis_joint.cpu()
+                    if i == 0:
+                        for j in range(1):
+                            sub_path = f'exp/img/test/{epoch}_{j}.jpg'
+                            image = input[j].mul(255)\
+                        .clamp(0, 255)\
+                        .byte()\
+                        .permute(1, 2, 0)\
+                        .cpu().numpy()
+                        if args.submodule:
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0801'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                        else:
+                            draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                            draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtest_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                            draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtest_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
