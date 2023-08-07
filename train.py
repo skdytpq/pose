@@ -197,7 +197,6 @@ class Trainer(object):
             kpts = kpts[:13]
             kpts = kpts.reshape(-1,13,2)
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
-            pdb.set_trace()
             losses = {}
             loss = 0
             losses = self.criterion_jre(heat, heatmap_var)
@@ -212,7 +211,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
            # kpts = kpts.type(torch.float).cuda()
-            pdb.set_trace()
+
             if args.submodule:
                 
                 kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
