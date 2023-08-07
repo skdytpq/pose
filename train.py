@@ -32,7 +32,6 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 from ITES.common.function import *
 from reconstruct_joint import Student_net
-from apex.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -100,10 +99,10 @@ class Trainer(object):
         ## JRE
         self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
-        self.workers = 12
+        self.workers = 4
         self.weight_decay = 0.1
         self.momentum = 0.9
-        self.batch_size = 32
+        self.batch_size = 16
         self.lr = 0.0005
         self.gamma = 0.333
         self.step_size = [8, 15, 25, 40, 80]#13275
@@ -135,11 +134,11 @@ class Trainer(object):
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
-        self.model_jre = DDP(model_jre, device_ids=self.gpus).to(device)
+        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=self.gpus).to(device)
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = DDP(self.submodel, device_ids=self.gpus,output_device=1).to(device)
+        self.submodel = torch.nn.DataParalle(self.submodel, device_ids=self.gpus,output_device=1).to(device)
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
             #self.model_jre.load_state_dict(torch.load(args.pretrained)['state_dict'])
@@ -435,15 +434,6 @@ if __name__ == '__main__':
     RANDSEED = 2021
     starter_epoch = 0
     epochs =  100
-    args = parser.parse_args()
-    args.distributed = False
-    args.gpu = 0
-    args.world_size = 1
-    args.gpu = args.local_rank
-    torch.cuda.set_device(args.gpu)
-    torch.distributed.init_process_group(backend='nccl',
-                                         init_method='env://')
-    args.world_size = torch.distributed.get_world_size()
     args.dataset  = 'pose_data'
     args.frame_memory = 5
     if args.dataset == 'pose_data':
