@@ -114,7 +114,7 @@ class Trainer(object):
         ## ITES
         self.num_joints = 17
         self.n_fully_connected = 1024
-        self.n_layers = 6
+        self.n_layers = 4
         self.basis = 12
         self.init_std = 0.01
         self.hid_dim = 128
