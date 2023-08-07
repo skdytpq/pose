@@ -63,6 +63,7 @@ def normalize_2d(pose):
     c = 5
     scale = (1/c) / (mean_bone + 1e-8)
     pose = pose * scale
+    pdb.set_trace()
     return pose 
 # 만약 전체가 나오지 않는다면?
 def make_joint(jfh):
