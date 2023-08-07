@@ -93,13 +93,13 @@ class Trainer(object):
         self.dataset = args.dataset
         self.frame_memory = args.frame_memory   
         self.writer = args.writer
-        self.gpus =  [int(i) for i in train_penn.config.GPUS.split(',')]
+        self.gpus =  [0,1,2]
         self.is_train = is_train
         self.is_visual = is_visual
         ## JRE
         self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
-        self.workers = 4
+        self.workers = 12
         self.weight_decay = 0.1
         self.momentum = 0.9
         self.batch_size = args.batch
