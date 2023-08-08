@@ -140,7 +140,7 @@ class Trainer(object):
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=[0,1,2],output_device= 1)
+       # self.submodel = torch.nn.DataParallel(self.submodel, device_ids=[0,1,2],output_device= 1)
         self.submodel = self.submodel.to('cuda')
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
