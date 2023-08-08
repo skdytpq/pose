@@ -244,9 +244,10 @@ class Trainer(object):
                 train_loss = loss_total # + jre_loss
                 #else:
                 #    train_loss = loss_total + jre_loss
-            
+            pdb.set_trace()
             train_loss.backward()
             t_loss += train_loss
+            pdb.set_trace()
             if args.submodule:
                 sub_optim.step()
             else:
