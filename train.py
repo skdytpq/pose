@@ -245,10 +245,8 @@ class Trainer(object):
                 train_loss = loss_total # + jre_loss
                 #else:
                 #    train_loss = loss_total + jre_loss
-            pdb.set_trace()
             train_loss.backward()
             t_loss += train_loss
-            pdb.set_trace()
             sub_optim.step()
             #if args.submodule:
             #    sub_optim.step()
@@ -258,7 +256,7 @@ class Trainer(object):
             #self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
 
-        #self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
+        self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
