@@ -158,7 +158,7 @@ class Trainer(object):
                             weight_decay=0.0005)
         if args.submodule:
             self.param = list(self.submodel.parameters())
-            self.sub_optimizer =  torch.optim.SGD(self.submodel.parameters(), lr=0.001,
+            self.sub_optimizer =  torch.optim.AdamW(self.submodel.parameters(), lr=0.001,
                             weight_decay=0.0005)
 
         self.iters = 0
