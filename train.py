@@ -160,6 +160,7 @@ class Trainer(object):
             self.param = list(self.submodel.parameters())
             self.sub_optimizer = torch.optim.AdamW(self.submodel.parameters(), lr=0.001,
                             weight_decay=0.0005)
+            self.sub_optimizer = self.sub_optimizer.to('cuda')
 
         self.iters = 0
         pretrained_jre = None
@@ -249,15 +250,16 @@ class Trainer(object):
             train_loss.backward()
             t_loss += train_loss
             pdb.set_trace()
-            if args.submodule:
-                sub_optim.step()
-            else:
-                optimizer.step()
+            sub_optim.step()
+            #if args.submodule:
+            #    sub_optim.step()
+            #else:
+            #    optimizer.step()
 
             #self.writer.add_scalar('jre_loss', (losses / self.batch_size), epoch)
             #self.writer.add_scalar('total_loss', (loss_total / self.batch_size), epoch)
 
-        self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
+        #self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
 #            vis_joint = preds['shape_camera_coord']
 #            if epoch % 5 == 0 :
