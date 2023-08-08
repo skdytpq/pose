@@ -183,6 +183,7 @@ class Trainer(object):
         if args.sub_trained:
             self.submodel.eval()
         print("Epoch " + str(epoch) + ':') 
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
         tbar = tqdm(self.train_loader)
         t_loss =0
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
@@ -216,7 +217,7 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).to('cuda')
-
+            
             if args.submodule:
                 
                 kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
