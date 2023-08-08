@@ -199,7 +199,7 @@ class Trainer(object):
             input_var = input.to('cuda')
             heatmap_var = heatmap.to('cuda')
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
-            heat = self.model_jre(input_var)
+            heat = self.model_jre(input_var).to('cuda')
             # self.iters += 1
             #[8, 5, 16, 64, 64]
             kpts = kpts[:13]
@@ -207,7 +207,7 @@ class Trainer(object):
             jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
             losses = {}
             loss = 0
-            losses = self.criterion_jre(heat, heatmap_var)
+            losses = self.criterion_jre(heat, heatmap_var).to('cuda')
             loss += losses
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
