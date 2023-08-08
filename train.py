@@ -190,7 +190,7 @@ class Trainer(object):
         tbar = tqdm(self.train_loader)
         t_loss =0
         for i, (input, heatmap, label, img_path, bbox, start_index, kpts) in enumerate(tbar):
-            optimizer.zero_grad()
+           # optimizer.zero_grad()
             sub_optim.zero_grad()
             vis = label[:, :, :, -1]
             
@@ -199,7 +199,7 @@ class Trainer(object):
             heatmap_var = heatmap.to('cuda')
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
             heat = self.model_jre(input_var).to('cuda')
-            # self.iters += 1
+            # self.it   ers += 1
             #[8, 5, 16, 64, 64]
             kpts = kpts[:13]
             kpts = kpts.reshape(-1,13,2)
