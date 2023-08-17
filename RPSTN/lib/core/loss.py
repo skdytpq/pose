@@ -46,7 +46,7 @@ class MSESequenceLoss(nn.Module):
             f_0 = torch.unsqueeze(targets[:, 0, :, :, :], 1)
             targets = torch.cat([f_0, targets], dim=1)
         #pdb.set_trace()
-        return torch.mean(inputs.sub(targets) ** 2)
+        return torch.mean(inputs.sub(targets) ** 2) + 1e-6
 
 class CoordinateLoss(nn.Module):
     def __init__(self):

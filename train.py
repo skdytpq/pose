@@ -100,7 +100,7 @@ class Trainer(object):
         ## JRE
         self.writer = SummaryWriter('exp/tensor/3d')
         self.test_dir = None
-        self.workers = 4
+        self.workers = 12
         self.weight_decay = 0.1
         self.momentum = 0.9
         self.batch_size = args.batch
@@ -140,7 +140,7 @@ class Trainer(object):
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-       # self.submodel = torch.nn.DataParallel(self.submodel, device_ids=[0,1,2],output_device= 1)
+        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=[0,1,2],output_device= 1)
         self.submodel = self.submodel.to('cuda')
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
@@ -218,17 +218,19 @@ class Trainer(object):
             kpts = make_joint(kpts)
             kpts = normalize_2d(kpts)
             kpts = kpts.type(torch.float).to('cuda')
-            
+            # 디버거 걸어서 봐보자. <- if 문 걸어서 inf 발생 했다면 브레이크 해서 직전에 텐서 모양 확인하보기.
+            # 모델이 복사가 되는 거고 직렬적으로 되는 것이 아니다, 학습 시킬 때 속도의 차이가 있는 것이다.
+            # Invisible Joint 에 대해서 찾아보도록 하자.
+            # Supervised 에서도 있는지 한번 찾아보자.
             if args.submodule:
-                
                 kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 reconstruct = reconstruct.to('cuda')
                 train_loss = self.criterion_jre(kpts,reconstruct)
                 print("Outside: input size", kpts_mask.size(),
-          "output_size", reconstruct.size())
-
+                "output_size", reconstruct.size())
+            # 
             else:
                 #jfh_mask = mask_joint(jfh)
                 preds_1 = self.submodel(jfh)
@@ -304,7 +306,7 @@ class Trainer(object):
                 jfh  = generate_2d_integral_preds_tensor(heat , 13, self.heatmap_size,self.heatmap_size)
                 jfh  = generate_2d_integral_preds_tensor(heatmap_var , 13, self.heatmap_size,self.heatmap_size)
                 jfh = jfh.to('cuda')
-                kpts = kpts.to('cuda')
+                kpts = kpts.to('cuda') # 64X64
                 kpts = make_joint(kpts)
                 kpts = normalize_2d(kpts)
                 jfh  = make_joint(jfh)
