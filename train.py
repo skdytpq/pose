@@ -230,7 +230,7 @@ class Trainer(object):
                 train_loss = self.criterion_jre(kpts,reconstruct)
                 print("Outside: input size", kpts_mask.size(),
                 "output_size", reconstruct.size())
-                if torch.isnan(preds) or torch.isnan(reconstruct) or torch.isnan(train_loss):
+                if torch.isnan(reconstruct) or torch.isnan(train_loss):
                     pdb.set_trace()
             # 
             else:
