@@ -94,7 +94,7 @@ class Trainer(object):
         self.dataset = args.dataset
         self.frame_memory = args.frame_memory   
         self.writer = args.writer
-        self.gpus =  [0,1,2]
+        self.gpus =  0
         self.is_train = is_train
         self.is_visual = is_visual
         ## JRE
@@ -135,12 +135,12 @@ class Trainer(object):
         self.model_pos_train = train_t.Teacher_net(self.num_joints,self.num_joints,2,  # joints = [13,2]
                             n_fully_connected=self.n_fully_connected, n_layers=self.n_layers, 
                             dict_basis_size=self.basis, weight_init_std = self.init_std)
-        self.model_jre = torch.nn.DataParallel(model_jre, device_ids=[0,1,2],output_device= 1)
+        self.model_jre = torch.nn.DataParallel(model_jre)
         self.model_jre = self.model_jre.to('cuda')
         loaded_state_dict = torch.load('exp/checkpoints/penn_train_20230624_best.pth.tar')['state_dict']
         self.submodel = Student_net(adj, self.hid_dim, num_layers=self.n_blocks, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group())
-        self.submodel = torch.nn.DataParallel(self.submodel, device_ids=[0,1,2],output_device= 1)
+        self.submodel = torch.nn.DataParallel(self.submodel)
         self.submodel = self.submodel.to('cuda')
         self.model_jre.load_state_dict(loaded_state_dict)
         if args.pretrained:
@@ -230,6 +230,8 @@ class Trainer(object):
                 train_loss = self.criterion_jre(kpts,reconstruct)
                 print("Outside: input size", kpts_mask.size(),
                 "output_size", reconstruct.size())
+                if torch.isnan(preds) or torch.isnan(reconstruct) or torch.isnan(train_loss):
+                    pdb.set_trace()
             # 
             else:
                 #jfh_mask = mask_joint(jfh)
