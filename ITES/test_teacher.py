@@ -182,6 +182,9 @@ model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joint
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group()).cuda()
+submodel_pos = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
+                       nodes_group=dataset.skeleton().joints_group()).cuda()
+                       
 submodel.load_state_dict(torch.load('../exp/3d_ckpt/submodel/submodel_95.bin')['model_pos'],strict = False)
 pdb.set_trace()
 model_params = 0
@@ -224,8 +227,9 @@ if args.evaluate:
     print('*** Start evaluation ***')
     with torch.no_grad():
         model_pos.load_state_dict(model_pos_train.state_dict())
+        submodel_pos.load_state_dict(submodel.state_dict())
         model_pos.eval()
-        submodel.eval()
+        submodel_pos.eval()
         epoch_error_p1 = 0
         epoch_error_p2 = 0
         N = 0
@@ -237,7 +241,7 @@ if args.evaluate:
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
             inputs_2d_ = mask_joint(inputs_2d)
-            #inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
+            inputs_2d_ = submodel_pos(inputs_2d_)['keypoints_2d']
             preds = model_pos(inputs_2d_)
 
             shape_camera_coord = preds['shape_camera_coord']
