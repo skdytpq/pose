@@ -166,8 +166,8 @@ def fetch(subjects, action_filter=None, subset=1, parse_3d_poses=True):
     return out_camera_params, out_poses_3d, out_poses_2d
 
 adj = adj_mx_from_skeleton(dataset.skeleton())
-pdb.set_trace()
-action_filter = None if args.actions == '*' else args.actions.split(',')
+
+action_filter = None #if args.actions == '*' else args.actions.split(',')
 if action_filter is not None:
     print('Selected actions:', action_filter)
 
