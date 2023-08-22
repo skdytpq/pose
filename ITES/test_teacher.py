@@ -182,7 +182,7 @@ model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joint
                             dict_basis_size=args.dict_basis_size, weight_init_std = args.weight_init_std)
 submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group()).cuda()
-submodel.load_state_dict(torch.load('../exp/checkpoints/submodule/best.bin')['model_pos'],strict = False)
+submodel.load_state_dict(torch.load('../exp/3d_ckpt/submodel/submodel_95.bin')['model_pos'],strict = False)
 model_params = 0
 for parameter in model_pos.parameters():
     model_params += parameter.numel()
@@ -229,45 +229,45 @@ if args.evaluate:
         N = 0
 
         # Evaluate on test set
-        for e in tqdm(range(100)):
-            for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(valid_loader):
-                if torch.cuda.is_available():
-                    inputs_3d = inputs_3d.cuda()
-                    inputs_2d = inputs_2d.cuda()
-                inputs_2d_ = mask_joint(inputs_2d)
-                inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
-                preds = model_pos(inputs_2d_)
+        #for e in tqdm(range(100)):
+        for i, (inputs_3d, inputs_2d, inputs_scale) in enumerate(valid_loader):
+            if torch.cuda.is_available():
+                inputs_3d = inputs_3d.cuda()
+                inputs_2d = inputs_2d.cuda()
+            inputs_2d_ = mask_joint(inputs_2d)
+            inputs_2d_ = submodel(inputs_2d_)['keypoints_2d']
+            preds = model_pos(inputs_2d_)
 
-                shape_camera_coord = preds['shape_camera_coord']
-                depth = shape_camera_coord[:,:,2:3]
-                shape_camera_coord = torch.cat((inputs_2d_*(5+depth),depth),dim=2)
+            shape_camera_coord = preds['shape_camera_coord']
+            depth = shape_camera_coord[:,:,2:3]
+            shape_camera_coord = torch.cat((inputs_2d_*(5+depth),depth),dim=2)
 
-                shape_camera_coord_flip = shape_camera_coord.clone()
-                shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
-                shape_camera_coord = calibrate_by_scale(shape_camera_coord,inputs_3d)
-                shape_camera_coord_flip = calibrate_by_scale(shape_camera_coord_flip,inputs_3d)
+            shape_camera_coord_flip = shape_camera_coord.clone()
+            shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
+            shape_camera_coord = calibrate_by_scale(shape_camera_coord,inputs_3d)
+            shape_camera_coord_flip = calibrate_by_scale(shape_camera_coord_flip,inputs_3d)
 
-                shape_camera_coord = shape_camera_coord - shape_camera_coord[:,0:1,:]
-                shape_camera_coord_flip = shape_camera_coord_flip - shape_camera_coord_flip[:,0:1,:]
-                inputs_3d = inputs_3d - inputs_3d[:,0:1,:]
-                inputs_scale = np.asarray(inputs_scale)
+            shape_camera_coord = shape_camera_coord - shape_camera_coord[:,0:1,:]
+            shape_camera_coord_flip = shape_camera_coord_flip - shape_camera_coord_flip[:,0:1,:]
+            inputs_3d = inputs_3d - inputs_3d[:,0:1,:]
+            inputs_scale = np.asarray(inputs_scale)
 
-                dist = calc_dist(shape_camera_coord, inputs_3d)
-                p_dist = p_mpjpe(shape_camera_coord,inputs_3d)
-                dist_flip = calc_dist(shape_camera_coord_flip, inputs_3d)
-                p_dist_flip = p_mpjpe(shape_camera_coord_flip,inputs_3d)
+            dist = calc_dist(shape_camera_coord, inputs_3d)
+            p_dist = p_mpjpe(shape_camera_coord,inputs_3d)
+            dist_flip = calc_dist(shape_camera_coord_flip, inputs_3d)
+            p_dist_flip = p_mpjpe(shape_camera_coord_flip,inputs_3d)
 
-                dist_best = np.minimum(dist,dist_flip)
-                p_dist_best = np.minimum(p_dist,p_dist_flip)
+            dist_best = np.minimum(dist,dist_flip)
+            p_dist_best = np.minimum(p_dist,p_dist_flip)
 
-                dist_best = dist_best * inputs_scale
-                p_dist_best = p_dist_best * inputs_scale
-                
-                loss_3d_p1 = dist_best.mean()
-                loss_3d_p2 = p_dist_best.mean()
-                epoch_error_p1 += inputs_3d.shape[0] * loss_3d_p1
-                epoch_error_p2 += inputs_3d.shape[0] * loss_3d_p2
-                N += inputs_3d.shape[0]
+            dist_best = dist_best * inputs_scale
+            p_dist_best = p_dist_best * inputs_scale
+            
+            loss_3d_p1 = dist_best.mean()
+            loss_3d_p2 = p_dist_best.mean()
+            epoch_error_p1 += inputs_3d.shape[0] * loss_3d_p1
+            epoch_error_p2 += inputs_3d.shape[0] * loss_3d_p2
+            N += inputs_3d.shape[0]
         print('################################')
         print('MPJPE:',epoch_error_p1 / N * 100000)
         print('P-MPJPE:',epoch_error_p2 / N * 100000)

@@ -341,23 +341,21 @@ class Trainer(object):
         #depth = shape_camera_coord[:,:,2:3]
 
         if epoch >= 1:
-            chk_path= os.path.join(args.checkpoint, 'tea_model_epoch_{}.bin'.format(epoch))
-            print('Saving checkpoint to', chk_path)
-            if args.submodule:
-                chk_path= os.path.join(args.checkpoint, 'submodel/submodel_{}.bin'.format(epoch))
-                torch.save({
-                'epoch': epoch,
-                'lr': self.lr,
-                'optimizer': self.sub_optimizer.state_dict(),
-                'model_pos':self.submodel.state_dict(),
-            }, chk_path)
-            else:
-                torch.save({
-                    'epoch': epoch,
-                    'lr': self.lr,
-                    'optimizer': self.optimizer.state_dict(),
-                    'model_pos':self.model_pos_train.state_dict(),
-                }, chk_path)
+
+            chk_path= os.path.join(args.checkpoint, 'submodel/submodel_{}.bin'.format(epoch))
+            torch.save({
+            'epoch': epoch,
+            'lr': self.lr,
+            'optimizer': self.sub_optimizer.state_dict(),
+            'model_pos':self.submodel.state_dict(),
+        }, chk_path)
+
+#                torch.save({
+#                    'epoch': epoch,
+#                    'lr': self.lr,
+#                    'optimizer': self.optimizer.state_dict(),
+#                    'model_pos':self.model_pos_train.state_dict(),
+#                }, chk_path)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
