@@ -183,6 +183,7 @@ model_pos = Teacher_net(poses_valid_2d[0].shape[-2],dataset.skeleton().num_joint
 submodel = Student_net(adj, 128, num_layers=4, p_dropout=0.0,
                        nodes_group=dataset.skeleton().joints_group()).cuda()
 submodel.load_state_dict(torch.load('../exp/3d_ckpt/submodel/submodel_95.bin')['model_pos'],strict = False)
+pdb.set_trace()
 model_params = 0
 for parameter in model_pos.parameters():
     model_params += parameter.numel()
@@ -218,6 +219,7 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
     m = m.cuda()
     m_joint = joint * m 
     return m_joint # masking 된 joint 값 출력
+
 if args.evaluate:
     print('*** Start evaluation ***')
     with torch.no_grad():
