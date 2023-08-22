@@ -240,13 +240,13 @@ if args.evaluate:
             if torch.cuda.is_available():
                 inputs_3d = inputs_3d.cuda()
                 inputs_2d = inputs_2d.cuda()
-            inputs_2d_ = mask_joint(inputs_2d)
-            inputs_2d_ = submodel_pos(inputs_2d_)['keypoints_2d']
-            preds = model_pos(inputs_2d_)
+            #inputs_2d_ = mask_joint(inputs_2d)
+            inputs_2d = submodel_pos(inputs_2d)['keypoints_2d']
+            preds = model_pos(inputs_2d)
 
             shape_camera_coord = preds['shape_camera_coord']
             depth = shape_camera_coord[:,:,2:3]
-            shape_camera_coord = torch.cat((inputs_2d_*(5+depth),depth),dim=2)
+            shape_camera_coord = torch.cat((inputs_2d*(5+depth),depth),dim=2)
 
             shape_camera_coord_flip = shape_camera_coord.clone()
             shape_camera_coord_flip[:,:,2] = -shape_camera_coord[:,:,2]
@@ -275,8 +275,8 @@ if args.evaluate:
             epoch_error_p2 += inputs_3d.shape[0] * loss_3d_p2
             N += inputs_3d.shape[0]
         print('################################')
-        print('MPJPE:',epoch_error_p1 / N * 100000)
-        print('P-MPJPE:',epoch_error_p2 / N * 100000)
+        print('MPJPE:',epoch_error_p1 / N * 1000)
+        print('P-MPJPE:',epoch_error_p2 / N * 1000)
 
 # Visualization
 if args.vis:
