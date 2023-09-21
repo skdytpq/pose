@@ -38,7 +38,13 @@ from reconstruct_joint import Student_net
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 dataset_path = 'ITES/data/data_3d_' + 'h36m'+ '.npz'
 dataset = Human36mDataset(dataset_path)
-def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
+def mask_joint(joint,vis,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair 를 동시에 제거
+    not_mask = []
+    for i in range(vis.shape[0]):
+        check = vis[i]==0
+        if sum(check) > 2:
+            not_mask.append(i)
+    #이미 Masking  이 되어있는 곳.
     m = torch.full(joint.shape,mlm_probability) # 40 , 16 , 2
     if pair: 
         masked_indices = torch.bernoulli(m[:,:,0]).bool() # batch , 17
@@ -50,6 +56,8 @@ def mask_joint(joint,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pair �
     m[~masked_indices] = 1
     m = m.to('cuda')
     m_joint = joint * m 
+    pdb.set_trace()
+    m_joint[not_mask] = joint[not_mask]
     return m_joint # masking 된 joint 값 출력
 
 def set_seed(seed):
@@ -69,6 +77,8 @@ def normalize_2d(pose):
     return pose 
 # 만약 전체가 나오지 않는다면?
 def make_joint(jfh):
+    # 40 X 13 X 1
+
     rev = (jfh[:,7] + jfh[:,8])/2
     rev = rev.reshape(-1,1,2)
     spine = (jfh[:,7]+jfh[:,8]+jfh[:,1]+jfh[:,2])/4
@@ -193,7 +203,7 @@ class Trainer(object):
            # optimizer.zero_grad()
             sub_optim.zero_grad()
             vis = label[:, :, :, -1]
-            
+            # 40 X 13 X 1 
             vis = vis.view(-1, self.numClasses, 1)  
             input_var = input.to('cuda')
             heatmap_var = heatmap.to('cuda')
@@ -211,7 +221,6 @@ class Trainer(object):
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             jfh_copy = jfh
-            pdb.set_trace()
             jfh = make_joint(jfh)
             jfh = jfh.to('cuda')
             jfh = normalize_2d(jfh)
