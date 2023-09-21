@@ -233,7 +233,7 @@ class Trainer(object):
             # Invisible Joint 에 대해서 찾아보도록 하자.
             # Supervised 에서도 있는지 한번 찾아보자.
             if args.submodule:
-                kpts_mask = mask_joint(kpts) # 한번더 학습 시키기
+                kpts_mask = mask_joint(kpts,vis) # 한번더 학습 시키기
                 preds = self.submodel(kpts_mask)
                 reconstruct = preds['reconstruct']
                 reconstruct = reconstruct.to('cuda')
@@ -325,7 +325,7 @@ class Trainer(object):
               #   kpts = kpts.type(torch.float).cuda()
                 #permute = [10,14,11,15,12,16,13,1,4,2,5,3,6,0,7,8,10]
                 if args.submodule:
-                    kpts_mask = mask_joint(jfh) # 한번더 학습시키기
+                    kpts_mask = mask_joint(jfh,vis) # 한번더 학습시키기
                     preds = self.submodel(kpts_mask)
                     reconstruct = preds['reconstruct']
                     reconstruct = reconstruct.to('cuda')
