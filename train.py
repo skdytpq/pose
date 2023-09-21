@@ -56,7 +56,6 @@ def mask_joint(joint,vis,mlm_probability=0.2,pair = True): # ba, joint , 2 , Pai
     m[~masked_indices] = 1
     m = m.to('cuda')
     m_joint = joint * m 
-    pdb.set_trace()
     m_joint[not_mask] = joint[not_mask]
     return m_joint # masking 된 joint 값 출력
 
