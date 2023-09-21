@@ -211,6 +211,7 @@ class Trainer(object):
             jre_loss = loss.item()
             # joint from heatmap K , 64 , 64  [40, 13, 2]
             jfh_copy = jfh
+            pdb.set_trace()
             jfh = make_joint(jfh)
             jfh = jfh.to('cuda')
             jfh = normalize_2d(jfh)
