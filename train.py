@@ -285,7 +285,6 @@ class Trainer(object):
             # preds['shape_camera_coord'] <- 2차원 projection 좌표계
             # 2차원 사진 가져오기
             vis_joint = vis_joint.cpu()
-            pdb.set_trace()
             # np.save('3dpred.npy',vis_joint.numpy())
             if epoch % 5 == 0 :
                 if i  == 0:
