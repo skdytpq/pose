@@ -296,12 +296,14 @@ class Trainer(object):
                     .byte()\
                     .permute(1, 2, 0)\
                     .cpu().numpy()
-                    if args.submodule:
-                        draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0801/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                    else:
-                        draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
-                        draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
-                        draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+            
+                if args.submodule:
+                    draw_2d_pose(vis_joint[0],dataset.skeleton(),'visualization_custom/' + '2dtrain_0925/'+str(epoch) + '__0'+'_teacher_result.jpg')
+                    draw_2d_pose(vis_joint[1],dataset.skeleton(),'visualization_custom/' + '2dtrain_0925/'+str(epoch) + '__1'+'_teacher_result.jpg')
+                else:
+                    draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                    draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                    draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
 
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
