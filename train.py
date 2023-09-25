@@ -32,7 +32,7 @@ from ITES.common.visualization import draw_3d_pose , draw_3d_pose1 , draw_2d_pos
 from ITES.common.h36m_dataset import Human36mDataset
 from ITES.common.function import *
 from reconstruct_joint import Student_net
-from utils import vis
+from RPSTN.lib.utils import vis
 
 
 
