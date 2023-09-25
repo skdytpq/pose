@@ -208,6 +208,7 @@ class Trainer(object):
             heatmap_var = heatmap.to('cuda')
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
             heat = self.model_jre(input_var).to('cuda')
+            joint_2d = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
             # self.it   ers += 1
             #[8, 5, 16, 64, 64]
             kpts = kpts[:13]
@@ -276,7 +277,18 @@ class Trainer(object):
 #                    input = input.view(-1, c, h, w)
 #                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
 #                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
+        path = f'exp/2d/train/skeleton2d_0925/{epoch}.jpg'
+        if self.is_visual == True:  
+            if  i == 0:
+                b, t, c, h, w = input.shape
+                #joint = generate_2d_integral_preds_tensor(heat , self.num_joints, self.heatmap_size,self.heatmap_size)
+                file_name = 'result/heats/2d/train/{}_batch.jpg'.format(epoch)
+                file_name_2 = 'result/heats/2d/train/{}_input_batch.jpg'.format(epoch)
+                input = input.view(-1, c, h, w)
+                heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+                save_batch_heatmaps(path,input,heat,file_name,joint_2d)
         with torch.no_grad():
+            
             if args.submodule:
                 vis_joint = preds['reconstruct']
             else:
