@@ -268,10 +268,40 @@ class Trainer(object):
 
         self.writer.add_scalar('teacher_loss', (t_loss / self.batch_size), epoch)
 #        with torch.no_grad():
-#            vis_joint = preds['shape_camera_coord']
-#            if epoch % 5 == 0 :
-#                for i in range(10):
-#                    draw_3d_pose(vis_joint[i,:,:],f'exp/vis/{epoch}_{i}.jpg')
+#            path = f'exp/train/skeleton3d/{epoch}.jpg'
+#            if self.is_visual == True and i == 0:
+#                if epoch % 1 == 0 :
+#                    b, t, c, h, w = input.shape
+#                    file_name = 'result/heats/3dtrain/{}_epoch.jpg'.format(epoch)
+#                    input = input.view(-1, c, h, w)
+#                    heat = heat.view(-1, 13, heat.shape[-2], heat.shape[-1])
+#                    train_penn.save_batch_heatmaps(path,input,heat,file_name,jfh_copy)
+        with torch.no_grad():
+            if args.submodule:
+                vis_joint = preds['reconstruct']
+            else:
+                vis_joint = preds['shape_camera_coord']
+                vis_joint2 = preds_1['reconstruct']
+            # preds['shape_camera_coord'] <- 2차원 projection 좌표계
+            # 2차원 사진 가져오기
+            vis_joint = vis_joint.cpu()
+            pdb.set_trace()
+            # np.save('3dpred.npy',vis_joint.numpy())
+            if epoch % 5 == 0 :
+                if i  == 0:
+                    for j in range(3):
+                        sub_path = f'exp/img/train/{epoch}_{j}.jpg'
+                        image = input[j].mul(255)\
+                    .clamp(0, 255)\
+                    .byte()\
+                    .permute(1, 2, 0)\
+                    .cpu().numpy()
+                    if args.submodule:
+                        draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0801/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                    else:
+                        draw_3d_pose1(vis_joint[i],dataset.skeleton(),'visualization_custom/'+'test/'+str(epoch) + '_'+str(j)+'val_teacher_result.jpg')
+                        draw_2d_pose(vis_joint[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
+                        draw_2d_pose(vis_joint2[i],dataset.skeleton(),'visualization_custom/' + '2dtrain_sub_0629/'+str(epoch) + '_' +str(j)+'_teacher_result.jpg')
 
             # output => [ba , num_joints , 2]
     def validation(self, epoch):
