@@ -204,7 +204,7 @@ class Trainer(object):
             sub_optim.zero_grad()
             vis = label[:, :, :, -1]
             # 40 X 13 X 1 
-            vis = vis.view(-1, self.numClasses, 1)  
+            vis = vis.view(-1, self.numClasses, 1)   # 
             input_var = input.to('cuda')
             heatmap_var = heatmap.to('cuda')
             heat = torch.zeros(self.numClasses, self.heatmap_size, self.heatmap_size).to('cuda')
