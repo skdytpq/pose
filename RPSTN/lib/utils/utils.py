@@ -175,7 +175,7 @@ def getDataloader(dataset, train_dir, val_dir, test_dir, sigma, stride, workers,
                                             Mytransforms.Compose([
                                                               
                                                                 Mytransforms.SinglePersonCrop(256),
-                                                                Mytransforms.RandomRotate(40),
+                                                                #Mytransforms.RandomRotate(40),
                                                                 Mytransforms.TestResized(256),
                                                                 Mytransforms.RandomHorizontalFlip(),
                                                                 ])),
